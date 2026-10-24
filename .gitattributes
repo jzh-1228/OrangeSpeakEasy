@@ -1,0 +1,11 @@
+# 统一行尾：文本文件入库统一 LF，新克隆不受 autocrlf 影响
+* text=auto eol=lf
+# PowerShell 脚本按 Windows 惯例检出 CRLF
+*.ps1 text eol=crlf
+# 二进制文件显式排除，防止 text=auto 误判
+*.icns binary
+*.ico binary
+*.png binary
+*.jpg binary
+*.ogg binary
+*.webm binary
