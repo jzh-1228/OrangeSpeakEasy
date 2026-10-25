@@ -1,0 +1,24 @@
+# 最小 CI 门禁：每个 PR / 主干提交先过 lint 和单元测试。
+# 不含 test:install / test:native / test:e2e：它们要真实安装、原生工具链或图形会话，
+# 放在发布流程里跑，别让例行改动卡在环境上。
+#
+# 跑在 macOS 上：仓库的 os 字段只声明了 darwin/win32；Linux 上 GNU tar 与 macOS bsdtar
+# 参数不兼容（test/scripts/build/windows-setup.test.mjs），Windows 上有一批环境性单测失败
+# （符号链接权限、卸载流程）。macOS 是本项目自己的开发平台，单测在这上面才是全绿的基线。
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  check:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test:unit
