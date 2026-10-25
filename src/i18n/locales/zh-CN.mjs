@@ -466,6 +466,10 @@ export default {
     pasteFailed: "没能自动粘贴：文字已复制，按 ⌘V 粘贴",
     // 只有 Windows 有：系统不让模拟的按键进以管理员身份运行的窗口
     elevated: "那个窗口是以管理员身份运行的，贴不进去：文字已复制，按 Ctrl+V 粘贴",
+    // 文字已经贴出去了，只是这次的录音或历史没存上（磁盘满、没权限、历史库锁着）
+    historyNotSaved: "已粘贴，但这次记录没存上",
+    // 什么都没听到本来就没有文字可贴，不能套用"已粘贴"
+    silentNotSaved: "没有听到声音，记录也没存上",
   },
 
   bar: {
@@ -795,6 +799,9 @@ export default {
     tokens: "输入 {input} · 输出 {output} token",
     tokensCalls: "输入 {input} · 输出 {output} token · 调用 {calls} 次",
     unpriced: "价格不明",
+    // 翻到底那一行：再往前取一页；提示写明这只是已加载的，不是全部
+    more: "加载更多",
+    shown: "已显示 {shown} / 共 {total} 条",
   },
 
   // 侧栏"词典"一页（renderer/hub/vocabulary.mjs），版式照原版的词典页

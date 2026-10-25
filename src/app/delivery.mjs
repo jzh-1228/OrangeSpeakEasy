@@ -38,9 +38,15 @@ function featureOf({ kind = "dictate", sourceText = null, outputLanguage = null 
  * @param {{ warn: Function, error: Function }} deps.log
  */
 export function createDelivery({ recordingsDir, history, paste, writeClipboard, log, now = () => new Date() }) {
-  const record = (payload, fields) => {
+  /** 来自页面的参数先全部验一遍：不合格就抛 TypeError，这时还什么都没落盘 */
+  const prepare = (payload) => {
     checkRecording(payload);
-    const feature = featureOf(payload);
+    return featureOf(payload);
+  };
+
+  // 存录音、记历史。磁盘满、录音目录没权限、历史库锁着都可能在这里出错：
+  // 文字已经转出来（用户花过钱），这一步失败不能把它一起带走，所以调用方只记日志、照常往下贴
+  const persist = (payload, feature, fields) => {
     mkdirSync(recordingsDir, { recursive: true });
     // 历史里只记文件名，不记完整路径：家目录整个搬了家也对得上
     const audioFile = `${payload.audioId}.webm`;
@@ -68,11 +74,20 @@ export function createDelivery({ recordingsDir, history, paste, writeClipboard, 
      */
     async completed(payload) {
       if (typeof payload.text !== "string") throw new TypeError("text 不是字符串");
-      record(payload, { status: "completed", refinedText: payload.text, error: null });
-      if (payload.text === "") return { notice: msg("delivery.silent") };
+      // 参数不合格还是在 try 外直接拒绝：那是调用方传错了，没有成品要救
+      const feature = prepare(payload);
+      let recorded = true;
+      try {
+        persist(payload, feature, { status: "completed", refinedText: payload.text, error: null });
+      } catch (error) {
+        // 存不上也接着贴：文字比这次记录重要得多
+        recorded = false;
+        log.error("delivery_record_failed", { audio_id: payload.audioId, error: String(error?.message ?? error) });
+      }
+      if (payload.text === "") return { notice: msg(recorded ? "delivery.silent" : "delivery.silentNotSaved") };
       try {
         const result = await paste(payload.text);
-        if (result.ok) return { notice: null };
+        if (result.ok) return { notice: recorded ? null : msg("delivery.historyNotSaved") };
         log.warn("paste_not_permitted", { audio_id: payload.audioId, reason: result.reason });
         // 小帮手贴不进去的几种原因（native/mac/main.swift、native/windows/main_windows.go）：
         //   not_trusted  macOS 没有辅助功能权限，文字已经留在剪贴板里
@@ -93,7 +108,14 @@ export function createDelivery({ recordingsDir, history, paste, writeClipboard, 
     /** 这次听写失败了：录音和原因记进历史 */
     failed(payload) {
       if (typeof payload.error !== "string") throw new TypeError("error 不是字符串");
-      record(payload, { status: "failed", refinedText: "", error: payload.error });
+      const feature = prepare(payload);
+      try {
+        persist(payload, feature, { status: "failed", refinedText: "", error: payload.error });
+      } catch (error) {
+        // 悬浮条在失败的分支里才走到这里（renderer/bar/bar.mjs 的 reportFailure），
+        // 再抛一次只会把它的 catch 带崩，这一次失败就没法显示给用户了
+        log.error("delivery_record_failed", { audio_id: payload.audioId, error: String(error?.message ?? error) });
+      }
     },
   };
 }

@@ -484,6 +484,10 @@ export default {
     pasteFailed: "Couldn't paste: text copied, press ⌘V to paste",
     // 只有 Windows 有：系统不让模拟的按键进以管理员身份运行的窗口
     elevated: "That window runs as administrator, so text can't be pasted into it: text copied, press Ctrl+V to paste",
+    // 文字已经贴出去了，只是这次的录音或历史没存上（磁盘满、没权限、历史库锁着）
+    historyNotSaved: "Pasted, but this entry couldn't be saved",
+    // 什么都没听到本来就没有文字可贴，不能套用"已粘贴"
+    silentNotSaved: "Didn't hear anything, and the entry couldn't be saved",
   },
 
   bar: {
@@ -814,6 +818,9 @@ export default {
     tokens: "In {input} · out {output} tokens",
     tokensCalls: "In {input} · out {output} tokens · {calls} calls",
     unpriced: "price unknown",
+    // 翻到底那一行：再往前取一页；提示写明这只是已加载的，不是全部
+    more: "Load more",
+    shown: "Showing {shown} of {total}",
   },
 
   vocabulary: {

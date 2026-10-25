@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
@@ -18,22 +18,27 @@ beforeEach(() => {
 });
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
-function setup(paste = async () => ({ ok: true, reason: null })) {
+// recordingsDir：录音存哪儿；add(rows, row)：往历史里记一行（默认推进 rows，测试里可以让它抛）
+function setup(
+  paste = async () => ({ ok: true, reason: null }),
+  { recordingsDir = join(dir, "Recordings"), add = (rows, row) => rows.push(row) } = {},
+) {
   const rows = [];
   const pasted = [];
   const clipboard = [];
+  const errors = [];
   const delivery = createDelivery({
-    recordingsDir: join(dir, "Recordings"),
-    history: { add: (row) => rows.push(row) },
+    recordingsDir,
+    history: { add: (row) => add(rows, row) },
     paste: (text) => {
       pasted.push(text);
       return paste(text);
     },
     writeClipboard: (text) => clipboard.push(text),
-    log: { warn() {}, error() {} },
+    log: { warn() {}, error: (name, fields) => errors.push({ name, ...fields }) },
     now: () => new Date("2026-10-13T08:00:00.000Z"),
   });
-  return { delivery, rows, pasted, clipboard };
+  return { delivery, rows, pasted, clipboard, errors };
 }
 
 const payload = (overrides = {}) => ({
@@ -170,4 +175,79 @@ test("来自页面的参数不合格时拒绝，不落任何文件", async () =>
   assert.throws(() => delivery.failed(payload({ error: undefined })), TypeError);
   assert.deepEqual(rows, []);
   assert.equal(existsSync(join(dir, "Recordings")) ? readdirSync(join(dir, "Recordings")).length : 0, 0);
+});
+
+test("参数不合格时连贴都不贴：拒绝得比粘贴早", async () => {
+  const { delivery, pasted } = setup();
+  const bad = [
+    payload({ text: 42 }),
+    payload({ audioId: "../../etc/passwd" }),
+    payload({ kind: "nope" }),
+    payload({ kind: "translate", outputLanguage: "klingon" }),
+  ];
+  for (const item of bad) await assert.rejects(delivery.completed(item), TypeError);
+  assert.deepEqual(pasted, []);
+});
+
+// 历史库写不进去的常见情形：磁盘满（SQLITE_FULL）、被别的连接占着（SQLITE_BUSY）
+const historyFull = () => {
+  throw new Error("database or disk is full");
+};
+
+test("历史没记上（比如磁盘满了）：文字照样贴出去，并说明这次记录没存上", async () => {
+  const { delivery, pasted, errors } = setup(undefined, { add: historyFull });
+  const { notice } = await delivery.completed(payload());
+  assert.deepEqual(pasted, ["我们后天开会。"]);
+  assert.equal(zh.text(notice), "已粘贴，但这次记录没存上");
+  // 存录音/记历史这一句失败留在日志里，三个月后排查看得出是哪一步
+  assert.deepEqual(
+    errors.map(({ name, error }) => [name, error]),
+    [["delivery_record_failed", "database or disk is full"]],
+  );
+});
+
+test("录音目录建不出来、录音文件写不进去：文字照样贴出去，只是记录没存上", async () => {
+  // 录音目录的位置上是个文件：mkdirSync 抛 EEXIST（没权限、路径被占走的是同一条路）
+  const blocked = join(dir, "blocked");
+  writeFileSync(blocked, "占着位置");
+  const mkdirFailed = setup(undefined, { recordingsDir: blocked });
+  const { notice } = await mkdirFailed.delivery.completed(payload());
+  assert.deepEqual(mkdirFailed.pasted, ["我们后天开会。"]);
+  assert.equal(zh.text(notice), "已粘贴，但这次记录没存上");
+
+  // 录音文件的位置上是个目录：writeFileSync 抛 EISDIR
+  const recordingsDir = join(dir, "Recordings");
+  mkdirSync(join(recordingsDir, `${AUDIO_ID}.webm`), { recursive: true });
+  const writeFailed = setup(undefined, { recordingsDir });
+  const written = await writeFailed.delivery.completed(payload());
+  assert.deepEqual(writeFailed.pasted, ["我们后天开会。"]);
+  assert.equal(zh.text(written.notice), "已粘贴，但这次记录没存上");
+  assert.equal(writeFailed.errors[0].name, "delivery_record_failed");
+});
+
+test("既没听到声音、记录也没存上：如实说两句，不去贴", async () => {
+  const { delivery, pasted } = setup(undefined, { add: historyFull });
+  const { notice } = await delivery.completed(payload({ text: "" }));
+  assert.equal(zh.text(notice), "没有听到声音，记录也没存上");
+  assert.deepEqual(pasted, []);
+});
+
+test("历史没记上、粘贴也出错：文字仍然放进剪贴板", async () => {
+  const { delivery, clipboard } = setup(
+    async () => {
+      throw new Error("原生小帮手退出了");
+    },
+    { add: historyFull },
+  );
+  const { notice } = await delivery.completed(payload());
+  assert.deepEqual(clipboard, ["我们后天开会。"]);
+  assert.match(zh.text(notice), /没能自动粘贴.*⌘V/);
+});
+
+test("失败的听写记不进历史时只记日志，不把悬浮条的失败分支带崩", () => {
+  const { delivery, errors } = setup(undefined, { add: historyFull });
+  assert.doesNotThrow(() =>
+    delivery.failed({ audioId: AUDIO_ID, error: "等了 20 秒没有等到成品", durationSeconds: 9, audio: audio() }),
+  );
+  assert.equal(errors[0].name, "delivery_record_failed");
 });

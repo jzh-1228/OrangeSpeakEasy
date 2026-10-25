@@ -45,7 +45,6 @@ import { formatModelChoice, PROVIDERS } from "../server/providers/index.mjs";
 import { findTask } from "../server/tasks/index.mjs";
 import { findVendor, VENDORS } from "../server/vendors.mjs";
 import { adoptAppKeys } from "../storage/app-keys.mjs";
-import { openHistory } from "../storage/history.mjs";
 import { migrateLegacyData, migrateLegacySettings } from "../storage/legacy.mjs";
 import { ensureHome, installedHomeOf, keyFile, oldAppKeyFile, resolvePaths } from "../storage/paths.mjs";
 import {
@@ -71,6 +70,8 @@ import { MAX_TERM_LENGTH, MAX_TERMS } from "../vocabulary/terms.mjs";
 import { createDelivery } from "./delivery.mjs";
 import { chooseHome, needsHomeChoice } from "./first-run.mjs";
 import { helperPaths, startHelper } from "./helper.mjs";
+import { createRevivePolicy } from "./helper-revive.mjs";
+import { openHistoryForApp } from "./history-open.mjs";
 import { createHotkeyRecording } from "./hotkey-recording.mjs";
 import { createKeyManager } from "./keys/key-manager.mjs";
 import { createKeyStore } from "./keys/key-store.mjs";
@@ -430,7 +431,8 @@ async function main() {
   adoptAppKeys({ paths: PATHS, log });
 
   const startedAt = new Date().toISOString();
-  const history = openHistory(PATHS.historyDb);
+  // 历史库打不开（文件坏了、版本比程序新）也不拦着启动：听写、快捷键、密钥、服务都不靠它
+  const { history, problem: historyProblem } = openHistoryForApp(PATHS.historyDb, { log });
   // 模型广场上的标价、推荐组合的月成本：各家的价目模块启动时加载一次
   const prices = await loadPriceBook();
   // 每家一把 key，各存一个文件。正在用的那家之外的也要在：speakmore key openai、model check 要用
@@ -738,6 +740,12 @@ async function main() {
   let helper = null;
   /** 每启动一个小帮手加一；旧的那个退出时发来的事件靠它认出来并丢掉 */
   let helperGeneration = 0;
+  /** 意外退出后按它决定重不重拉、等多久（helper-revive.mjs）：指数退避、连崩有上限，稳定跑过一阵才算新故障 */
+  const revive = createRevivePolicy();
+  /** 已排上的自动重拉；任何一次显式启动、退出应用都要先清掉它，免得重拉旧的又起一个新的 */
+  let reviveTimer = null;
+  /** 当前这个小帮手报 ready 的时刻（毫秒）；退出时算它活了多久，launchHelper 里清零 */
+  let helperReadyAt = 0;
   /**
    * 发给小帮手、还没等到 bound 回执的几份组合（先发的在前）。小帮手按顺序一份一份回，回执里的绑定 id 按发的那份数
    */
@@ -781,6 +789,12 @@ async function main() {
    *   之后重新检查权限靠的是重启小帮手，那时再弹的话每查一次弹一次
    */
   function launchHelper({ prompt }) {
+    // 有排着的自动重拉就先取消：这次启动才是最新的意图（重查权限、命令行重查都会走到这里）
+    if (reviveTimer) {
+      clearTimeout(reviveTimer);
+      reviveTimer = null;
+    }
+    helperReadyAt = 0;
     // 换小帮手（重查权限）时正在录的那次跟着结束：旧的那个的回执、退出都按代数丢掉了，不说的话页面一直停在"请按键"。
     // 新的小帮手没在截：开着的划词卡片收起
     if (helperGeneration > 0) {
@@ -813,6 +827,8 @@ async function main() {
       case "ready": {
         helperState = "running";
         helperPermissions = { listen: event.listen, trusted: event.trusted };
+        // 记下跑起来的时刻：退出时按它活了多久判断算不算新的一次故障
+        helperReadyAt = Date.now();
         log.info("helper_ready", { ...helperPermissions, capture: event.capture });
         const asked = helperGeneration;
         helper.info().then((info) => {
@@ -893,6 +909,28 @@ async function main() {
         log.error("helper_exited", { code: event.code, signal: event.signal });
         setupChanged();
         notify(msg("bar.helperStopped", { hotkey: chordsName(hotkeys.chords.dictate) }));
+        // 能进到这里的只有当前代的意外退出（重查权限、退出应用前都先把代数换掉，旧代的 exit 被丢掉）：
+        // 自动重拉，指数退避、连崩有上限，超限就停手，维持现状等人工从设置里恢复。e2e 走的是假小帮手，不重拉
+        if (!e2e) {
+          const upMs = helperReadyAt ? Date.now() - helperReadyAt : 0;
+          helperReadyAt = 0;
+          const again = revive.noteExit(upMs);
+          if (again.revive) {
+            log.warn("helper_revive", { ...again, upMs });
+            // 到期再拉之前先核对还是不是同一个现场：这期间用户/命令行可能已经手动重查（代数变了），
+            // 应用也可能正在退出（before-quit 里会清掉这个定时器）。不核对就会再多起一个，旧的那个没人停
+            const exitedGeneration = helperGeneration;
+            reviveTimer = setTimeout(() => {
+              reviveTimer = null;
+              if (helperGeneration !== exitedGeneration || helperState !== "stopped") return;
+              try {
+                launchHelper({ prompt: false });
+              } catch (error) {
+                log.error("helper_revive_failed", { error: String(error?.message ?? error) });
+              }
+            }, again.delayMs);
+          }
+        }
         break;
       default:
         log.warn("helper_unknown_event", { event: event.event });
@@ -1110,7 +1148,13 @@ async function main() {
     historyChanged();
     e2e?.onFinished({ failed: payload.error });
   });
-  handle("history:list", () => history.list());
+  // problem 只放原因本身：页面会自己套一句"读不出历史：{原因}"，这里再套就重复了。
+  // options 是翻页游标（before、beforeId），不传就是最近的一页；正常、坏库都回 { rows, total, problem }
+  handle("history:list", (_event, options) =>
+    historyProblem === null
+      ? { ...history.page(options ?? {}), problem: null }
+      : { rows: [], total: 0, problem: t.text(problemOf(historyProblem)) },
+  );
   handle("usage:report", () => usageReport(history, { now: new Date() }));
   // 首页的口述统计只数说话的功能（录音会话的动作：语音输入、语音翻译），花费另算、都记
   handle("insights:get", () => insights(history.dictations({ kinds: SPOKEN_ACTIONS }), { now: new Date() }));
@@ -1832,6 +1876,11 @@ async function main() {
   });
   app.on("before-quit", () => {
     rmSync(PATHS.pidFile, { force: true });
+    // 已经排着的自动重拉先取消：退出途中不能再拉起一个小帮手
+    if (reviveTimer) {
+      clearTimeout(reviveTimer);
+      reviveTimer = null;
+    }
     // 先让小帮手的事件作废：它接下来的退出是我们自己关的，不该再报"按键监听停了"
     helperGeneration++;
     helper.stop();
