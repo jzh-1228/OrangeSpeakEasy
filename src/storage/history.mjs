@@ -109,6 +109,18 @@ function migrate(db) {
  */
 const fileNameOf = (stored) => (stored === null ? null : stored.split(/[\\/]/).at(-1));
 
+/**
+ * 库里的一行 → 页面要的样子：录音只留文件名，用量没记过账的就是 null。
+ * list() 和 page() 共用，首页图表和命令行读到的才是一个口径
+ */
+function toEntry({ calls, inputTokens, outputTokens, costUsd, latencyMs, ...row }) {
+  return {
+    ...row,
+    audioFile: fileNameOf(row.audioFile),
+    usage: calls === 0 ? null : { calls, inputTokens, outputTokens, costUsd, latencyMs },
+  };
+}
+
 /** 只读着看的那一方不能替库升级，版本对不上时列可能不一样，所以不读 */
 function openReadOnly(dbPath) {
   const db = new DatabaseSync(dbPath, { readOnly: true });
@@ -173,6 +185,26 @@ export function openHistory(dbPath, { readOnly = false } = {}) {
      GROUP BY recent.id
      ORDER BY recent.created_at DESC`,
   );
+  // 往前翻一页：比游标更早的记录。游标用 (created_at, id) 两列一起比，同一毫秒里的几条不会漏、不会重
+  const selectPage = db.prepare(
+    `WITH picked AS (
+       SELECT * FROM history
+       WHERE :before IS NULL OR created_at < :before OR (created_at = :before AND id < :beforeId)
+       ORDER BY created_at DESC, id DESC LIMIT :limit
+     )
+     SELECT picked.id, picked.kind, picked.status, picked.refined_text AS refinedText, picked.source_text AS sourceText,
+            picked.output_language AS outputLanguage, picked.error, picked.duration,
+            picked.audio_local_path AS audioFile, picked.created_at AS createdAt,
+            count(call.id) AS calls,
+            sum(call.input_tokens) AS inputTokens,
+            sum(call.output_tokens) AS outputTokens,
+            CASE WHEN count(call.cost_usd) = count(call.id) THEN sum(call.cost_usd) END AS costUsd,
+            sum(call.latency_ms) AS latencyMs
+     FROM picked LEFT JOIN model_calls AS call ON call.audio_id = picked.id
+     GROUP BY picked.id
+     ORDER BY picked.created_at DESC, picked.id DESC`,
+  );
+  const countAll = db.prepare("SELECT count(*) AS total FROM history");
   // kinds 是 JSON 数组，只数这几个功能的；为空时全数。entries 不管功能，是这段时间里所有记录的条数。
   // 字数按他说的那段数（翻译的是原文），和下面的 dictations() 一个口径：译成英文按字母数，语速会虚高三倍
   const summarize = db.prepare(
@@ -249,11 +281,20 @@ export function openHistory(dbPath, { readOnly = false } = {}) {
      * 录音是 audioFile：录音目录里的文件名
      */
     list({ limit = 200 } = {}) {
-      return select.all({ limit }).map(({ calls, inputTokens, outputTokens, costUsd, latencyMs, ...row }) => ({
-        ...row,
-        audioFile: fileNameOf(row.audioFile),
-        usage: calls === 0 ? null : { calls, inputTokens, outputTokens, costUsd, latencyMs },
-      }));
+      return select.all({ limit }).map(toEntry);
+    },
+    /**
+     * 一页记录，新的在前，可以一直往前翻。before、beforeId 是上一页最后一条的时间和 id；两列一起比，
+     * 同一毫秒里的几条不会漏、不会重。total 是历史库里一共多少条，已加载的到了这个数就是到底了。
+     * 每一条的样子和 list() 一样
+     * @param {{ limit?: number, before?: string | null, beforeId?: string | null }} [options]
+     * @returns {{ rows: object[], total: number }}
+     */
+    page({ limit = 200, before = null, beforeId = null } = {}) {
+      return {
+        rows: selectPage.all({ limit, before, beforeId }).map(toEntry),
+        total: countAll.get().total,
+      };
     },
     /**
      * 说了多少次、多少字、多长时间（只数完成的），失败了几次，以及花了多少美元（验证 key 的也算）。

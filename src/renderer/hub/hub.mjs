@@ -93,14 +93,16 @@ async function refreshSetup() {
 
 async function refreshData() {
   try {
-    const [rows, usage, insights, app] = await Promise.all([
+    const [page, usage, insights, app] = await Promise.all([
       window.speakmore.listHistory(),
       window.speakmore.usageReport(),
       window.speakmore.insights(),
       window.speakmore.appInfo(),
     ]);
     home.render({ insights, usage, app });
-    history.render({ rows });
+    history.render({ rows: page.rows, total: page.total });
+    // 历史库打不开时主进程把原因带在 problem 里：页面照常画空的，再把原因写在历史页上
+    if (page.problem) history.showError(page.problem);
   } catch (error) {
     console.error("读历史失败", error);
     history.showError(error instanceof Error ? error.message : String(error));

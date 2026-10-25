@@ -58,11 +58,27 @@ function detailsOf(row) {
 /** 能筛的功能：任何时候都能按的动作（取消不算） */
 const FEATURES = ACTIONS.filter((action) => action.when === "always").map(({ id }) => id);
 
+/**
+ * 翻下一页：新取到的记录接在已经有的后面，按 id 去掉重复的（两次翻页之间来了新记录也不会重一行），
+ * 总数换成这一次一起取回的 total。翻页只是并数据，单独拎出来好在 Node 里测
+ * @param {{ id: string }[]} latest 已经加载的记录
+ * @param {{ rows: { id: string }[], total: number }} page 新取到的一页
+ * @returns {{ rows: object[], total: number }}
+ */
+export function mergePage(latest, { rows, total }) {
+  const seen = new Set(latest.map(({ id }) => id));
+  return { rows: [...latest, ...rows.filter((row) => !seen.has(row.id))], total };
+}
+
 export function createHistory() {
   const dayTemplate = $("history-day");
   const rowTemplate = $("history-row");
-  /** 最近一次拿到的记录；换筛选时按它重画 */
+  /** 已经加载的记录：首屏是最近的一页，翻页后往后接；换筛选时按它重画 */
   let latest = [];
+  /** 历史库里一共多少条：已加载的到了这个数就是到底了 */
+  let total = 0;
+  /** 正在取下一页：连点两下不会取两遍 */
+  let loadingMore = false;
   /** 筛的是哪个功能；all 是全部 */
   let filter = "all";
   const indicators = slidingIndicators(document.querySelector('.page[data-route="history"]'));
@@ -88,6 +104,7 @@ export function createHistory() {
       }),
     ),
   );
+  $("history-more").addEventListener("click", more);
 
   /** 翻译的那几条：功能和目标语言的小标签，后面是原文。不是翻译的（没有目标语言）不画 */
   function renderSource(node, row) {
@@ -168,14 +185,48 @@ export function createHistory() {
     );
   }
 
+  /** 还能往前翻时露出"加载更多"那一行，提示写明已加载多少、一共多少 */
+  function updateMore() {
+    const again = latest.length < total;
+    $("history-more-row").hidden = !again;
+    if (again) $("history-more-hint").textContent = t("history.shown", { shown: latest.length, total });
+  }
+
+  function showError(message) {
+    $("history-error").textContent = t("history.loadError", { reason: message });
+    $("history-error").hidden = false;
+  }
+
+  /** 取下一页：游标是已加载的最后一条，两列一起比，同一毫秒的几条不会漏、不会重 */
+  async function more() {
+    const last = latest.at(-1);
+    if (loadingMore || !last || latest.length >= total) return;
+    loadingMore = true;
+    $("history-more").disabled = true;
+    try {
+      const page = await window.speakmore.listHistory({ before: last.createdAt, beforeId: last.id });
+      ({ rows: latest, total } = mergePage(latest, page));
+      draw();
+      updateMore();
+    } catch (error) {
+      console.error("读历史失败", error);
+      showError(error instanceof Error ? error.message : String(error));
+    } finally {
+      loadingMore = false;
+      $("history-more").disabled = false;
+    }
+  }
+
   return {
     /**
-     * @param {{ rows: object[] }} data
+     * @param {{ rows: object[], total: number }} data 第一页的记录，和历史库里一共多少条
      */
-    render({ rows }) {
+    render({ rows, total: count }) {
       $("history-error").hidden = true;
       latest = rows;
+      total = count;
       draw();
+      updateMore();
     },
 
     /** 页面切到前台时，分段控件的底块要按真实宽度重新放（藏着时量不出来） */
@@ -184,9 +235,6 @@ export function createHistory() {
       indicators.place();
     },
 
-    showError(message) {
-      $("history-error").textContent = t("history.loadError", { reason: message });
-      $("history-error").hidden = false;
-    },
+    showError,
   };
 }

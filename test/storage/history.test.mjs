@@ -642,3 +642,66 @@ test("记账之前的版本建的库（版本 1）打开时升上来：原来的
   assert.equal(history.list()[0].usage.calls, 1);
   history.close();
 });
+
+// ---------- 往前翻：首屏只拿最近的一页，游标接着取更早的 ----------
+
+test("历史可以一页一页往前翻：首屏最近 200 条，游标接着取剩下的，不重不漏、整体仍是新的在前", () => {
+  const history = openHistory(join(dir, "history.db"));
+  // 一条隔一秒，id 跟着序号走：最新的在最前
+  const base = Date.parse("2026-10-01T00:00:00.000Z");
+  for (let index = 0; index < 250; index++) {
+    history.add(
+      entry({
+        id: `id-${String(index).padStart(3, "0")}`,
+        refinedText: `第 ${index} 条`,
+        createdAt: new Date(base + index * 1000).toISOString(),
+      }),
+    );
+  }
+  // 最新的一条记上账：翻页拿到的样子和 list() 一样（用量带上、录音只留文件名）
+  history.addCall(call({ audioId: "id-249" }));
+
+  const first = history.page();
+  assert.equal(first.total, 250);
+  assert.equal(first.rows.length, 200);
+  assert.deepEqual(first.rows[0], history.list()[0]);
+  assert.deepEqual([first.rows[0].usage.calls, first.rows[1].usage], [1, null]);
+
+  const lastOfFirst = first.rows.at(-1);
+  const second = history.page({ before: lastOfFirst.createdAt, beforeId: lastOfFirst.id });
+  assert.equal(second.total, 250);
+  assert.equal(second.rows.length, 50);
+
+  const ids = [...first.rows, ...second.rows].map(({ id }) => id);
+  assert.equal(new Set(ids).size, 250);
+  // 两页接上之后，正好是最近 250 条的先后
+  assert.deepEqual(
+    ids,
+    history.list({ limit: 250 }).map(({ id }) => id),
+  );
+  // 整体还是新的在前
+  const times = [...first.rows, ...second.rows].map(({ createdAt }) => createdAt);
+  assert.deepEqual(times, [...times].sort().reverse());
+  history.close();
+});
+
+test("同一毫秒里的几条记录翻页也不丢不重：游标带上 id 一起比", () => {
+  const history = openHistory(join(dir, "history.db"));
+  const createdAt = "2026-10-13T08:00:00.000Z";
+  for (const id of ["a", "b", "c", "d", "e"]) history.add(entry({ id, refinedText: id, createdAt }));
+
+  const ids = [];
+  let cursor = null;
+  for (;;) {
+    const page = history.page({ limit: 2, ...cursor });
+    assert.equal(page.total, 5);
+    assert.ok(page.rows.length <= 2);
+    ids.push(...page.rows.map(({ id }) => id));
+    if (page.rows.length === 0) break;
+    const last = page.rows.at(-1);
+    cursor = { before: last.createdAt, beforeId: last.id };
+  }
+  assert.deepEqual(ids, ["e", "d", "c", "b", "a"]);
+  assert.equal(new Set(ids).size, 5);
+  history.close();
+});

@@ -47,7 +47,8 @@ contextBridge.exposeInMainWorld("speakmore", {
 
   // 主窗口：首页、历史记录
   appInfo: () => ipcRenderer.invoke("app:info"),
-  listHistory: () => ipcRenderer.invoke("history:list"),
+  // options 是翻页游标（before、beforeId），不传就是最近的一页
+  listHistory: (options) => ipcRenderer.invoke("history:list", options),
   usageReport: () => ipcRenderer.invoke("usage:report"),
   insights: () => ipcRenderer.invoke("insights:get"),
   copyText: (text) => ipcRenderer.invoke("clipboard:write", text),

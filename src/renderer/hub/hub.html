@@ -327,6 +327,11 @@
           <p class="problem load-error" id="history-error" role="alert" hidden></p>
           <p class="empty-state" id="history-empty" hidden></p>
           <div id="history-days"></div>
+          <!-- 首屏只拿最近 200 条：还能往前翻时这一行出现（history.mjs 的 more） -->
+          <div class="history-more" id="history-more-row" hidden>
+            <button type="button" class="button" id="history-more" data-i18n="history.more">Load more</button>
+            <span id="history-more-hint"></span>
+          </div>
         </section>
 
         <!-- 词典：版式照原版的词典页，标题右边是导入和新词，下面一格一个词（vocabulary.mjs 画）。
