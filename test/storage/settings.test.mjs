@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
@@ -480,4 +480,36 @@ test("识别链路的几项写错了拒绝保存，说能填什么；自定义�
   assert.throws(() => saveSetting(file, "customUrl", "api.example.com"), said(/https:\/\//));
   saveSetting(file, "customUrl", "https://x.example/v1");
   assert.equal(saveSetting(file, "customUrl", "").value, "");
+});
+
+test("保存走的是原子写：临时文件换上去，目录里不留 .tmp 残留", () => {
+  saveSetting(file, "hotkey.dictate", "ControlRight");
+  saveSetting(file, "theme", "cinnabar");
+  unsetSetting(file, "theme");
+  // saveSetting、unsetSetting 都写文件：写完目录里只有 settings.json，换上去的临时文件一个不剩
+  assert.deepEqual(readdirSync(dir), ["settings.json"]);
+});
+
+test("写进文件的内容与预期的 JSON 一字不差：两空格缩进、末尾换行", () => {
+  saveSetting(file, "hotkey.dictate", "ControlRight");
+  saveSetting(file, "translate.to", "ja");
+  const stored = { "hotkey.dictate": ["ControlRight"], "translate.to": ["ja"] };
+  assert.equal(readFileSync(file, "utf8"), `${JSON.stringify(stored, null, 2)}\n`);
+});
+
+test("写临时文件失败时保留原始错因，原 settings.json 不动", () => {
+  saveSetting(file, "theme", "cinnabar");
+  const before = readFileSync(file, "utf8");
+  // 占住临时文件路径（建个目录）：writeFileSync 写它会失败，清理临时文件的 rmSync 也会失败
+  mkdirSync(`${file}.${process.pid}.tmp`);
+  try {
+    assert.throws(
+      () => saveSetting(file, "theme", "ink"),
+      // 抛出来的必须是写临时文件的原错（EISDIR/EPERM），不是清理那一步的错（ERR_FS_EISDIR）
+      (error) => error.code === "EISDIR" || error.code === "EPERM",
+    );
+    assert.equal(readFileSync(file, "utf8"), before);
+  } finally {
+    rmSync(`${file}.${process.pid}.tmp`, { recursive: true, force: true });
+  }
 });

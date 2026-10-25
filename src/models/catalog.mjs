@@ -117,15 +117,23 @@ const APACHE_LICENSE = Object.freeze({
   url: "https://www.apache.org/licenses/LICENSE-2.0.txt",
 });
 
-const freeze = (model) =>
-  Object.freeze({
+const freeze = (model) => {
+  // 漏写必填字段（新加一条模型时最容易出的事）当场说清是哪个模型缺了什么，
+  // 而不是等某个进程用到时才抛一个看不出出处的 TypeError
+  for (const field of ["tags", "files", "origin", "mirror"]) {
+    if (!model[field]) throw new TypeError(`模型 ${model.id} 缺少字段 ${field}`);
+  }
+  return Object.freeze({
     ...model,
     origin: Object.freeze(model.origin),
     mirror: Object.freeze(model.mirror),
     files: Object.freeze(model.files),
     tags: Object.freeze(model.tags),
-    measured: Object.freeze(model.measured.map((entry) => Object.freeze({ run: ROUND1, ...entry }))),
+    // measured 漏写（新加一条模型时最容易漏的一项）不能把整个模块的加载炸掉：CLI、App、后台都 import
+    // 这张表，一处漏写会一起倒下。没有实测数据就是空表——measuredOn 返回空，按实测做的筛选也不会选中它
+    measured: Object.freeze((model.measured ?? []).map((entry) => Object.freeze({ run: ROUND1, ...entry }))),
   });
+};
 
 /**
  * 每一项：

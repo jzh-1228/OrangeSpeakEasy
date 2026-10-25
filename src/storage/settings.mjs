@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { hotkeySettings } from "../hotkeys/settings.mjs";
 import { alternatives, findLocale, LOCALES, LocalizedError, msg, problemOf, SYSTEM_LOCALE } from "../i18n/index.mjs";
@@ -22,6 +22,7 @@ import {
   parseModelChoice,
 } from "../server/providers/index.mjs";
 import { DEFAULT_THEME, findTheme, THEMES } from "../themes/index.mjs";
+import { replaceFile } from "./vocabulary.mjs";
 
 // 用户能改的几项设置，存在数据目录的 settings.json 里。
 // 取值的顺序：环境变量（只管这一次运行）优先于文件，文件优先于默认值。key 不在这里，它单独加密保存。
@@ -350,9 +351,22 @@ function readFile(file) {
   return stored;
 }
 
+// 写是原子的（先写临时文件再换上去，vocabulary.mjs 同款）：写到一半断电、盘满也不会把 settings.json 弄成半截——
+// 坏了的后果不是丢一项设置，是 App 一启动就退出（main.mjs）。序列化格式与从前一字不差：两空格缩进、末尾换行
 function writeFile(file, stored) {
-  mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, `${JSON.stringify(stored, null, 2)}\n`);
+  const temporary = `${file}.${process.pid}.tmp`;
+  try {
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(temporary, `${JSON.stringify(stored, null, 2)}\n`);
+    replaceFile(temporary, file);
+  } catch (error) {
+    try {
+      rmSync(temporary, { force: true });
+    } catch {
+      // 临时文件清不掉（被杀毒软件占着等）也不能盖掉真正的错因，照原样往下抛
+    }
+    throw error;
+  }
 }
 
 /** 这一项现在被哪个环境变量盖着（新名字优先于改名前的）；没有就是 null */
