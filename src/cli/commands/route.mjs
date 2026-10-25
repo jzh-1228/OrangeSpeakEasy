@@ -1,6 +1,6 @@
 import { msg, problemOf } from "../../i18n/index.mjs";
 import { patchSettings, routeOf } from "../../storage/settings.mjs";
-import { ConfigError, currentSettings, ensureRunning } from "../common.mjs";
+import { ConfigError, currentSettings, ensureRunning, isUnknownCommand } from "../common.mjs";
 import { applySettings, storeSetting, warnIfEnvOverrides } from "./config.mjs";
 import { keyPrompter, keySourceFor, refuseLegacyDaemon, submitKey } from "./key.mjs";
 
@@ -96,8 +96,8 @@ export async function applyChange(io, { command, params, changes, done }) {
   try {
     result = await io.daemon.request(command, params, { timeoutMs: SWITCH_TIMEOUT_MS });
   } catch (error) {
-    // 升级之前启动的那一个还不认识这条命令（它的回话是中文的，0.5 以前一直这么说）
-    if (!/^不认识的命令/.test(error?.message ?? "")) throw error;
+    // 升级之前启动的那一个还不认识这条命令（怎么认见 isUnknownCommand）
+    if (!isUnknownCommand(error)) throw error;
     store();
     io.out(io.t.text(done));
     return applySettings(io, null);

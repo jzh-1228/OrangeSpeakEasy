@@ -10,6 +10,7 @@ import { THEMES } from "../../themes/index.mjs";
 import {
   ConfigError,
   currentSettings,
+  isUnknownCommand,
   noPositionals,
   PACKAGED_RELAUNCH,
   parse,
@@ -121,8 +122,8 @@ async function applyLive(io, name, wanted) {
   try {
     applied = await io.daemon.request(LIVE[name].command);
   } catch (error) {
-    // 正在运行的是升级之前启动的那一个，还不认识这条命令（它的回话是中文的，0.5 以前一直这么说）
-    if (!/^不认识的命令/.test(error?.message ?? "")) throw error;
+    // 正在运行的是升级之前启动的那一个，还不认识这条命令（怎么认见 isUnknownCommand）
+    if (!isUnknownCommand(error)) throw error;
     io.out(io.t("cli.config.oldDaemonLive"));
     return 0;
   }

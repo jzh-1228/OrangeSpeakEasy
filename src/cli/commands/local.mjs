@@ -6,7 +6,7 @@ import { createModelStore } from "../../models/store.mjs";
 import { cloudTranscriberOf, findCloudTranscriber } from "../../server/asr/cloud/vendors.mjs";
 import { CHAT_VENDORS, findChatVendor, parseChatChoice } from "../../server/chat/vendors.mjs";
 import { formatSeconds } from "../../usage/format.mjs";
-import { currentSettings, ensureRunning, parse, renderOptions, UsageError } from "../common.mjs";
+import { currentSettings, ensureRunning, isUnknownCommand, parse, renderOptions, UsageError } from "../common.mjs";
 import { polishTitle, renderPolish, renderTranscribers } from "../render/modes.mjs";
 import { keySourceFor } from "./key.mjs";
 import { downloadAndWait, modelStatus, offerDownload } from "./local-models.mjs";
@@ -121,7 +121,7 @@ async function checkTranscriber(io, id) {
     result = await io.daemon.request("check-transcriber", { id }, { timeoutMs: TRANSCRIBER_CHECK_TIMEOUT_MS });
   } catch (error) {
     // 正在运行的是升级之前启动的那一个，还不认识这条命令
-    if (!/^不认识的命令/.test(error?.message ?? "")) throw error;
+    if (!isUnknownCommand(error)) throw error;
     io.err(io.t("cli.local.oldDaemonCheck"));
     return 1;
   }
@@ -212,7 +212,7 @@ async function remove(io, id, { yes }) {
       result = await io.daemon.request("delete-model", { id });
     } catch (error) {
       // 0.7.0 及以前的后台不认这条命令：它不知道哪些在用，不替它删
-      if (!/^不认识的命令/.test(error?.message ?? "")) throw error;
+      if (!isUnknownCommand(error)) throw error;
       io.err(io.t("cli.local.oldDaemonDelete"));
       return 1;
     }
@@ -303,7 +303,7 @@ async function check(io, value, custom) {
     result = await io.daemon.request("check-polish", params, { timeoutMs: CHECK_TIMEOUT_MS });
   } catch (error) {
     // 正在运行的是升级之前启动的那一个，还不认识这条命令
-    if (!/^不认识的命令/.test(error?.message ?? "")) throw error;
+    if (!isUnknownCommand(error)) throw error;
     io.err(io.t("cli.model.oldDaemonCheck"));
     return 1;
   }

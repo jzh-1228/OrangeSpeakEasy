@@ -1,7 +1,15 @@
 import { msg, problemOf } from "../../i18n/index.mjs";
 import { findChatVendor } from "../../server/chat/vendors.mjs";
 import { findProvider, formatModelChoice, PROVIDERS, parseModelChoice } from "../../server/providers/index.mjs";
-import { ConfigError, currentSettings, ensureRunning, parse, renderOptions, UsageError } from "../common.mjs";
+import {
+  ConfigError,
+  currentSettings,
+  ensureRunning,
+  isUnknownCommand,
+  parse,
+  renderOptions,
+  UsageError,
+} from "../common.mjs";
 import { renderModels } from "../render/models.mjs";
 import { keySourceFor } from "./key.mjs";
 import { applyChange, ensureKey, inMode, modeNow } from "./route.mjs";
@@ -86,7 +94,7 @@ async function check(io, value) {
     );
   } catch (error) {
     // 正在运行的是升级之前启动的那一个，还不认识这条命令
-    if (!/^不认识的命令/.test(error?.message ?? "")) throw error;
+    if (!isUnknownCommand(error)) throw error;
     io.err(io.t("cli.model.oldDaemonCheck"));
     return 1;
   }

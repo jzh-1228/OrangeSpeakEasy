@@ -50,17 +50,22 @@ export const progressOf = (io) => (message) => say(io, message);
 
 /** 今天和累计的统计，只数说话的功能（划词翻译不算听写）。一次都没用过（库还不存在）时两项都是 null */
 export function readStats(io) {
-  const history = io.openHistory(io.paths.historyDb, { readOnly: true });
-  if (history === null) return { today: null, total: null };
   try {
-    const midnight = io.now();
-    midnight.setHours(0, 0, 0, 0);
-    return {
-      today: history.stats({ since: midnight.toISOString(), kinds: SPOKEN_ACTIONS }),
-      total: history.stats({ kinds: SPOKEN_ACTIONS }),
-    };
-  } finally {
-    history.close();
+    const history = io.openHistory(io.paths.historyDb, { readOnly: true });
+    if (history === null) return { today: null, total: null };
+    try {
+      const midnight = io.now();
+      midnight.setHours(0, 0, 0, 0);
+      return {
+        today: history.stats({ since: midnight.toISOString(), kinds: SPOKEN_ACTIONS }),
+        total: history.stats({ kinds: SPOKEN_ACTIONS }),
+      };
+    } finally {
+      history.close();
+    }
+  } catch {
+    // 统计是顺带看的：库坏了、版本比程序新时只少这两行，status 照常报运行状态（面板本来就有 total 为空的分支）
+    return { today: null, total: null };
   }
 }
 
@@ -86,6 +91,18 @@ export async function ensureRunning(io) {
   if (status !== null) return status;
   io.out(io.t("cli.starting"));
   return io.daemon.start({ onProgress: progressOf(io) });
+}
+
+/**
+ * 是不是"后台不认识这条命令"的失败：正在运行的是升级之前启动的那一个时会遇到。
+ * 它的回话是中文的，0.5 以前一直这么说（"不认识的命令：…"）；新版后台的错误回复还会带上结构化
+ * code。两种都认：先看 code，旧后台不回 code，再按那句中文原话兜底——服务端将来改了措辞（含做
+ * i18n），认法靠 code 这条不断，降级分支不会退化成向用户抛原始错误。
+ * @param {unknown} error requestControl 拒绝时抛的错
+ * @returns {boolean}
+ */
+export function isUnknownCommand(error) {
+  return error?.code === "unknown_command" || /^不认识的命令/.test(error?.message ?? "");
 }
 
 /** 装成应用的那个怎么重启：从命令行重启会换成终端启动的那一个 */

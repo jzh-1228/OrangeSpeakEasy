@@ -62,6 +62,15 @@ test("不认识的命令被拒绝", async () => {
   await assert.rejects(requestControl(socketPath, "dance"), /dance/);
 });
 
+test("不认识的命令：错误带结构化 code，说明仍是那句中文（新旧两种认法都钉住）", async () => {
+  server = await startControlServer({ socketPath, log, handlers: {} });
+  await assert.rejects(requestControl(socketPath, "dance"), (error) => {
+    assert.equal(error.code, "unknown_command");
+    assert.ok(error.message.startsWith("不认识的命令"));
+    return true;
+  });
+});
+
 test("出错时日志里只记命令名，不记参数（参数里可能是 key）", async () => {
   server = await startControlServer({
     socketPath,
@@ -172,7 +181,29 @@ test("收到的不是一行 JSON 时回一句错误，不让服务挂掉", async
     socket.on("error", reject);
     socket.write("这不是 JSON\n");
   });
-  assert.equal(JSON.parse(reply).ok, false);
+  const parsed = JSON.parse(reply);
+  assert.equal(parsed.ok, false);
+  assert.equal(parsed.code, "bad_request");
+  assert.equal(await requestControl(socketPath, "ping"), "pong");
+});
+
+test("请求超过上限时回一句错误带 code，不让服务挂掉", async () => {
+  server = await startControlServer({ socketPath, log, handlers: { ping: () => "pong" } });
+  const { connect } = await import("node:net");
+  const reply = await new Promise((resolve, reject) => {
+    const socket = connect(socketPath);
+    let data = "";
+    socket.on("data", (chunk) => {
+      data += chunk;
+    });
+    socket.on("end", () => resolve(data));
+    socket.on("error", reject);
+    // 64KB 是上限，多一个字节就该被拒
+    socket.write("x".repeat(64 * 1024 + 1));
+  });
+  const parsed = JSON.parse(reply);
+  assert.equal(parsed.ok, false);
+  assert.equal(parsed.code, "request_too_long");
   assert.equal(await requestControl(socketPath, "ping"), "pong");
 });
 
