@@ -4,8 +4,8 @@ import { sha256 } from "./chunker.mjs";
 // 下载地址上按内容存的东西（块和清单）一律叫"对象"：名字是原始内容的 sha256，存的是 zstd 压过的。
 // 名字就是校验值：取回来解开、算一遍对得上才用，所以不用另外的 .sha256 文件，内容也永远不会变（可以一直缓存）。
 
-/** 发布时压得狠一点：压一次、下很多次 */
-const LEVEL = 19;
+/** 发布时压得狠一点：压一次、下很多次。内存紧的机器可以用 ORANGESPEAKEASY_ZSTD_LEVEL 调低 */
+const LEVEL = Number(process.env.ORANGESPEAKEASY_ZSTD_LEVEL ?? 19);
 
 /** @param {Uint8Array} data 原始内容 */
 export function packObject(data) {

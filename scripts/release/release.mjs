@@ -4,14 +4,14 @@
 //       npm run release -- arm64     只打一种（arm64、x64，或者 windows）：自己试用，发不出去
 //
 // 产物在 dist/release/，摆成下载地址上的样子（src/update/layout.mjs），所以它本身就能当下载地址用
-// （SPEAKMORE_INSTALL_BASE=dist/release）。发新版本用 npm run ship，它会调这里打包、再传上去。
+// （ORANGESPEAKEASY_INSTALL_BASE=dist/release）。发新版本用 npm run ship，它会调这里打包、再传上去。
 //
 // 每种装法一棵树（layout.mjs 的 TARGETS）：
 //   darwin-<芯片>       Mac 终端安装的家目录：app/（代码、运行时依赖、编好的小帮手、install.sh）和
 //                       runtime/（原版的 Electron.app：命令行和后台应用都用它跑，用的人不需要装 Node）
 //   win32-x64           Windows：一样是 app\（带 install.ps1）和 runtime\（原版的 Electron）。也在这台 Mac 上打：
 //                       小帮手用项目自带的 Go 交叉编译（scripts/build/go.sh），运行库按 win32-x64 装（npm 的 --os、--cpu）
-//   darwin-<芯片>-app   签了名、过了公证的 SpeakMore.app。要本机配好签名和公证（.machine.env 的 MAC_SIGNING_IDENTITY、
+//   darwin-<芯片>-app   签了名、过了公证的 OrangeSpeakEasy.app。要本机配好签名和公证（.machine.env 的 MAC_SIGNING_IDENTITY、
 //                       MAC_NOTARY_PROFILE）；没配也打（临时签名或只签名、不公证）、也记清单，好在本机试更新，只是不打 dmg、发不出去
 // 树里的文件按内容切块（chunker.mjs），每块压好存成 store/<sha256>，同一块只存一份；更新只下本机缺的块。
 // 首次安装用的包：Mac 终端安装的 tar.xz、Mac 的 dmg、Windows 的 zip（irm … | iex）和安装程序 Setup.exe。
@@ -83,8 +83,17 @@ async function addRuntime(platform, arch, dest) {
     throw new Error(`${name} 的校验值对不上：应该是 ${expected ?? "（表里没有）"}，下到的是 ${actual}`);
   }
   mkdirSync(dest, { recursive: true });
-  // ditto 解出来的应用包保留着符号链接和签名；unzip 对其中的符号链接处理得不可靠
-  execFileSync("ditto", ["-x", "-k", zip, dest]);
+  // ditto 解出来的应用包保留着符号链接和签名；unzip 对其中的符号链接处理得不可靠。
+  // Windows 的运行库压缩包里没有符号链接，而 ditto 是 macOS 的工具：在 Windows 上用系统自带的 PowerShell 解
+  if (platform === "win32" && process.platform === "win32") {
+    execFileSync(
+      "powershell",
+      ["-NoProfile", "-Command", `Expand-Archive -LiteralPath '${zip}' -DestinationPath '${dest}' -Force`],
+      { stdio: "inherit" },
+    );
+  } else {
+    execFileSync("ditto", ["-x", "-k", zip, dest]);
+  }
 }
 
 /** 摆一份家目录里的程序（app/）：命令行入口、许可证，和让更新换上它的那个安装脚本 */
@@ -147,7 +156,7 @@ function writeChecksum(file) {
 if (archs.length > 0) buildHelper(packageDir, { universal: true });
 if (windows) buildHelper(packageDir, { platform: "win32" });
 
-const staging = mkdtempSync(join(tmpdir(), "speakmore-release-"));
+const staging = mkdtempSync(join(tmpdir(), "orangespeakeasy-release-"));
 /** 压首次安装用的包：后台同时跑，最后一起等 */
 const packing = [];
 /** 先挂上一个空的处理：没等到它之前就失败的话，Node 会当成没人管的失败直接退出、不清临时目录。失败照样在最后的 Promise.all 里抛 */
@@ -194,18 +203,20 @@ try {
     await publishTree(tree, homeTarget("win32", "x64"), { links: false });
 
     const archive = join(outDir, versionDir(version), WINDOWS_ARCHIVE);
-    // zip：Windows 10 自带的 tar 不一定解得开 xz，PowerShell 5.1 用 .NET 解 zip 总行。-X 不存 Unix 的属主这些
-    inBackground(
-      runInBackground("zip", ["-q", "-9", "-r", "-X", archive, "app", "runtime"], { cwd: tree }).then(() =>
-        writeChecksum(archive),
-      ),
-    );
+    // zip：Windows 10 自带的 tar 不一定解得开 xz，PowerShell 5.1 用 .NET 解 zip 总行。-X 不存 Unix 的属主这些。
+    // 在 Windows 上直接打时没有 Info-ZIP 的 zip，用系统自带的 bsdtar（-a 按扩展名选 zip 格式）
+    const onWindows = process.platform === "win32";
+    const zipCommand = onWindows ? join(process.env.SystemRoot ?? "C:\\Windows", "System32", "tar.exe") : "zip";
+    const zipArgs = onWindows
+      ? ["-a", "-c", "-f", archive, "app", "runtime"]
+      : ["-q", "-9", "-r", "-X", archive, "app", "runtime"];
+    inBackground(runInBackground(zipCommand, zipArgs, { cwd: tree }).then(() => writeChecksum(archive)));
     // 直接下载的安装程序：身上带着同一棵树（zstd 压的），双击就装、装完打开 App
     const setup = join(outDir, versionDir(version), WINDOWS_SETUP);
     inBackground(buildWindowsSetup({ packageDir, version, tree, out: setup }).then(() => writeChecksum(setup)));
   }
 
-  // App 总是打、总是记清单：本机试更新（SPEAKMORE_INSTALL_BASE=dist/release）也有 App 这种装法。
+  // App 总是打、总是记清单：本机试更新（ORANGESPEAKEASY_INSTALL_BASE=dist/release）也有 App 这种装法。
   // 没配签名就是本机的临时签名，配了签名没配公证就只签名（mac-app.mjs）。
   // dmg 只在签名和公证都配了时打：没公证过的 dmg 下回来系统不让开。公证要排队，压包的同时做
   const appsDir = join(staging, "apps");
@@ -236,4 +247,4 @@ cpSync(join(packageDir, "install.sh"), join(outDir, "install.sh"));
 cpSync(join(packageDir, "install.ps1"), join(outDir, "install.ps1"));
 const channel = { format: CHANNEL_FORMAT, version, electron: electronVersion, targets };
 writeFileSync(join(outDir, CHANNEL), `${JSON.stringify(channel, null, 2)}\n`);
-console.log(`\nSpeakMore ${version}（Electron ${electronVersion}）的发布在 ${outDir}`);
+console.log(`\nOrangeSpeakEasy ${version}（Electron ${electronVersion}）的发布在 ${outDir}`);

@@ -27,9 +27,10 @@ const exited = new Promise((resolve, reject) => {
 });
 const zstd = createZstdCompress({
   params: {
-    [constants.ZSTD_c_compressionLevel]: 19,
+    // 默认压到最狠；内存紧的机器可以用环境变量调低（level 与 window 一起调，window 才是内存大头）
+    [constants.ZSTD_c_compressionLevel]: Number(process.env.ORANGESPEAKEASY_ZSTD_LEVEL ?? 19),
     [constants.ZSTD_c_enableLongDistanceMatching]: 1,
-    [constants.ZSTD_c_windowLog]: 27,
+    [constants.ZSTD_c_windowLog]: Number(process.env.ORANGESPEAKEASY_ZSTD_WINDOW ?? 27),
   },
 });
 try {

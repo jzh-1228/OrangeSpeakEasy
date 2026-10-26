@@ -111,7 +111,13 @@ export function stageApp(packageDir, stagingDir, entries, arch, platform = "darw
   // 本地转写的运行库按系统和芯片各有一个带原生库的包（optionalDependencies），npm 默认只装本机这一种：
   // 在 Apple 芯片的 Mac 上给 Intel 或 Windows 打包时，要说清装哪种，不然装进去的是本机的、到那边加载不了
   const target = [`--os=${platform}`, `--cpu=${arch}`];
-  const npm = (args) => execFileSync("npm", [...args, ...target, ...NPM_FLAGS], { cwd: stagingDir, stdio: "inherit" });
+  const npm = (args) =>
+    execFileSync("npm", [...args, ...target, ...NPM_FLAGS], {
+      cwd: stagingDir,
+      stdio: "inherit",
+      // Windows 上的 npm 是 npm.cmd，不经 shell 起不来（参数都是固定的，不经过用户输入）
+      shell: process.platform === "win32",
+    });
   // 不直接拿源码仓库让打包工具去剔开发依赖：实测它剔不干净，代码检查工具几十兆的可执行文件会被带进去
   npm(["ci"]);
   // electron 这个依赖是给从源码仓库跑的人找运行环境用的。装好的程序另有运行环境，不用带它和它的下载工具
