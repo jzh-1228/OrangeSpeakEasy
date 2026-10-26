@@ -7,7 +7,7 @@
 //   npm run sync-models -- --from <本机模型仓> --dry-run                                         只列出要传什么，不联网
 //   npm run sync-models -- --check                                                              只核对配置表钉的提交，不用令牌
 //
-// 本机模型仓就是 App 下载模型的那种目录（一个模型一个子目录），比如 ~/.speakmore/models、bench/_work/models。
+// 本机模型仓就是 App 下载模型的那种目录（一个模型一个子目录），比如 ~/.orangespeakeasy/models、bench/_work/models。
 // 每个文件传之前都按配置表核对 sha256；传完从魔搭上逐个核对大小和 sha256，再按下载地址真取一次开头，
 // 都对了才报出这个模型该钉的提交（填进配置表的 mirror.revision）。
 // 传文件用魔搭的 Python SDK（modelscope-sdk.sh 第一次跑时装进 .tools/modelscope），这里只调 modelscope-upload.py。
@@ -179,7 +179,7 @@ try {
     console.log(`\n国内源齐了：${MODELS.length} 个模型都能从魔搭钉住的提交下到，大小和 sha256 都对。`);
   } else {
     if (!values.from)
-      throw new Error("要用 --from 说本机模型仓在哪，比如 --from ~/.speakmore/models（只核对用 --check）");
+      throw new Error("要用 --from 说本机模型仓在哪，比如 --from ~/.orangespeakeasy/models（只核对用 --check）");
     const storeDir = resolve(values.from.replace(/^~(?=\/)/, process.env.HOME));
     if (values["dry-run"]) {
       for (const model of MODELS) {
@@ -200,7 +200,7 @@ try {
     const pins = [];
     for (const model of MODELS) {
       await ensureLocal(model, store, storeDir, values.download);
-      const dir = mkdtempSync(join(tmpdir(), `speakmore-modelscope-${model.id}-`));
+      const dir = mkdtempSync(join(tmpdir(), `orangespeakeasy-modelscope-${model.id}-`));
       try {
         await stage(model, storeDir, dir);
         console.log(`上传        ${mirrorRepo(model)}`);
@@ -208,7 +208,7 @@ try {
           repo: mirrorRepo(model),
           folder: dir,
           license: licenseId(model),
-          description: `${model.name}: mirror of huggingface.co/${model.origin.repo} for SpeakMore`,
+          description: `${model.name}: mirror of huggingface.co/${model.origin.repo} for OrangeSpeakEasy`,
           message: `Mirror ${model.origin.repo}@${model.origin.revision.slice(0, 12)}`,
           tracker: join(TRACKERS, model.id),
         });

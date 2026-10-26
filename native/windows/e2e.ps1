@@ -19,7 +19,7 @@
 # 按一次 selection，看 ping 还在不在，跑完关掉。
 # 没查的：Office 这类应用、开始菜单（Win 键）。
 $ErrorActionPreference = 'Stop'
-$repo = "$HOME\speakmore-dev\repo"
+$repo = "$HOME\orangespeakeasy-dev\repo"
 
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
 Add-Type -TypeDefinition @'
@@ -315,7 +315,7 @@ try {
   Check '不截了之后 esc 和点击都不报' ($null -eq (Next-Event $helper 400))
 
   # 往记事本里贴一段字：中英混排、带换行和表情
-  $text = "SpeakMore 真机检查：你好，world。`r`n第二行 🎙"
+  $text = "OrangeSpeakEasy 真机检查：你好，world。`r`n第二行 🎙"
   # Win11 的记事本：起来的那个进程会把活交给另一个进程再退出，按名字找最新开的、有窗口的那个
   $startedAt = Get-Date
   Start-Process notepad
@@ -415,7 +415,7 @@ try {
 
   # 模拟复制兜底：UIA 拿不到（没有 TextPattern），发 Ctrl+C 从剪贴板拿，拿完剪贴板还原；拿不到位置
   $payload = 'Copied by the fallback 复制兜底'
-  [CopyWindow]::Open('SpeakMore copy fallback', $payload)
+  [CopyWindow]::Open('OrangeSpeakEasy copy fallback', $payload)
   Check '复制兜底的窗口开起来了' ([CopyWindow]::Handle -ne [IntPtr]::Zero) ''
   if ([CopyWindow]::Handle -ne [IntPtr]::Zero) {
     [Fake]::SetForegroundWindow([CopyWindow]::Handle) | Out-Null
@@ -474,17 +474,17 @@ try {
   if (-not $edge) {
     $results.Add('INFO 没有 Edge，网页正文、输入框那几条没查')
   } else {
-    $edgeProfile = "$env:TEMP\speakmore-e2e-edge"
-    $page = "$env:TEMP\speakmore-e2e-selection.html"
+    $edgeProfile = "$env:TEMP\orangespeakeasy-e2e-edge"
+    $page = "$env:TEMP\orangespeakeasy-e2e-selection.html"
     $paragraph = 'The model keeps the audio on your device.'
     $typed = 'Typed words here'
-    Set-Content -Path $page -Encoding UTF8 -Value "<!doctype html><meta charset=`"utf-8`"><title>SpeakMore selection</title><body style=`"font:28px sans-serif;margin:40px`"><p>$paragraph</p><textarea rows=`"2`" cols=`"24`">$typed</textarea></body>"
+    Set-Content -Path $page -Encoding UTF8 -Value "<!doctype html><meta charset=`"utf-8`"><title>OrangeSpeakEasy selection</title><body style=`"font:28px sans-serif;margin:40px`"><p>$paragraph</p><textarea rows=`"2`" cols=`"24`">$typed</textarea></body>"
     # InPrivate：新的用户目录会被 Edge 拿系统登录的微软账号自动登录，弹"同步浏览数据"的框抢焦点（10-22 实测），InPrivate 不登录
     Start-Process $edge -ArgumentList "--user-data-dir=`"$edgeProfile`"", '--no-first-run', '--no-default-browser-check', '--inprivate', '--new-window', "file:///$($page -replace '\\', '/')"
     $edgeWindow = 0
     for ($i = 0; $i -lt 50 -and $edgeWindow -eq 0; $i++) {
       Start-Sleep -Milliseconds 200
-      $found = Get-Process msedge -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like 'SpeakMore selection*' } | Select-Object -First 1
+      $found = Get-Process msedge -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like 'OrangeSpeakEasy selection*' } | Select-Object -First 1
       if ($found) { $edgeWindow = $found.MainWindowHandle }
     }
     Check 'Edge 打开了本地网页' ($edgeWindow -ne 0) ''
@@ -558,7 +558,7 @@ try {
   [CopyWindow]::Close()
   # 这次开的 Edge（认临时用户目录）关掉，网页和用户目录删掉
   if ($edgeProfile) {
-    Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'msedge.exe' -and "$($_.CommandLine)".Contains('speakmore-e2e-edge') } |
+    Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'msedge.exe' -and "$($_.CommandLine)".Contains('orangespeakeasy-e2e-edge') } |
       ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
     Start-Sleep -Milliseconds 500
     Remove-Item -Recurse -Force $edgeProfile, $page -ErrorAction SilentlyContinue

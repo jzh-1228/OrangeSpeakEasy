@@ -33,7 +33,7 @@ if (process.platform === "darwin") {
   const tests = readdirSync(join(mac, "tests"))
     .filter((name) => name.endsWith(".swift"))
     .map((name) => join(mac, "tests", name));
-  const scratch = mkdtempSync(join(tmpdir(), "speakmore-swift-tests-"));
+  const scratch = mkdtempSync(join(tmpdir(), "orangespeakeasy-swift-tests-"));
   try {
     const program = join(scratch, "mac-helper-tests");
     run("Mac 小帮手（Swift）：编", "swiftc", ["-o", program, ...logic, ...tests]);

@@ -1,6 +1,6 @@
 {
-  "name": "speakmore",
-  "productName": "SpeakMore",
+  "name": "orangespeakeasy",
+  "productName": "OrangeSpeakEasy",
   "version": "0.17.0",
   "private": true,
   "description": "macOS 上的语音输入：按一下热键说话，整理好的文字贴进当前输入框。用你自己的 Gemini 或 OpenAI 的 key",
@@ -14,15 +14,15 @@
     "gemini",
     "openai"
   ],
-  "homepage": "https://github.com/zephyr4123/speakmore#readme",
+  "homepage": "https://github.com/jzh-1228/OrangeSpeakEasy#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zephyr4123/speakmore.git"
+    "url": "git+https://github.com/jzh-1228/OrangeSpeakEasy.git"
   },
   "type": "module",
   "main": "src/app/main.mjs",
   "bin": {
-    "speakmore": "bin/speakmore.mjs"
+    "orangespeakeasy": "bin/orangespeakeasy.mjs"
   },
   "os": [
     "darwin",
@@ -32,7 +32,7 @@
     "node": "^22.13.0 || >=23.4.0"
   },
   "scripts": {
-    "start": "node bin/speakmore.mjs",
+    "start": "node bin/orangespeakeasy.mjs",
     "build:native": "node scripts/build/build-native.mjs",
     "release": "node scripts/release/release.mjs",
     "publish-release": "node scripts/release/publish-release.mjs",

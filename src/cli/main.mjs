@@ -21,7 +21,7 @@ import { resolveSettings } from "../storage/settings.mjs";
 import { THEMES } from "../themes/index.mjs";
 import { ConfigError, UsageError } from "./common.mjs";
 
-// speakmore 命令：把"装好依赖、编小帮手、起后台应用、填 key、看历史、改设置"收成几个子命令。
+// orangespeakeasy 命令：把"装好依赖、编小帮手、起后台应用、填 key、看历史、改设置"收成几个子命令。
 // 真正干活的是后台应用（src/app），这里通过控制通道指挥它；历史和设置文件则直接读写。
 // 每个子命令在 commands/ 里一个文件，这里只管分发、收拾错误。命令模块和真实运行时的 io（io.mjs：
 // 后台、更新、本机模型、搬家、历史库）都等到真要跑某条命令时才加载，只问帮助、版本时不必读进来。
@@ -30,7 +30,7 @@ import { ConfigError, UsageError } from "./common.mjs";
 /** help 里 history 的默认条数：和 commands/history.mjs 的 DEFAULT_HISTORY_LIMIT 一样。那个模块要真跑 history 时才加载 */
 const HISTORY_LIMIT = 20;
 
-/** speakmore help 的那段说明，按这一次的语言写 */
+/** orangespeakeasy help 的那段说明，按这一次的语言写 */
 const help = (t) =>
   t("cli.help", {
     limit: HISTORY_LIMIT,
@@ -185,7 +185,7 @@ const mentionsHelpOrVersion = (argv) => argv.some((arg) => ["--help", "-h", "hel
 const asksHelpOrVersion = (argv) =>
   argv.some((arg) => arg === "--help" || arg === "-h") || ["help", "--version", "-v"].includes(argv[0]);
 
-/** bin/speakmore.mjs 调的入口 */
+/** bin/orangespeakeasy.mjs 调的入口 */
 export async function main(argv) {
   let io;
   try {

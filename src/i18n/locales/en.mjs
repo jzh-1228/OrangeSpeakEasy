@@ -147,7 +147,7 @@ export default {
   hotkeyProblem: {
     chord: "{action}'s {chord} doesn't work: {reason}",
     fallback: "{action} uses the default {chord} for now",
-    needsTrusted: "SpeakMore needs Accessibility access in System Settings first",
+    needsTrusted: "OrangeSpeakEasy needs Accessibility access in System Settings first",
     registerFailed: "the system wouldn't register it; another app may be using it",
     invalid: "the helper doesn't recognize this combination",
   },
@@ -240,10 +240,10 @@ export default {
     describe: {
       mode: "Recognition mode: native (Direct) sends the recording to a model that takes audio; local (Hybrid) turns speech into text first, then has any LLM refine it; private (Offline) only transcribes on this Mac and uploads nothing",
       model:
-        "Which provider and model refines your words, as provider/model; a provider alone uses its default. Switch with speakmore model",
+        "Which provider and model refines your words, as provider/model; a provider alone uses its default. Switch with orangespeakeasy model",
       thinking: "Gemini's thinking level; higher is slower. Other providers don't use it",
       transcriber:
-        "In local (Hybrid) mode, which model turns speech into text; on-device models need downloading first (speakmore transcriber download)",
+        "In local (Hybrid) mode, which model turns speech into text; on-device models need downloading first (orangespeakeasy transcriber download)",
       privateTranscriber:
         "In private (Offline) mode, which on-device model transcribes; on-device models only, download it first",
       polish:
@@ -311,7 +311,7 @@ export default {
     modelLoading: "The local model is loading; give it a few seconds",
     modelFailed: "The local model couldn't be set up: {reason}",
     modelMissing:
-      "The local model {model} isn't downloaded: download it on the Engine page, or run speakmore transcriber download {id}",
+      "The local model {model} isn't downloaded: download it on the Engine page, or run orangespeakeasy transcriber download {id}",
     undecodable: "Couldn't read the recording: {reason}",
     transcribeFailed: "On-device transcription failed: {reason}",
   },
@@ -378,7 +378,7 @@ export default {
     paramsNotJson:
       'the extra parameters aren\'t valid JSON: keys and strings need straight double quotes, e.g. {"reasoning_effort": "minimal"}',
     paramsNotObject: 'the extra parameters must be one JSON object in braces, e.g. {"reasoning_effort": "minimal"}',
-    paramsReserved: "the extra parameters can't set {name}: SpeakMore sends {names} itself",
+    paramsReserved: "the extra parameters can't set {name}: OrangeSpeakEasy sends {names} itself",
   },
 
   setup: {
@@ -412,15 +412,15 @@ export default {
     unreadableFor: "The saved {provider} key can't be read anymore. Enter it again",
     notSaved: "The key works but wasn't saved ({reason}). You'll need to enter it again after quitting",
     keychainUnavailable: "The system keychain isn't available, so the key can't be stored safely",
-    external: "Connected to a separately started server (SPEAKMORE_SERVER_URL); set the key there",
-    externalModel: "Connected to a separately started server (SPEAKMORE_SERVER_URL); the model is chosen there",
+    external: "Connected to a separately started server (ORANGESPEAKEASY_SERVER_URL); set the key there",
+    externalModel: "Connected to a separately started server (ORANGESPEAKEASY_SERVER_URL); the model is chosen there",
     noKeyFor: "No {provider} key",
-    noKeyForCli: "No {provider} key yet: run speakmore key {id}",
+    noKeyForCli: "No {provider} key yet: run orangespeakeasy key {id}",
     unknownProvider: "Unknown model provider: {id}",
     noKeyService:
-      "No {provider} API key yet: run speakmore key in a terminal, or open Settings from the SpeakMore menu bar icon",
+      "No {provider} API key yet: run orangespeakeasy key in a terminal, or open Settings from the OrangeSpeakEasy menu bar icon",
     noKeyServiceFor:
-      "No {provider} API key yet: run speakmore key {id} in a terminal, or open Settings from the SpeakMore menu bar icon",
+      "No {provider} API key yet: run orangespeakeasy key {id} in a terminal, or open Settings from the OrangeSpeakEasy menu bar icon",
     failedFor: "{provider} key failed: {reason}",
     whichVendor: "Offline mode doesn't use a key; to save one, say which provider it's for",
   },
@@ -501,7 +501,7 @@ export default {
     noMicrophone: "No microphone found",
     noSignal: "The microphone isn't picking anything up: check the input device and mute",
     recordError: "Recording error: {reason}",
-    helperStopped: "Key listener stopped; {hotkey} won't work. Try restarting SpeakMore",
+    helperStopped: "Key listener stopped; {hotkey} won't work. Try restarting OrangeSpeakEasy",
     secureInput: "Secure input is on in another app, so some shortcuts won't work for now",
     // 只有 Windows 有：系统不把发给管理员窗口的按键交给我们
     elevatedForeground: "The window in front runs as administrator, so shortcuts won't work in it",
@@ -511,12 +511,12 @@ export default {
     ready: "Ready · press {keycap} to talk",
     missing: "Missing: {items}",
     preparing: "Getting ready…",
-    open: "Open SpeakMore",
+    open: "Open OrangeSpeakEasy",
     history: "History",
     settings: "Settings…",
     version: "Version {version}",
     updateAvailable: "Version {version} is available…",
-    quit: "Quit SpeakMore",
+    quit: "Quit OrangeSpeakEasy",
     fallbackTitle: "Dictate",
   },
 
@@ -955,12 +955,12 @@ export default {
       title: "Storage location",
       change: "Change…",
       pickTitle: "Choose a new storage location",
-      pickMessage: "SpeakMore moves into .speakmore inside the folder you choose",
+      pickMessage: "OrangeSpeakEasy moves into .orangespeakeasy inside the folder you choose",
       pickButton: "Choose",
       confirm: "Move to {to}?",
       confirmDetail:
-        "{size} ({count} files) will be copied, including the program, on-device models, recordings, and settings. SpeakMore quits while it moves and reopens when done; if the move fails, everything stays as it was.",
-      unknown: "Files in the current location that aren't SpeakMore's are neither moved nor deleted: {items}",
+        "{size} ({count} files) will be copied, including the program, on-device models, recordings, and settings. OrangeSpeakEasy quits while it moves and reopens when done; if the move fails, everything stays as it was.",
+      unknown: "Files in the current location that aren't OrangeSpeakEasy's are neither moved nor deleted: {items}",
       move: "Move",
       cancel: "Cancel",
       failed: "Couldn't change it: {reason}",
@@ -974,7 +974,7 @@ export default {
       otherBehind: "{copy} is still v{current}; it can be updated to v{latest} too",
       updateTo: "Update to v{version}",
       downloading: "Downloading v{version}…",
-      installing: "Installing; SpeakMore will reopen automatically…",
+      installing: "Installing; OrangeSpeakEasy will reopen automatically…",
       cliRunning: "The command line is updating to v{version}…",
       updated: "Updated to v{version}",
       failed: "The update didn't finish: {problem}",
@@ -989,13 +989,13 @@ export default {
   firstRun: {
     title: "Choose a storage location",
     detail:
-      "SpeakMore keeps its program data, on-device models, recordings, and settings in one folder.\n\nDefault location: {home}\n\nEach on-device model is about 0.2–1.6 GB. To keep them on another disk, choose a location now; you can also change it later in Settings › General › Storage location.",
+      "OrangeSpeakEasy keeps its program data, on-device models, recordings, and settings in one folder.\n\nDefault location: {home}\n\nEach on-device model is about 0.2–1.6 GB. To keep them on another disk, choose a location now; you can also change it later in Settings › General › Storage location.",
     useDefault: "Use Default Location",
     choose: "Choose Another Location…",
     pickTitle: "Choose a storage location",
-    pickMessage: "SpeakMore is saved in .speakmore inside the folder you choose",
+    pickMessage: "OrangeSpeakEasy is saved in .orangespeakeasy inside the folder you choose",
     pickButton: "Choose",
-    existing: "{home} already has SpeakMore data",
+    existing: "{home} already has OrangeSpeakEasy data",
     existingDetail: "Its settings, history, and recordings will be used as they are.",
     reuse: "Use It",
     again: "Choose Again",
@@ -1014,15 +1014,15 @@ export default {
     from: "From",
     to: "To",
     step: {
-      preparing: "Getting ready; SpeakMore quits for a moment…",
+      preparing: "Getting ready; OrangeSpeakEasy quits for a moment…",
       switching: "Switching to the new location…",
       done: "All files are in the new location.",
     },
     copying: "Copying {done} / {total} ({percent}%) · keep the disk connected until it's done",
     removed: "The files in the old location were deleted.",
     later: "The files in the old location will be deleted after this window closes.",
-    left: "Files in the old location that aren't SpeakMore's were left alone: {items}",
-    unchanged: "SpeakMore is still in its old location; nothing changed.",
+    left: "Files in the old location that aren't OrangeSpeakEasy's were left alone: {items}",
+    unchanged: "OrangeSpeakEasy is still in its old location; nothing changed.",
     done: "Done",
     close: "Close",
   },
@@ -1102,11 +1102,11 @@ export default {
     },
   },
 
-  // The SpeakMore running in this home (src/instance.mjs): what to say when it can't be stopped
+  // The OrangeSpeakEasy running in this home (src/instance.mjs): what to say when it can't be stopped
   instance: {
     stuckNoPid:
-      "SpeakMore is stuck and not answering, and its process can't be identified. Find the process named Electron or SpeakMore in Activity Monitor and quit it.",
-    cantStop: "Can't stop SpeakMore (PID {pid}). Quit it in Activity Monitor.",
+      "OrangeSpeakEasy is stuck and not answering, and its process can't be identified. Find the process named Electron or OrangeSpeakEasy in Activity Monitor and quit it.",
+    cantStop: "Can't stop OrangeSpeakEasy (PID {pid}). Quit it in Activity Monitor.",
   },
 
   // Version checks and updates (src/update): both the command line and the app say these
@@ -1122,237 +1122,241 @@ export default {
     badManifest:
       "The update manifest ({manifest}) on the download server is invalid. Try again later; if it keeps happening, please report it.",
     noTarget: "The {version} release has no update for this computer ({target}).",
-    appWrongPackage: "What was put together isn't SpeakMore.app {version}, so nothing was installed.",
-    appUnsigned: "The new SpeakMore.app isn't properly signed, so it wasn't installed: {reason}",
+    appWrongPackage: "What was put together isn't OrangeSpeakEasy.app {version}, so nothing was installed.",
+    appUnsigned: "The new OrangeSpeakEasy.app isn't properly signed, so it wasn't installed: {reason}",
     appOtherDeveloper:
-      "The new SpeakMore.app is signed by a different developer ({found}; the installed one is {installed}), so it wasn't installed.",
+      "The new OrangeSpeakEasy.app is signed by a different developer ({found}; the installed one is {installed}), so it wasn't installed.",
     appReplace: "Couldn't replace {path}: {reason}. You can download {url} and drag it into Applications yourself.",
     busy: "Another update is in progress (PID {pid}). Wait for it to finish.",
     installFailed: "The installation didn't finish (installer exit code {code}); see its output or the log for why.",
     recordFailed: "Couldn't write the update record to {file} ({reason}); the progress shown in Settings may be off.",
     exitedEarly: "The update process quit unexpectedly (exit code {code}); details are in {log}.",
-    reopenUnknown: "The new version is installed, but SpeakMore.app's location is unknown. Open it from Applications.",
+    reopenUnknown:
+      "The new version is installed, but OrangeSpeakEasy.app's location is unknown. Open it from Applications.",
     reopenFailed:
-      "The new version is installed, but SpeakMore.app couldn't be reopened ({reason}). Open it from Applications.",
+      "The new version is installed, but OrangeSpeakEasy.app couldn't be reopened ({reason}). Open it from Applications.",
     restartFailed:
-      "The new version is installed, but SpeakMore couldn't be restarted (exit code {code}). Run speakmore in a terminal to start it; details are in {log}.",
+      "The new version is installed, but OrangeSpeakEasy couldn't be restarted (exit code {code}). Run orangespeakeasy in a terminal to start it; details are in {log}.",
     interrupted: "The last update was interrupted; details are in {log}. You can update again.",
     downloading: "Downloading the update: {percent}%",
     delta: "Downloaded {download}; the other {reused} came from files already on this computer.",
     prepareFailed: "Couldn't prepare the new version in {dir}: {reason}",
-    updating: "Updating SpeakMore {current} → {latest}",
-    updatingApp: "Updating SpeakMore.app {current} → {latest}",
-    appDone: "SpeakMore.app is now {version}.",
-    reopened: "Reopened SpeakMore.app.",
+    updating: "Updating OrangeSpeakEasy {current} → {latest}",
+    updatingApp: "Updating OrangeSpeakEasy.app {current} → {latest}",
+    appDone: "OrangeSpeakEasy.app is now {version}.",
+    reopened: "Reopened OrangeSpeakEasy.app.",
     leftover: "Couldn't remove the temporary files at {dir} ({reason}); you can delete them yourself.",
-    copies: { home: "The terminal install of SpeakMore", bundle: "SpeakMore.app" },
+    copies: { home: "The terminal install of OrangeSpeakEasy", bundle: "OrangeSpeakEasy.app" },
   },
 
   paths: {
-    homeNotAbsolute: "The SPEAKMORE_HOME env var must be an absolute path; it's {home}",
+    homeNotAbsolute: "The ORANGESPEAKEASY_HOME env var must be an absolute path; it's {home}",
     homeTooLong:
-      "The SpeakMore folder path is too long for the control socket: {home}\nMove this folder somewhere with a shorter path, then run the install command and choose the folder that holds it.",
+      "The OrangeSpeakEasy folder path is too long for the control socket: {home}\nMove this folder somewhere with a shorter path, then run the install command and choose the folder that holds it.",
     homeParentMissing:
-      "Can't find the SpeakMore folder {home}: {parent} doesn't exist. If it's on an external or another drive, connect that drive first.",
+      "Can't find the OrangeSpeakEasy folder {home}: {parent} doesn't exist. If it's on an external or another drive, connect that drive first.",
     homeMoved:
-      "SpeakMore has moved to {to}; this ({home}) is the old folder that hasn't been fully removed yet. Open SpeakMore from its new place.",
+      "OrangeSpeakEasy has moved to {to}; this ({home}) is the old folder that hasn't been fully removed yet. Open OrangeSpeakEasy from its new place.",
     homeMissing:
-      "Can't find the SpeakMore folder {home} (the location file {file} says it's there).\nIf it's on an external or another drive, connect that drive. If you no longer use that place, delete the location file to use the default one.",
+      "Can't find the OrangeSpeakEasy folder {home} (the location file {file} says it's there).\nIf it's on an external or another drive, connect that drive. If you no longer use that place, delete the location file to use the default one.",
   },
 
   move: {
     notFull: "Use a full path, like {example}: {folder}",
     noFolder: "{folder} doesn't exist or isn't a folder. Create it first, then choose it again.",
-    sameHome: "SpeakMore is already in {home}; nothing to move.",
-    insideHome: "SpeakMore can't move into its own folder ({home}). Choose another folder.",
+    sameHome: "OrangeSpeakEasy is already in {home}; nothing to move.",
+    insideHome: "OrangeSpeakEasy can't move into its own folder ({home}). Choose another folder.",
     notEmpty:
-      "{home} isn't empty. SpeakMore only moves into an empty place: choose another folder, or empty that one first.",
+      "{home} isn't empty. OrangeSpeakEasy only moves into an empty place: choose another folder, or empty that one first.",
     tooLongBytes: "That path is too long: {home}\nIt can be at most {max} bytes. Choose a shorter place.",
     tooLongChars: "That path is too long: {home}\nIt can be at most {max} characters. Choose a shorter place.",
-    inProgress: "SpeakMore is moving from {home} to {to}; it will reopen when the move is done.",
+    inProgress: "OrangeSpeakEasy is moving from {home} to {to}; it will reopen when the move is done.",
     unfinishedCopy:
-      "This folder ({home}) was copied by a move that didn't finish; SpeakMore is still in {from}. Open SpeakMore from there and it will clean up the unfinished move.",
+      "This folder ({home}) was copied by a move that didn't finish; OrangeSpeakEasy is still in {from}. Open OrangeSpeakEasy from there and it will clean up the unfinished move.",
     interrupted: "The move stopped halfway (the process quit unexpectedly)",
     notRecorded:
-      "The folder in use, {home}, was set just for this run by SPEAKMORE_HOME; SpeakMore's recorded place is {recorded}. Only the recorded one can be moved.",
+      "The folder in use, {home}, was set just for this run by ORANGESPEAKEASY_HOME; OrangeSpeakEasy's recorded place is {recorded}. Only the recorded one can be moved.",
     homeTooOld:
-      "The SpeakMore program in {home} is too old to move. Update it first (speakmore update, or run the install command again), then move.",
+      "The OrangeSpeakEasy program in {home} is too old to move. Update it first (orangespeakeasy update, or run the install command again), then move.",
     appTooOld:
-      "{app} is still version {version} and won't find the new place. Run speakmore update to update it too, then move.",
+      "{app} is still version {version} and won't find the new place. Run orangespeakeasy update to update it too, then move.",
     noSpace: "Not enough space on the disk of {folder}: {need} needed, {free} free.",
-    recovered: "The last move to {to} didn't finish and has been cleaned up: SpeakMore is still in {home}.",
+    recovered: "The last move to {to} didn't finish and has been cleaned up: OrangeSpeakEasy is still in {home}.",
     copying: "Copying to {to}…",
     switching: "Switching to the new place…",
     rehomeFailed: "The program in the new place couldn't be set up (installer exit code {code}).",
-    restoreFailed: "Couldn't point SpeakMore back to {home} (installer exit code {code}).",
-    putBack: "The move to {home} didn't finish; SpeakMore has been put back in {from}. Open SpeakMore again.",
+    restoreFailed: "Couldn't point OrangeSpeakEasy back to {home} (installer exit code {code}).",
+    putBack:
+      "The move to {home} didn't finish; OrangeSpeakEasy has been put back in {from}. Open OrangeSpeakEasy again.",
     notOurCopy: "{to} doesn't hold this move's copy, so it was left alone.",
     copyBroken: "The copied files are incomplete: {reason}",
     cleanupProblem: "Something went wrong while putting things back: {problem}",
-    recordFailed: "Couldn't write the move record ({reason}); SpeakMore works as usual.",
+    recordFailed: "Couldn't write the move record ({reason}); OrangeSpeakEasy works as usual.",
     leftover: "Couldn't fully delete {dir} ({reason}); you can delete it yourself.",
-    clearedEnv: "Removed the SPEAKMORE_HOME environment variable that pointed to the old place.",
-    reopened: "Reopened SpeakMore.",
-    reopenFailed: "SpeakMore didn't reopen by itself ({reason}); please open it.",
+    clearedEnv: "Removed the ORANGESPEAKEASY_HOME environment variable that pointed to the old place.",
+    reopened: "Reopened OrangeSpeakEasy.",
+    reopenFailed: "OrangeSpeakEasy didn't reopen by itself ({reason}); please open it.",
     restartFailed: "the start command exited with code {code}",
     unsupportedDrive:
-      "The disk of {home} can't hold SpeakMore: {what} ({reason}). exFAT and FAT32, common on USB sticks and external drives, aren't supported; choose a disk formatted as APFS or Mac OS Extended.",
+      "The disk of {home} can't hold OrangeSpeakEasy: {what} ({reason}). exFAT and FAT32, common on USB sticks and external drives, aren't supported; choose a disk formatted as APFS or Mac OS Extended.",
     probe: {
       create: "can't create a folder",
       restrict: "can't make it private to you",
       symlink: "can't create symbolic links",
-      socket: "can't create the local socket SpeakMore talks through",
+      socket: "can't create the local socket OrangeSpeakEasy talks through",
     },
   },
 
   location: {
     invalid:
-      "SpeakMore's location file is invalid: {file}\nIt should hold the full path of the SpeakMore folder. Deleting it makes SpeakMore use the default location.",
-    unreadable: "Can't read SpeakMore's location file {file} ({reason})",
+      "OrangeSpeakEasy's location file is invalid: {file}\nIt should hold the full path of the OrangeSpeakEasy folder. Deleting it makes OrangeSpeakEasy use the default location.",
+    unreadable: "Can't read OrangeSpeakEasy's location file {file} ({reason})",
   },
 
   control: {
-    notRunning: "SpeakMore isn't running",
-    timeout: "SpeakMore didn't reply within {seconds} seconds (command {command})",
-    unreadable: "Couldn't understand SpeakMore's reply (command {command})",
+    notRunning: "OrangeSpeakEasy isn't running",
+    timeout: "OrangeSpeakEasy didn't reply within {seconds} seconds (command {command})",
+    unreadable: "Couldn't understand OrangeSpeakEasy's reply (command {command})",
   },
 
   storage: {
     historyTooNew:
       "The history database is version {found}, newer than this program knows ({known}), so it won't touch it",
     historyTooOld:
-      "The history database is version {found}, but this program expects {known}: start SpeakMore once, or update to the latest version",
+      "The history database is version {found}, but this program expects {known}: start OrangeSpeakEasy once, or update to the latest version",
     legacyRunning:
-      "An old version of SpeakMore is still running, so its data can't be moved. Quit it first (menu bar → Quit), then run this again.",
+      "An old version of OrangeSpeakEasy is still running, so its data can't be moved. Quit it first (menu bar → Quit), then run this again.",
     settingsMigrateFailed:
       "Can't update the old shortcut in the settings file {file} ({reason}). Make the file writable, then run this again.",
   },
 
   cli: {
-    help: `SpeakMore: press a hotkey, speak, and refined text is pasted into the current text box.
+    help: `OrangeSpeakEasy: press a hotkey, speak, and refined text is pasted into the current text box.
 
-  speakmore                     Start (just shows status if already running). First run asks for an API key (Gemini by default)
-  speakmore start               Same as above
-  speakmore stop                Stop
-  speakmore restart             Restart
-  speakmore status [--json]     Status: running or not, key, system permissions, how much you said today and in total
-  speakmore update              Update to the latest version (on a Mac, SpeakMore.app too if you have it). Settings, keys, the dictionary, history, and recordings are kept
+  orangespeakeasy                     Start (just shows status if already running). First run asks for an API key (Gemini by default)
+  orangespeakeasy start               Same as above
+  orangespeakeasy stop                Stop
+  orangespeakeasy restart             Restart
+  orangespeakeasy status [--json]     Status: running or not, key, system permissions, how much you said today and in total
+  orangespeakeasy update              Update to the latest version (on a Mac, OrangeSpeakEasy.app too if you have it). Settings, keys, the dictionary, history, and recordings are kept
 
-  speakmore history [-n count] [--json]
+  orangespeakeasy history [-n count] [--json]
                                 What you said and looked up, grouped by day, newest first (latest {limit} by default)
-  speakmore dict [--json]       The dictionary: names, products and terms you say often, spelled as written. Stored on this device only
-  speakmore dict add|remove <word>…
+  orangespeakeasy dict [--json]       The dictionary: names, products and terms you say often, spelled as written. Stored on this device only
+  orangespeakeasy dict add|remove <word>…
                                 Add or delete words, several at once (quote words with spaces)
-  speakmore dict import <file>  Import a one-column CSV or a one-word-per-line text file; existing words are skipped
-  speakmore usage [--json]      What it cost: spend and tokens today, this month, and in total, model reply times, per model
-  speakmore mode                The three recognition modes and what each uses: native (Direct) sends the recording to the model; local (Hybrid) transcribes, then a model refines it; private (Offline) transcribes with an on-device model and uploads nothing
-  speakmore mode <native|local|private> [--model …] [--transcriber …] [--polish … --url … --params …]
+  orangespeakeasy dict import <file>  Import a one-column CSV or a one-word-per-line text file; existing words are skipped
+  orangespeakeasy usage [--json]      What it cost: spend and tokens today, this month, and in total, model reply times, per model
+  orangespeakeasy mode                The three recognition modes and what each uses: native (Direct) sends the recording to the model; local (Hybrid) transcribes, then a model refines it; private (Offline) transcribes with an on-device model and uploads nothing
+  orangespeakeasy mode <native|local|private> [--model …] [--transcriber …] [--polish … --url … --params …]
                                 Switch mode, live. Can bring that mode's own settings, e.g. a custom service on first entering local
-  speakmore model               Native mode: available providers ({providers}), whether each has a key, which one is in use
-  speakmore model <provider>[/<model>]
-                                Switch provider or model in native mode, e.g. speakmore model openai. Asks for its key if missing
-  speakmore transcriber [<model>]
+  orangespeakeasy model               Native mode: available providers ({providers}), whether each has a key, which one is in use
+  orangespeakeasy model <provider>[/<model>]
+                                Switch provider or model in native mode, e.g. orangespeakeasy model openai. Asks for its key if missing
+  orangespeakeasy transcriber [<model>]
                                 Local mode, speech to text: list or switch the on-device model. Asks before downloading one you don't have
-  speakmore transcriber download|cancel|delete <model> [--yes]
+  orangespeakeasy transcriber download|cancel|delete <model> [--yes]
                                 Download, stop downloading, or delete an on-device model (in any mode; the one in use can't be deleted)
-  speakmore transcriber check [<model>]
+  orangespeakeasy transcriber check [<model>]
                                 Check an on-device model: the system voice reads a sentence and the model transcribes it. Defaults to the selected one
-  speakmore polish [<provider>[/<model>] [--url <url>] [--params <JSON>]]
+  orangespeakeasy polish [<provider>[/<model>] [--url <url>] [--params <JSON>]]
                                 Local mode, refining: list or switch the refining model ({polishers}). custom is any OpenAI-compatible service;
                                 --params adds request parameters for it, e.g. '{"reasoning_effort": "minimal"}'
-  speakmore polish check [<provider>[/<model>] [--url <url>] [--params <JSON>]]
+  orangespeakeasy polish check [<provider>[/<model>] [--url <url>] [--params <JSON>]]
                                 Check the refining step works
-  speakmore model check [<provider>[/<model>]]
+  orangespeakeasy model check [<provider>[/<model>]]
                                 Check it works: sends that provider a minimal request with its key. Defaults to the current one
-  speakmore key [<provider>]    Replace a key; defaults to the current provider (input is hidden; can also be piped in)
-  speakmore key --forget [<provider>]
+  orangespeakeasy key [<provider>]    Replace a key; defaults to the current provider (input is hidden; can also be piped in)
+  orangespeakeasy key --forget [<provider>]
                                 Delete the saved key
-  speakmore config              Settings: hotkey, model, thinking level, theme, language, and where data and logs live
-  speakmore config set <name> <value>
+  orangespeakeasy config              Settings: hotkey, model, thinking level, theme, language, and where data and logs live
+  orangespeakeasy config set <name> <value>
                                 Change one directly, with no checks (the mode and model commands above check first)
-  speakmore config unset <name> Reset to the default
-  speakmore theme               List themes and the one in use
-  speakmore theme <name>        Switch theme ({themes}); applies right away, no restart
-  speakmore settings            Open Settings (to grant macOS permissions)
-  speakmore logs [-n lines] [-f]
+  orangespeakeasy config unset <name> Reset to the default
+  orangespeakeasy theme               List themes and the one in use
+  orangespeakeasy theme <name>        Switch theme ({themes}); applies right away, no restart
+  orangespeakeasy settings            Open Settings (to grant macOS permissions)
+  orangespeakeasy logs [-n lines] [-f]
                                 Show logs; -f keeps following
-  speakmore move [<folder>] [--yes]
-                                Move SpeakMore's folder (program, on-device models, recordings, settings) into .speakmore
-                                inside that folder, e.g. on another disk. speakmore move ~ moves it back to the default
+  orangespeakeasy move [<folder>] [--yes]
+                                Move OrangeSpeakEasy's folder (program, on-device models, recordings, settings) into .orangespeakeasy
+                                inside that folder, e.g. on another disk. orangespeakeasy move ~ moves it back to the default
                                 place. Without a folder, shows where it is now
-  speakmore uninstall [--keep-data] [--yes]
-                                Uninstall: stop it and delete the whole SpeakMore folder. --keep-data keeps settings, keys, the dictionary, history, and recordings
+  orangespeakeasy uninstall [--keep-data] [--yes]
+                                Uninstall: stop it and delete the whole OrangeSpeakEasy folder. --keep-data keeps settings, keys, the dictionary, history, and recordings
 
-  speakmore help                This help
-  speakmore --version           Version
+  orangespeakeasy help                This help
+  orangespeakeasy --version           Version
 `,
     macOnly:
-      "SpeakMore only supports macOS and Windows for now: listening for the hotkey and pasting rely on each system's own APIs.",
-    nodeVersion: "SpeakMore needs Node 22.13 or newer (23.4 or newer on the 23 line); this is {version}.",
+      "OrangeSpeakEasy only supports macOS and Windows for now: listening for the hotkey and pasting rely on each system's own APIs.",
+    nodeVersion: "OrangeSpeakEasy needs Node 22.13 or newer (23.4 or newer on the 23 line); this is {version}.",
     unknownCommand: "There's no command called {name}.",
-    seeHelp: "Run speakmore help to see all commands.",
-    stuck: "It may be stuck. Run speakmore stop to force it to stop, then run speakmore to start it again.",
+    seeHelp: "Run orangespeakeasy help to see all commands.",
+    stuck: "It may be stuck. Run orangespeakeasy stop to force it to stop, then run orangespeakeasy to start it again.",
     migrated: "Moved the old version's data to {home} ({items}).",
     badArgs: "Invalid arguments: {reason}",
     extraArgs: "Unexpected argument {args}. Usage: {usage}",
     positiveInteger: "{flag} needs a positive integer",
-    starting: "Starting SpeakMore…",
-    runRestart: "run speakmore restart",
-    packagedRelaunch: "click the SpeakMore menu bar icon → Quit SpeakMore, then open SpeakMore.app again",
+    starting: "Starting OrangeSpeakEasy…",
+    runRestart: "run orangespeakeasy restart",
+    packagedRelaunch:
+      "click the OrangeSpeakEasy menu bar icon → Quit OrangeSpeakEasy, then open OrangeSpeakEasy.app again",
     syntax: {
-      start: "speakmore start",
-      stop: "speakmore stop",
-      restart: "speakmore restart",
-      status: "speakmore status [--json]",
-      history: "speakmore history [-n count] [--json]",
-      usage: "speakmore usage [--json]",
-      logs: "speakmore logs [-n lines] [-f]",
-      settings: "speakmore settings",
-      uninstall: "speakmore uninstall [--keep-data] [--yes]",
-      move: "speakmore move [<folder>] [--yes]",
-      config: "Usage: speakmore config | speakmore config set <name> <value> | speakmore config unset <name>",
-      theme: "Usage: speakmore theme | speakmore theme <name>",
+      start: "orangespeakeasy start",
+      stop: "orangespeakeasy stop",
+      restart: "orangespeakeasy restart",
+      status: "orangespeakeasy status [--json]",
+      history: "orangespeakeasy history [-n count] [--json]",
+      usage: "orangespeakeasy usage [--json]",
+      logs: "orangespeakeasy logs [-n lines] [-f]",
+      settings: "orangespeakeasy settings",
+      uninstall: "orangespeakeasy uninstall [--keep-data] [--yes]",
+      move: "orangespeakeasy move [<folder>] [--yes]",
+      config:
+        "Usage: orangespeakeasy config | orangespeakeasy config set <name> <value> | orangespeakeasy config unset <name>",
+      theme: "Usage: orangespeakeasy theme | orangespeakeasy theme <name>",
       model:
-        "Usage: speakmore model | speakmore model <provider>[/<model>] | speakmore model check [<provider>[/<model>]]",
-      mode: "Usage: speakmore mode | speakmore mode <native|local|private> [--model …] [--transcriber …] [--polish … --url … --params …]",
+        "Usage: orangespeakeasy model | orangespeakeasy model <provider>[/<model>] | orangespeakeasy model check [<provider>[/<model>]]",
+      mode: "Usage: orangespeakeasy mode | orangespeakeasy mode <native|local|private> [--model …] [--transcriber …] [--polish … --url … --params …]",
       transcriber:
-        "Usage: speakmore transcriber | speakmore transcriber <model> | speakmore transcriber download|cancel|delete <model> [--yes] | speakmore transcriber check [<model>]",
+        "Usage: orangespeakeasy transcriber | orangespeakeasy transcriber <model> | orangespeakeasy transcriber download|cancel|delete <model> [--yes] | orangespeakeasy transcriber check [<model>]",
       polish:
-        "Usage: speakmore polish | speakmore polish <provider>[/<model>] [--url <url>] [--params <JSON>] | speakmore polish check [<provider>[/<model>] [--url <url>] [--params <JSON>]]",
+        "Usage: orangespeakeasy polish | orangespeakeasy polish <provider>[/<model>] [--url <url>] [--params <JSON>] | orangespeakeasy polish check [<provider>[/<model>] [--url <url>] [--params <JSON>]]",
     },
     update: {
       upToDate: "Already up to date ({version}).",
-      available: "SpeakMore {latest} is out (you have {current}): run speakmore update.",
-      otherAvailable: "{copy} is still {current}; {latest} is out: run speakmore update.",
-      startHint: "Updated to {version}. Run speakmore to start it.",
+      available: "OrangeSpeakEasy {latest} is out (you have {current}): run orangespeakeasy update.",
+      otherAvailable: "{copy} is still {current}; {latest} is out: run orangespeakeasy update.",
+      startHint: "Updated to {version}. Run orangespeakeasy to start it.",
       inProgress: "Updating to {version}…",
       lastFailed: "The last update didn't finish: {problem}",
     },
 
     lifecycle: {
       openedOnboarding:
-        "Opened the setup guide. Grant the missing permissions there, then run speakmore status to check.",
-      openedSettings: "Opened Settings. Grant the missing permissions there, then run speakmore status to check.",
-      notRunning: "SpeakMore wasn't running.",
-      stopped: "SpeakMore stopped.",
-      killed: "SpeakMore was stuck and has been force-quit.",
+        "Opened the setup guide. Grant the missing permissions there, then run orangespeakeasy status to check.",
+      openedSettings: "Opened Settings. Grant the missing permissions there, then run orangespeakeasy status to check.",
+      notRunning: "OrangeSpeakEasy wasn't running.",
+      stopped: "OrangeSpeakEasy stopped.",
+      killed: "OrangeSpeakEasy was stuck and has been force-quit.",
       packagedRestart:
-        "The running SpeakMore is SpeakMore.app in Applications. Restarting it from the command line would swap in a terminal-launched copy with separate permissions and keys.",
+        "The running OrangeSpeakEasy is OrangeSpeakEasy.app in Applications. Restarting it from the command line would swap in a terminal-launched copy with separate permissions and keys.",
       howToRestart: "To restart it: {relaunch}.",
     },
     key: {
       prompt: "Paste the key and press Enter (input is hidden): ",
-      need: "SpeakMore needs a {provider} API key: recordings are sent to {provider} to become text.",
+      need: "OrangeSpeakEasy needs a {provider} API key: recordings are sent to {provider} to become text.",
       getOne: "Don't have one? Get one here: {url}",
       storage: "It's encrypted with the system keychain and stays on this Mac.",
       skip: "Press Enter to skip for now.",
       legacyDaemon:
-        "The running SpeakMore is an old version that doesn't know {provider} keys yet: {restart} first, then try again.",
+        "The running OrangeSpeakEasy is an old version that doesn't know {provider} keys yet: {restart} first, then try again.",
       verifying: "Verifying…",
       saved: "Key saved and verified.",
       rejected: "This key didn't pass: {problem}",
       notInline:
-        "Don't put the key after the command: it would stay in your shell history. Run speakmore key and paste it, or pipe it in: pbpaste | speakmore key. To set one for a specific provider, add its name: {providers}",
+        "Don't put the key after the command: it would stay in your shell history. Run orangespeakeasy key and paste it, or pipe it in: pbpaste | orangespeakeasy key. To set one for a specific provider, add its name: {providers}",
       forgotten: "Deleted the saved {provider} key.",
       whichVendor: "Offline mode doesn't use a key. To set one for a provider, add its name: {providers}",
       cancelled: "Cancelled; the key is unchanged.",
@@ -1362,31 +1366,33 @@ export default {
       needText:
         "You need a {provider} API key: recordings are transcribed on this Mac, and only the text goes to {provider} for refining.",
       customWithModel:
-        "A custom service's key goes in together with its model and address: speakmore polish custom/<model> --url <url> (not in local mode yet: speakmore mode local --polish custom/<model> --url <url>)",
+        "A custom service's key goes in together with its model and address: orangespeakeasy polish custom/<model> --url <url> (not in local mode yet: orangespeakeasy mode local --polish custom/<model> --url <url>)",
     },
     config: {
       nextLaunch: "Takes effect next launch.",
-      packaged: "The running SpeakMore is SpeakMore.app in Applications. To apply the new settings: {relaunch}.",
-      restarting: "Restarting SpeakMore to apply…",
+      packaged:
+        "The running OrangeSpeakEasy is OrangeSpeakEasy.app in Applications. To apply the new settings: {relaunch}.",
+      restarting: "Restarting OrangeSpeakEasy to apply…",
       restartedBroken: "Restarted, but it can't be used now: {problem}",
       undo: "To undo this change: {undo}",
       restartedKeyBad:
-        "Restarted, but the {provider} key doesn't work: {problem}. Run speakmore key {id} to replace it",
-      restartedNoKey: "Restarted, but there's no {provider} key yet, so it can't be used: run speakmore key {id}",
-      restartedStarting: "Restarted, but not ready yet: run speakmore status to check.",
+        "Restarted, but the {provider} key doesn't work: {problem}. Run orangespeakeasy key {id} to replace it",
+      restartedNoKey: "Restarted, but there's no {provider} key yet, so it can't be used: run orangespeakeasy key {id}",
+      restartedStarting: "Restarted, but not ready yet: run orangespeakeasy status to check.",
       restartedUnverified:
-        "Restarted, but couldn't reach {provider}, so the new settings aren't verified yet: run speakmore status in a bit.",
+        "Restarted, but couldn't reach {provider}, so the new settings aren't verified yet: run orangespeakeasy status in a bit.",
       applied: "Applied.",
-      oldDaemonLive: "The running SpeakMore is an old version and won't switch on the fly: run speakmore restart.",
+      oldDaemonLive:
+        "The running OrangeSpeakEasy is an old version and won't switch on the fly: run orangespeakeasy restart.",
       appliedLive: "Applied, no restart needed.",
       themeOverridden:
-        "The running SpeakMore still uses {theme}: {variable} is set where it was started, and it overrides the settings file.",
+        "The running OrangeSpeakEasy still uses {theme}: {variable} is set where it was started, and it overrides the settings file.",
       languageOverridden:
-        "The running SpeakMore still uses {language}: {variable} is set where it was started, and it overrides the settings file.",
+        "The running OrangeSpeakEasy still uses {language}: {variable} is set where it was started, and it overrides the settings file.",
       modelSourceOverridden:
-        "The running SpeakMore still uses {source}: {variable} is set where it was started, and it overrides the settings file.",
+        "The running OrangeSpeakEasy still uses {source}: {variable} is set where it was started, and it overrides the settings file.",
       hotkeyOverridden:
-        "The running SpeakMore still uses {hotkey}: {variable} is set where it was started, and it overrides the settings file.",
+        "The running OrangeSpeakEasy still uses {hotkey}: {variable} is set where it was started, and it overrides the settings file.",
       envWarning: "Note: the {variable} env var is set and overrides this value.",
       warning: "Note: {warning}",
       changed: "{name} set to {value}.",
@@ -1395,19 +1401,19 @@ export default {
       otherMode: "You're in {current} mode now; this takes effect when you switch to {mode} mode.",
       unset: "{name} reset to the default, {value}.",
       themeChanged: "Theme set to {theme}.",
-      notRunning: "SpeakMore isn't running. Run speakmore to start it first.",
+      notRunning: "OrangeSpeakEasy isn't running. Run orangespeakeasy to start it first.",
       settingsOpened: "Settings opened.",
       title: "Settings",
       choices: "{describe}. Options: {choices}",
-      hintSet: "Change one: speakmore config set hotkey.dictate Fn+Space",
-      hintUnset: "Reset one: speakmore config unset hotkey.dictate",
-      hintKey: "Replace the key: speakmore key",
-      hintTheme: "Switch theme: speakmore theme",
+      hintSet: "Change one: orangespeakeasy config set hotkey.dictate Fn+Space",
+      hintUnset: "Reset one: orangespeakeasy config unset hotkey.dictate",
+      hintKey: "Replace the key: orangespeakeasy key",
+      hintTheme: "Switch theme: orangespeakeasy theme",
       folder: "Folder",
       settingsFile: "Settings file",
       log: "Log",
       oneFolder: "The program, settings, keys, dictionary, history, and recordings all live in this one folder.",
-      uninstallHint: "Done with it? speakmore uninstall stops it and deletes the whole folder.",
+      uninstallHint: "Done with it? orangespeakeasy uninstall stops it and deletes the whole folder.",
     },
     source: {
       default: "default",
@@ -1418,31 +1424,34 @@ export default {
     themes: {
       title: "Themes",
       current: "Using {theme} · {source}",
-      switch: "Switch: speakmore theme {id} (applies right away, no restart)",
+      switch: "Switch: orangespeakeasy theme {id} (applies right away, no restart)",
     },
     modes: {
       title: "Recognition modes",
-      notIn: "You're in {current} mode; {what} can only be changed in {mode} mode: run speakmore mode {mode} first",
+      notIn:
+        "You're in {current} mode; {what} can only be changed in {mode} mode: run orangespeakeasy mode {mode} first",
       notSwitched: "Not switched: {problem}",
       applied: "Switched, no restart needed.",
       notUsable: "But it doesn't work yet: {problem}",
       downloading:
-        "The local model is downloading in the background ({percent}%); it'll work once it's done. Progress: speakmore status",
+        "The local model is downloading in the background ({percent}%); it'll work once it's done. Progress: orangespeakeasy status",
       loading: "The local model is loading; a few seconds.",
-      switch: "Switch: speakmore mode {mode} (takes effect right away)",
-      nativeModels: "Change the model in native: speakmore model",
-      localHops: "The two steps of local: speakmore transcriber (speech to text) · speakmore polish (refining)",
+      switch: "Switch: orangespeakeasy mode {mode} (takes effect right away)",
+      nativeModels: "Change the model in native: orangespeakeasy model",
+      localHops:
+        "The two steps of local: orangespeakeasy transcriber (speech to text) · orangespeakeasy polish (refining)",
       withSettings:
-        "Use a custom service on first entering local: speakmore mode local --polish custom/<model> --url <url>",
+        "Use a custom service on first entering local: orangespeakeasy mode local --polish custom/<model> --url <url>",
       flagsFor: "{flag} isn't a {mode} setting; switching to {mode} can bring {flags}",
       already: "Already in {mode} mode: {route}.",
       switched: "Switched to {mode} mode: {route}.",
       localRoute: "{transcriber} → {polish}",
       privateRoute: "{transcriber} on this Mac; no refining, nothing uploaded",
-      privateModel: "The on-device model in private: speakmore transcriber (on-device models only)",
+      privateModel: "The on-device model in private: orangespeakeasy transcriber (on-device models only)",
     },
     local: {
-      notInLocal: "You're in {current} mode, so these aren't in use: switch first (speakmore mode local or private)",
+      notInLocal:
+        "You're in {current} mode, so these aren't in use: switch first (orangespeakeasy mode local or private)",
       cloudNoDownload: "{model} is a cloud model; there's nothing to download",
       cloudCheckOk: "{model} works; the request took {seconds}.",
       transcribersTitle: "On-device speech-to-text models (the first step of local, the model of private)",
@@ -1454,56 +1463,58 @@ export default {
       summary: "{count} of {all} downloaded on this Mac, {size} in total",
       freeSpace: "{size} free on disk",
       transcriberCurrent: "In use: {model}",
-      transcriberSwitch: "Switch: speakmore transcriber {id}",
-      transcriberManage: "Download: speakmore transcriber download {id} · stop: cancel · remove: delete · check: check",
+      transcriberSwitch: "Switch: orangespeakeasy transcriber {id}",
+      transcriberManage:
+        "Download: orangespeakeasy transcriber download {id} · stop: cancel · remove: delete · check: check",
       downloadStart: "Downloading {model} ({size}, from {source})…",
       downloadBackground:
-        "SpeakMore is downloading it in the background: Ctrl-C only stops watching; to stop the download, run speakmore transcriber cancel {id}",
+        "OrangeSpeakEasy is downloading it in the background: Ctrl-C only stops watching; to stop the download, run orangespeakeasy transcriber cancel {id}",
       downloadProgress: "Downloading {percent}% ({received} / {total})",
       downloadDone: "{model} is downloaded.",
       downloadAlready: "{model} is already downloaded.",
       downloadStopped:
         "The {model} download stopped (cancelled elsewhere). Finished files are kept; a half-done file starts over next time.",
       downloadInterrupted:
-        "SpeakMore quit during the download. Finished files are kept; run speakmore transcriber download {id} to continue.",
+        "OrangeSpeakEasy quit during the download. Finished files are kept; run orangespeakeasy transcriber download {id} to continue.",
       nothingToCancel: "{model} isn't downloading.",
       cancelled: "Stopped downloading {model}. Finished files are kept; a half-done file starts over next time.",
       notOnDisk: "{model} isn't downloaded, so there's nothing to delete.",
       deleteConfirm: "Delete {model} ({size})? You'll need to download it again to use it. Type y to confirm: ",
       deleteNeedsConfirm:
-        "Deleting needs confirmation: run it in a terminal, or add --yes (speakmore transcriber delete {id} --yes)",
+        "Deleting needs confirmation: run it in a terminal, or add --yes (orangespeakeasy transcriber delete {id} --yes)",
       deleteAborted: "Nothing deleted.",
       deleted: "Deleted {model}, freeing {size}.",
       oldDaemonDelete:
-        "The running SpeakMore is an old version that can't tell which model is in use, so nothing was deleted: run speakmore restart, then try again.",
+        "The running OrangeSpeakEasy is an old version that can't tell which model is in use, so nothing was deleted: run orangespeakeasy restart, then try again.",
       checking: "Checking {model}: reading it a sentence…",
       checkOk: "{model} works. Read “{said}”, got “{text}”, transcribed in {seconds}.",
       checkLoaded: "It wasn't in use: loading it took {seconds}, and it's unloaded again.",
       oldDaemonCheck:
-        "The running SpeakMore is an old version that can't check on-device models: run speakmore restart, then check again.",
+        "The running OrangeSpeakEasy is an old version that can't check on-device models: run orangespeakeasy restart, then check again.",
       notDownloadedAsk: "{model} isn't downloaded yet ({size}, from {source}). Download it now? Type y to download: ",
-      notDownloadedHint: "{model} isn't downloaded yet: run speakmore transcriber download {id} first",
+      notDownloadedHint: "{model} isn't downloaded yet: run orangespeakeasy transcriber download {id} first",
       notDownloadedLater:
-        "Nothing downloaded or switched. To download it later, run speakmore transcriber download {id}",
+        "Nothing downloaded or switched. To download it later, run orangespeakeasy transcriber download {id}",
       transcriberSwitched: "Speech to text now uses {model}.",
       polishTitle: "Refining models (the second step of local mode)",
       customName: "Custom service",
       customModel: "your own model and address",
       alsoModels: "also: {models}",
       polishCurrent: "In use: {model}",
-      polishSwitch: "Switch: speakmore polish deepseek/deepseek-v4-pro",
+      polishSwitch: "Switch: orangespeakeasy polish deepseek/deepseek-v4-pro",
       polishCustom:
-        "Custom service (OpenAI-compatible): speakmore polish custom/<model> --url <url> [--params '<JSON>']",
+        "Custom service (OpenAI-compatible): orangespeakeasy polish custom/<model> --url <url> [--params '<JSON>']",
       polishParams: "Extra parameters: {params}",
-      polishCheck: "Check it works: speakmore polish check",
+      polishCheck: "Check it works: orangespeakeasy polish check",
       polishSwitched: "Refining now uses {model}.",
       urlNeeded: "A custom refining service needs its address: --url <url> (OpenAI-compatible; most end in /v1)",
       paramsCustomOnly: "--params is only for the custom service: use it when refining goes to custom/<model>",
       sourceCurrent: "Downloads from: {source}",
-      sourceSwitch: "Change: speakmore config set modelSource {other} (falls back to the other if one stalls)",
+      sourceSwitch: "Change: orangespeakeasy config set modelSource {other} (falls back to the other if one stalls)",
     },
     choose: {
-      question: "First, pick how recordings become text (change it later with speakmore mode or speakmore model):",
+      question:
+        "First, pick how recordings become text (change it later with orangespeakeasy mode or orangespeakeasy model):",
       native: "native (Direct) mode: the recording goes straight to the model",
       local:
         "local (Hybrid) mode: transcribed on this Mac, only the text goes to a model for refining (first use downloads a {size} local model)",
@@ -1511,28 +1522,30 @@ export default {
         "private (Offline) mode: transcribed on this Mac only; no refining, nothing uploaded (first use downloads a {size} local model)",
       privateOption: "Offline    no key needed",
       custom:
-        "  To use another service (OpenAI-compatible): after setup, run speakmore mode local --polish custom/<model> --url <url>",
+        "  To use another service (OpenAI-compatible): after setup, run orangespeakeasy mode local --polish custom/<model> --url <url>",
     },
     model: {
       textOnly:
-        "{provider} only takes text; it refines in local mode: speakmore polish {id} (not in local mode yet? speakmore mode local first)",
-      notInNative: "You're in {current} mode, so these models aren't in use: switch back first (speakmore mode native)",
+        "{provider} only takes text; it refines in local mode: orangespeakeasy polish {id} (not in local mode yet? orangespeakeasy mode local first)",
+      notInNative:
+        "You're in {current} mode, so these models aren't in use: switch back first (orangespeakeasy mode native)",
       unknownProvider: "Unknown provider {name}; available: {providers}. To pick a model, write provider/model",
       invalid: "Model is {value}: {reason}",
       describe: "{provider} {model}",
       option: "default {model}",
       optionWithKey: "default {model}, key already set",
-      choose: "First, pick whose model turns your recordings into text (change it later with speakmore model):",
+      choose: "First, pick whose model turns your recordings into text (change it later with orangespeakeasy model):",
       choosePrompt: "Enter a number and press Enter (just Enter picks {fallback}): ",
       choosePromptAgain: "Enter a number and press Enter: ",
       choiceItem: "{number} ({name})",
       noSuchChoice: "There's no option {answer}; choose {choices}.",
-      noKeyNonInteractive: "No {provider} key yet, so nothing changed: run speakmore key {id} first, then switch.",
+      noKeyNonInteractive:
+        "No {provider} key yet, so nothing changed: run orangespeakeasy key {id} first, then switch.",
       notSwitched: "Not switched: no {provider} key yet.",
       switched: "Model switched to {model}.",
       checking: "Checking {model}…",
       oldDaemonCheck:
-        "The running SpeakMore is an old version and can't check: run speakmore restart, then check again.",
+        "The running OrangeSpeakEasy is an old version and can't check: run orangespeakeasy restart, then check again.",
       unusable: "Not usable: {problem}",
       usable: "Works: {model}, using {from}, round trip {seconds}s.",
       fromEnv: "the key in the {variable} env var",
@@ -1545,9 +1558,9 @@ export default {
       keyEnv: "key from the {variable} env var",
       noKey: "no key yet",
       current: "Using {provider} {model} · {source}",
-      switch: "Switch provider: speakmore model {id} (asks for its key if missing)",
-      pick: "Pick a model: speakmore model {id}/{model}",
-      check: "Check it works: speakmore model check (no argument checks the current one)",
+      switch: "Switch provider: orangespeakeasy model {id} (asks for its key if missing)",
+      pick: "Pick a model: orangespeakeasy model {id}/{model}",
+      check: "Check it works: orangespeakeasy model check (no argument checks the current one)",
     },
     status: {
       notRunning: "not running",
@@ -1574,7 +1587,7 @@ export default {
       localDownloading: "downloading {percent}% ({received} / {total} MB)",
       localLoading: "loading",
       localIdle: "released while idle, loads when you speak",
-      localMissing: "not downloaded: speakmore transcriber download {id}",
+      localMissing: "not downloaded: orangespeakeasy transcriber download {id}",
       modelInUse: "{provider} {model}",
       modelWithThinking: "{provider} {model} ({thinking})",
       keyEnv: "Using the one in the {variable} env var this run, not saved",
@@ -1585,15 +1598,15 @@ export default {
       keySaved: "Saved and verified",
       keySavedUnverified: "Saved; couldn't reach {provider} at launch, so it isn't verified yet",
       keyChecking: "Verifying…",
-      keyCheckFailed: "Check failed: {problem}. The key may be fine; check the {what} first: speakmore config",
+      keyCheckFailed: "Check failed: {problem}. The key may be fine; check the {what} first: orangespeakeasy config",
       modelAndLevel: "model and thinking level",
       modelOnly: "model",
       keyEnvRejected:
         "The key in the {variable} env var doesn't work: {problem}. Fix it or remove the variable, then restart",
-      keyRejected: "Not working: {problem}. Run speakmore key to replace it",
-      keyUnreadable: "{problem}: run speakmore key",
-      keyMissing: "Not set: run speakmore key",
-      keyMissingFor: "{provider} key not set: run speakmore key {id}",
+      keyRejected: "Not working: {problem}. Run orangespeakeasy key to replace it",
+      keyUnreadable: "{problem}: run orangespeakeasy key",
+      keyMissing: "Not set: run orangespeakeasy key",
+      keyMissingFor: "{provider} key not set: run orangespeakeasy key {id}",
       dictations: { one: "{count} dictation", other: "{count} dictations" },
       characters: { one: "{count} character", other: "{count} characters" },
       pace: "{count} characters/min",
@@ -1601,19 +1614,20 @@ export default {
       costUnknown: "cost unknown",
       pending: "Changed in settings but not applied yet ({names}): {relaunch}.",
       helperStopped:
-        "The key-listening helper stopped, so the hotkey won't work: {relaunch}. If it keeps happening, see speakmore logs.",
+        "The key-listening helper stopped, so the hotkey won't work: {relaunch}. If it keeps happening, see orangespeakeasy logs.",
       openSettings:
         "Run {command} to open the permissions page in Settings: each permission has a button to System Settings; after turning it on, click “Check again”.",
-      ownerApp: "Permissions belong to the app itself; look for “SpeakMore” in the System Settings lists.",
+      ownerApp: "Permissions belong to the app itself; look for “OrangeSpeakEasy” in the System Settings lists.",
       ownerTerminal:
-        "Permissions belong to the terminal app that started SpeakMore (e.g. Terminal or iTerm); look for it in the System Settings lists.",
-      footer: `speakmore history  what you said     speakmore config  view and change settings
-speakmore usage    what it cost      speakmore stop    stop it
-speakmore help     all commands`,
+        "Permissions belong to the terminal app that started OrangeSpeakEasy (e.g. Terminal or iTerm); look for it in the System Settings lists.",
+      footer: `orangespeakeasy history  what you said     orangespeakeasy config  view and change settings
+orangespeakeasy usage    what it cost      orangespeakeasy stop    stop it
+orangespeakeasy help     all commands`,
     },
     dict: {
-      usage: "Usage: speakmore dict [--json] | speakmore dict add|remove <word>… | speakmore dict import <file>",
-      empty: "The dictionary is empty. Add words: speakmore dict add <word>…",
+      usage:
+        "Usage: orangespeakeasy dict [--json] | orangespeakeasy dict add|remove <word>… | orangespeakeasy dict import <file>",
+      empty: "The dictionary is empty. Add words: orangespeakeasy dict add <word>…",
       header: {
         one: "{count} word in the dictionary ({file}, stored on this device only):",
         other: "{count} words in the dictionary ({file}, stored on this device only):",
@@ -1635,7 +1649,7 @@ speakmore help     all commands`,
       recording: "Recording {seconds}s, kept at {path}",
       notSaved: "(not saved)",
       source: "{label}: {text}",
-      more: "Showing the latest {shown} of {total}. Run speakmore history -n {total} to see all.",
+      more: "Showing the latest {shown} of {total}. Run orangespeakeasy history -n {total} to see all.",
     },
     usage: {
       empty: "No usage yet. Say something first: every model call's cost, tokens, and reply time get recorded.",
@@ -1664,43 +1678,43 @@ speakmore help     all commands`,
         "Costs are USD estimates at each provider's standard price; Gemini use within the free tier is actually free.",
     },
     logs: {
-      none: "No logs yet: SpeakMore writes them to {file} once it has started",
+      none: "No logs yet: OrangeSpeakEasy writes them to {file} once it has started",
     },
     move: {
-      where: "SpeakMore is in {home}.",
-      how: "To move it elsewhere (another disk, say): speakmore move <folder>; it goes into .speakmore inside that folder. To move it back to the default place: speakmore move ~",
+      where: "OrangeSpeakEasy is in {home}.",
+      how: "To move it elsewhere (another disk, say): orangespeakeasy move <folder>; it goes into .orangespeakeasy inside that folder. To move it back to the default place: orangespeakeasy move ~",
       needsConfirm: "Moving needs a confirmation. Add --yes when not running in a terminal.",
-      plan: "About to move SpeakMore from {from} to {to}: {size} to copy ({count} files), with the program, on-device models, recordings and settings.\nSpeakMore stops while it moves and reopens when done; if the move fails, everything stays as it was.",
-      unknown: "Things in the old folder that aren't SpeakMore's are neither moved nor deleted: {items}",
+      plan: "About to move OrangeSpeakEasy from {from} to {to}: {size} to copy ({count} files), with the program, on-device models, recordings and settings.\nOrangeSpeakEasy stops while it moves and reopens when done; if the move fails, everything stays as it was.",
+      unknown: "Things in the old folder that aren't OrangeSpeakEasy's are neither moved nor deleted: {items}",
       confirm: "Move it? Type y and press Enter: ",
       aborted: "Nothing changed.",
       progress: "Copied {percent}% ({done} / {total})",
-      done: "SpeakMore has moved to {to} ({count} files, {size}).",
+      done: "OrangeSpeakEasy has moved to {to} ({count} files, {size}).",
       removed: "Deleted the old folder {dir}.",
       later: "The old folder {dir} is in use by this command; it will be deleted a few seconds after it exits.",
-      left: "The old folder {dir} still has things that aren't SpeakMore's; they were left alone: {items}",
+      left: "The old folder {dir} still has things that aren't OrangeSpeakEasy's; they were left alone: {items}",
     },
     uninstall: {
       yours: "settings, keys, dictionary, history, and recordings",
       needsConfirm: "Uninstalling needs confirmation. Add --yes when not running in a terminal.",
-      planKeep: "About to uninstall SpeakMore: delete the program and runtime in {home}, keeping your {yours}.",
+      planKeep: "About to uninstall OrangeSpeakEasy: delete the program and runtime in {home}, keeping your {yours}.",
       planAll:
-        "About to uninstall SpeakMore: delete all of {home}, including the program, runtime, and your {yours}. This can't be undone.",
+        "About to uninstall OrangeSpeakEasy: delete all of {home}, including the program, runtime, and your {yours}. This can't be undone.",
       confirm: "Are you sure? Type y and press Enter: ",
       aborted: "Nothing changed.",
       removedKeep: "the program, runtime, logs, and cache in {home}",
       keychainItem: "the keychain item used to encrypt keys",
       keychainFailed:
-        "The keychain item used to encrypt keys wasn't deleted ({reason}): search for SpeakMore in Keychain Access and delete it by hand",
+        "The keychain item used to encrypt keys wasn't deleted ({reason}): search for OrangeSpeakEasy in Keychain Access and delete it by hand",
       pathEntry: "{entry} in your user Path",
       loginItem: "Open at login",
       afterExit: "The program files are in use by this command; they're removed a few seconds after it exits",
       removedAll: "{home} (the program, runtime, and your {yours})",
-      locationFile: "SpeakMore's location file {file}",
+      locationFile: "OrangeSpeakEasy's location file {file}",
       locationUnreadable:
         "The location file {file} couldn't be read ({reason}) and wasn't deleted; you can delete it yourself",
       halfCopy: "{dir} (a copy left by a move that didn't finish)",
-      done: "SpeakMore uninstalled.",
+      done: "OrangeSpeakEasy uninstalled.",
       removed: "Deleted: {item}",
       kept: "Kept: your {yours} in {home}. Reinstall to pick up where you left off; delete the folder if you don't need them",
       leftovers: "Still on your system:",
@@ -1721,8 +1735,8 @@ speakmore help     all commands`,
       signal: "ended by signal {signal}",
       exitCode: "exit code {code}",
       exitedEarly: "exited midway",
-      failed: "SpeakMore failed to start ({reason}). Last lines of the log {file}:\n{tail}",
-      noAnswer: "SpeakMore didn't respond within {seconds} seconds of starting. Check the log: {file}",
+      failed: "OrangeSpeakEasy failed to start ({reason}). Last lines of the log {file}:\n{tail}",
+      noAnswer: "OrangeSpeakEasy didn't respond within {seconds} seconds of starting. Check the log: {file}",
       needXcode:
         "Building the key-listening helper needs the Xcode Command Line Tools. Run this first: xcode-select --install",
       buildFailed:
@@ -1758,23 +1772,23 @@ speakmore help     all commands`,
     },
     instance: {
       stuckNoPid:
-        "SpeakMore is stuck and not answering, and its process can't be identified. In Task Manager's Details tab, find electron.exe and end it.",
-      cantStop: "Can't stop SpeakMore (PID {pid}). End it in Task Manager.",
+        "OrangeSpeakEasy is stuck and not answering, and its process can't be identified. In Task Manager's Details tab, find electron.exe and end it.",
+      cantStop: "Can't stop OrangeSpeakEasy (PID {pid}). End it in Task Manager.",
     },
     update: {
       restartFailed:
-        "The new version is installed, but SpeakMore couldn't be restarted (exit code {code}). Open SpeakMore from the Start menu; details are in {log}.",
+        "The new version is installed, but OrangeSpeakEasy couldn't be restarted (exit code {code}). Open OrangeSpeakEasy from the Start menu; details are in {log}.",
     },
     move: {
       unsupportedDrive:
-        "The disk of {home} can't hold SpeakMore: {what} ({reason}). exFAT and FAT32, common on USB sticks and external drives, aren't supported; choose a disk formatted as NTFS.",
+        "The disk of {home} can't hold OrangeSpeakEasy: {what} ({reason}). exFAT and FAT32, common on USB sticks and external drives, aren't supported; choose a disk formatted as NTFS.",
     },
     cli: {
       key: { storage: "It's encrypted with Windows data protection and stays on this PC." },
-      config: { hintSet: "Change one: speakmore config set hotkey.dictate ControlRight" },
+      config: { hintSet: "Change one: orangespeakeasy config set hotkey.dictate ControlRight" },
     },
     permissions: { openSettings: "Settings" },
-    // PowerShell strips double quotes from arguments it passes to speakmore.cmd; they need a backslash
+    // PowerShell strips double quotes from arguments it passes to orangespeakeasy.cmd; they need a backslash
     chat: {
       paramsNotJson:
         'the extra parameters aren\'t valid JSON: keys and strings need straight double quotes, e.g. {"reasoning_effort": "minimal"}. In PowerShell, put a backslash before each double quote in --params: \'{\\"reasoning_effort\\": \\"minimal\\"}\'',
@@ -1793,9 +1807,9 @@ speakmore help     all commands`,
     key: {
       keychainUnavailable: "Windows' encrypted storage isn't available, so the key can't be stored safely",
       noKeyService:
-        "No {provider} API key yet: run speakmore key in a terminal, or open Settings from the SpeakMore icon in the taskbar tray",
+        "No {provider} API key yet: run orangespeakeasy key in a terminal, or open Settings from the OrangeSpeakEasy icon in the taskbar tray",
       noKeyServiceFor:
-        "No {provider} API key yet: run speakmore key {id} in a terminal, or open Settings from the SpeakMore icon in the taskbar tray",
+        "No {provider} API key yet: run orangespeakeasy key {id} in a terminal, or open Settings from the OrangeSpeakEasy icon in the taskbar tray",
     },
     delivery: { pasteFailed: "Couldn't paste: text copied, press Ctrl+V to paste" },
     bar: { noMicPermission: "No microphone access: Settings › Privacy & security › Microphone" },

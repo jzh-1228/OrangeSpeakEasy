@@ -81,7 +81,7 @@ test("Windows：用系统自带的语音合成念，要念的话、写到哪、�
   const calls = [];
   const run = async (file, args, options) => {
     calls.push({ file, args, env: options.env });
-    writeFileSync(options.env.SPEAKMORE_PROBE_FILE, sayLikeWav([0, 16384]));
+    writeFileSync(options.env.ORANGESPEAKEASY_PROBE_FILE, sayLikeWav([0, 16384]));
   };
   const { samples, said } = await speechSample("zh-CN", { run, platform: "win32" });
   assert.equal(said, PROBE_SPEECH["zh-CN"].text);
@@ -92,6 +92,6 @@ test("Windows：用系统自带的语音合成念，要念的话、写到哪、�
   // 脚本里不拼外来的字：念的那句只在环境变量里
   assert.ok(!args[3].includes(PROBE_SPEECH["zh-CN"].text));
   assert.match(args[3], /SpeechAudioFormatInfo 16000/);
-  assert.equal(env.SPEAKMORE_PROBE_TEXT, PROBE_SPEECH["zh-CN"].text);
-  assert.equal(env.SPEAKMORE_PROBE_CULTURE, "zh-CN");
+  assert.equal(env.ORANGESPEAKEASY_PROBE_TEXT, PROBE_SPEECH["zh-CN"].text);
+  assert.equal(env.ORANGESPEAKEASY_PROBE_CULTURE, "zh-CN");
 });

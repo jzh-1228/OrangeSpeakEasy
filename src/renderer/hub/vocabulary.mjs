@@ -95,7 +95,7 @@ export function createVocabulary() {
   async function reload() {
     let next;
     try {
-      next = await window.speakmore.getVocabulary();
+      next = await window.orangespeakeasy.getVocabulary();
     } catch (error) {
       console.error("读词典失败", error);
       showError(t("vocabulary.loadError", { reason: describeError(error) }));
@@ -313,7 +313,7 @@ export function createVocabulary() {
         return;
       }
       try {
-        const updated = await window.speakmore.updateTerm(term, value);
+        const updated = await window.orangespeakeasy.updateTerm(term, value);
         if (selected.delete(term)) selected.add(updated);
         // 先在本地改好、记成已画：接着的重读和这一样，就不会整片重画（那会吞掉他正在点的下一下）
         data = { ...data, terms: data.terms.map((each) => (each === term ? updated : each)) };
@@ -391,7 +391,7 @@ export function createVocabulary() {
     if (adding || composerInput.value.trim() === "") return;
     adding = true;
     try {
-      const added = await window.speakmore.addTerm(composerInput.value);
+      const added = await window.orangespeakeasy.addTerm(composerInput.value);
       composerInput.value = "";
       fresh = added;
       $("vocabulary-search").value = "";
@@ -491,7 +491,7 @@ export function createVocabulary() {
         : t("vocabulary.dialogs.removeMany.description"),
       confirm: t(one ? "vocabulary.dialogs.remove.confirm" : "vocabulary.dialogs.removeMany.confirm"),
       run: async () => {
-        const count = await window.speakmore.removeTerms(terms);
+        const count = await window.orangespeakeasy.removeTerms(terms);
         for (const term of terms) selected.delete(term);
         return one ? t("vocabulary.toast.removed", { term: terms[0] }) : t("vocabulary.toast.removedMany", { count });
       },
@@ -502,7 +502,7 @@ export function createVocabulary() {
   async function openImport() {
     let preview;
     try {
-      preview = await window.speakmore.previewImport();
+      preview = await window.orangespeakeasy.previewImport();
     } catch (error) {
       toast(describeError(error));
       return;
@@ -523,7 +523,8 @@ export function createVocabulary() {
       problem: count > preview.room ? t("vocabulary.tooMany", { max: MAX_TERMS, room: preview.room, count }) : null,
       confirm: t("vocabulary.dialogs.import.confirm", { count }),
       disabled: count === 0,
-      run: async () => t("vocabulary.toast.imported", { count: await window.speakmore.importTerms(preview.terms) }),
+      run: async () =>
+        t("vocabulary.toast.imported", { count: await window.orangespeakeasy.importTerms(preview.terms) }),
     });
   }
 

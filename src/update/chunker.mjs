@@ -22,7 +22,7 @@ export const CHUNKING = Object.freeze({
 const GEAR = (() => {
   const table = new Uint32Array(256);
   for (let i = 0; i < 256; i += 1)
-    table[i] = createHash("sha256").update(`speakmore-gear-${i}`).digest().readUInt32BE(0);
+    table[i] = createHash("sha256").update(`orangespeakeasy-gear-${i}`).digest().readUInt32BE(0);
   return table;
 })();
 

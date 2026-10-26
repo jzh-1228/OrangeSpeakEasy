@@ -9,7 +9,7 @@
 import { join } from "node:path";
 import { mirrorRepo } from "../../src/models/catalog.mjs";
 
-const REPO_URL = "https://github.com/zephyr4123/speakmore";
+const REPO_URL = "https://github.com/jzh-1228/OrangeSpeakEasy";
 
 /**
  * 一个模型要传的模型文件：本机模型仓里的那一份（storeDir/<模型 id>/<路径>）、仓库里的路径、大小和校验值。
@@ -36,7 +36,7 @@ function sourceLines(model) {
   const { origin } = model;
   return [
     `These files are a byte-identical mirror of https://huggingface.co/${origin.repo}`,
-    `at commit ${origin.revision}, kept by SpeakMore (${REPO_URL})`,
+    `at commit ${origin.revision}, kept by OrangeSpeakEasy (${REPO_URL})`,
     "so that its users can download them quickly from China.",
     "",
     `Model: ${model.name}, originally released by ${model.author} (https://huggingface.co/${model.author}).`,

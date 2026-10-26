@@ -84,14 +84,14 @@ test("软件更新：有新版本，按钮是醒目的“更新到 v…”；只
     { ...IDLE, current: "0.10.1", latest: "0.10.1", available: true, other: { kind: "home", version: "0.10.0" } },
     zh,
   );
-  assert.equal(other.text, "终端安装的 SpeakMore 仍是 v0.10.0，可一并更新到 v0.10.1");
+  assert.equal(other.text, "终端安装的 OrangeSpeakEasy 仍是 v0.10.0，可一并更新到 v0.10.1");
 });
 
 test("软件更新：进行中不给按，说到了哪一步；命令行在更新也说", () => {
   const running = (progress) => describeUpdate({ ...IDLE, progress: { state: "running", by: "app", ...progress } }, zh);
   assert.equal(running({ phase: "starting" }).text, "正在检查…");
   assert.equal(running({ phase: "downloading", version: "0.10.1" }).text, "正在下载 v0.10.1…");
-  assert.equal(running({ phase: "installing", version: "0.10.1" }).text, "正在安装，SpeakMore 将自动重新打开…");
+  assert.equal(running({ phase: "installing", version: "0.10.1" }).text, "正在安装，OrangeSpeakEasy 将自动重新打开…");
   assert.equal(running({ by: "cli", version: "0.10.1" }).text, "命令行正在更新到 v0.10.1…");
   assert.equal(running({ phase: "downloading" }).action, null);
   assert.equal(running({ phase: "downloading" }).icon, "i-loader-circle");

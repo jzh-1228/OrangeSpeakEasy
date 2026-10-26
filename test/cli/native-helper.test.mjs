@@ -148,7 +148,7 @@ test("ensureHelper：要编才编，动手之前先说一声，并说明这次�
 
 const win = helperPaths("C:/pkg", "win32");
 const GO_FILES = {
-  "go.mod": "module speakmore/keyhelper\n",
+  "go.mod": "module orangespeakeasy/keyhelper\n",
   "main_windows.go": "package main",
   "keys.go": "package main",
 };

@@ -101,7 +101,7 @@ test("代码里写死的名字（t、msg、parts、data-i18n）在英文里都�
   const root = resolve(import.meta.dirname, "../..");
   const used = new Map();
   const patterns = [/\bt(?:\.parts)?\(\s*"([\w.]+)"/g, /\bmsg\(\s*"([\w.]+)"/g, /data-i18n(?:-[\w-]+)?="([\w.]+)"/g];
-  for (const file of [...sourceFiles(join(root, "src")), join(root, "bin/speakmore.mjs")]) {
+  for (const file of [...sourceFiles(join(root, "src")), join(root, "bin/orangespeakeasy.mjs")]) {
     const text = readFileSync(file, "utf8");
     for (const pattern of patterns) {
       for (const match of text.matchAll(pattern)) used.set(match[1], file.slice(root.length + 1));

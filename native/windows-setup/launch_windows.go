@@ -31,7 +31,7 @@ func appEnv(env []string) []string {
 	kept := env[:0:0]
 	for _, entry := range env {
 		name := strings.ToUpper(strings.SplitN(entry, "=", 2)[0])
-		if strings.HasPrefix(name, "SPEAKMORE_INSTALL_") || name == "SPEAKMORE_VERSION" || name == "SPEAKMORE_NO_START" || name == "ELECTRON_RUN_AS_NODE" {
+		if strings.HasPrefix(name, "ORANGESPEAKEASY_INSTALL_") || name == "ORANGESPEAKEASY_VERSION" || name == "ORANGESPEAKEASY_NO_START" || name == "ELECTRON_RUN_AS_NODE" {
 			continue
 		}
 		kept = append(kept, entry)

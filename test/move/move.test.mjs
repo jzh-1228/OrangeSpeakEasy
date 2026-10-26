@@ -30,28 +30,28 @@ function put(file, content = "x") {
   writeFileSync(file, content);
 }
 
-/** 假的用户目录：默认位置有一份用过的 SpeakMore，旁边一块"盘"等着搬过去 */
+/** 假的用户目录：默认位置有一份用过的 OrangeSpeakEasy，旁边一块"盘"等着搬过去 */
 function setup(t, { installer = false, located = false } = {}) {
   const root = realpathSync(mkdtempSync("/tmp/sm-m-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  const from = located ? join(root, "elsewhere", ".speakmore") : join(root, ".speakmore");
+  const from = located ? join(root, "elsewhere", ".orangespeakeasy") : join(root, ".orangespeakeasy");
   put(join(from, "settings.json"), '{"hotkey":"fn"}');
   put(join(from, "data", "history.db"), "历史");
   put(join(from, "models", "m", "model.bin"), "模型");
   put(join(from, "logs", "main.log"), "日志");
   put(join(from, "run", "daemon.pid"), "123");
   put(join(from, "notes.txt"), "用户自己的");
-  if (installer) put(join(from, "app", "install.sh"), "# 认得 SPEAKMORE_PREVIOUS_HOME\n");
-  const paths = resolvePaths({ SPEAKMORE_HOME: from }, root, "darwin");
+  if (installer) put(join(from, "app", "install.sh"), "# 认得 ORANGESPEAKEASY_PREVIOUS_HOME\n");
+  const paths = resolvePaths({ ORANGESPEAKEASY_HOME: from }, root, "darwin");
   if (located) writeLocation(paths.locationFile, { home: from });
   const disk = join(root, "disk");
   mkdirSync(disk);
-  return { root, from, paths, disk, to: join(disk, ".speakmore") };
+  return { root, from, paths, disk, to: join(disk, ".orangespeakeasy") };
 }
 
 /** "应用程序"里的 App：0.12.0 起的认得定位文件 */
 function fakeApp(root) {
-  const path = join(root, "SpeakMore.app");
+  const path = join(root, "OrangeSpeakEasy.app");
   put(join(path, "Contents", "Resources", "app", "src", "storage", "location.mjs"));
   return { find: async () => ({ path, version: "0.12.0" }) };
 }
@@ -79,7 +79,7 @@ function fakeRehome({ paths, root, codes = [] }) {
     calls.push({ home, previous });
     const code = codes.shift() ?? 0;
     if (code !== 0) return code;
-    if (home === join(root, ".speakmore")) rmSync(paths.locationFile, { force: true });
+    if (home === join(root, ".orangespeakeasy")) rmSync(paths.locationFile, { force: true });
     else writeLocation(paths.locationFile, { home });
     return 0;
   };
@@ -135,7 +135,7 @@ test("搬过去：我们的拷过去、旧目录里只删我们的，用户自�
   // 旧目录：用户自己的那个文件留着，旁边是说搬去了哪的记号
   assert.deepEqual(readdirSync(from).sort(), ["MOVED.json", "notes.txt"]);
   assert.deepEqual(JSON.parse(readFileSync(join(from, "MOVED.json"), "utf8")), { to });
-  assert.equal(readMoveRecord(resolvePaths({ SPEAKMORE_HOME: to }, root, "darwin")).state, "done");
+  assert.equal(readMoveRecord(resolvePaths({ ORANGESPEAKEASY_HOME: to }, root, "darwin")).state, "done");
   assert.deepEqual(reports, ["move.copying", "move.switching"]);
   assert.deepEqual(progress[0], { files: 0, bytes: 0, total: { files: 4, bytes: progress.at(-1).bytes } });
   assert.equal(progress.at(-1).files, 4);
@@ -162,16 +162,16 @@ test("搬回默认位置：定位文件删掉", posixOnly, async (t) => {
   const { root, paths } = setup(t, { located: true });
   await mover({ paths, root }).run({ folder: root, by: "cli" });
   assert.equal(existsSync(paths.locationFile), false);
-  assert.equal(readFileSync(join(root, ".speakmore", "settings.json"), "utf8"), '{"hotkey":"fn"}');
+  assert.equal(readFileSync(join(root, ".orangespeakeasy", "settings.json"), "utf8"), '{"hotkey":"fn"}');
 });
 
 test("正在运行的：先停掉，搬完从新位置用它的启动命令重新打开", posixOnly, async (t) => {
   const { root, from, paths, disk, to } = setup(t, { installer: true });
   // 启动命令记下自己是从哪个家目录起的
   const marker = join(root, "started-in");
-  put(join(from, "bin", "speakmore"), `#!/bin/sh\nprintf '%s %s' "$SPEAKMORE_HOME" "$1" > '${marker}'\n`);
+  put(join(from, "bin", "orangespeakeasy"), `#!/bin/sh\nprintf '%s %s' "$ORANGESPEAKEASY_HOME" "$1" > '${marker}'\n`);
   const { chmodSync } = await import("node:fs");
-  chmodSync(join(from, "bin", "speakmore"), 0o755);
+  chmodSync(join(from, "bin", "orangespeakeasy"), 0o755);
   const instance = fakeInstance({ pid: 1, packaged: false });
   const rehome = fakeRehome({ paths, root });
   await mover({ paths, root, instance, rehome, stdio: "forward" }).run({ folder: disk, by: "cli" });
@@ -190,7 +190,7 @@ test("Mac 的 App 在运行：搬完用 open 从新位置打开它", posixOnly, 
     bundles: fakeApp(root),
     openApp: async (app, home) => opened.push([app, home]),
   }).run({ folder: disk, by: "app" });
-  assert.deepEqual(opened, [[join(root, "SpeakMore.app"), to]]);
+  assert.deepEqual(opened, [[join(root, "OrangeSpeakEasy.app"), to]]);
 });
 
 test("换家失败：系统入口换回旧目录，定位文件放回原样，拷过去的删掉，旧目录原样在用", posixOnly, async (t) => {
@@ -256,7 +256,7 @@ test(
     );
     assert.deepEqual(instance.calls, ["stop"]);
     assert.equal(existsSync(paths.locationFile), false);
-    assert.deepEqual(opened, [[join(root, "SpeakMore.app"), from]]);
+    assert.deepEqual(opened, [[join(root, "OrangeSpeakEasy.app"), from]]);
     assert.deepEqual(readdirSync(disk), []);
   },
 );
@@ -272,13 +272,13 @@ test("拷过去的符号链接不对（指向旧目录的绝对路径）：不�
   assert.equal(existsSync(paths.locationFile), false);
 });
 
-test("选的就是一个空的 .speakmore：搬不成时只清空它，目录留着", posixOnly, async (t) => {
+test("选的就是一个空的 .orangespeakeasy：搬不成时只清空它，目录留着", posixOnly, async (t) => {
   const { root, paths, disk, to } = setup(t, { installer: true });
   mkdirSync(to);
   await assert.rejects(
     mover({ paths, root, rehome: fakeRehome({ paths, root, codes: [1, 0] }) }).run({ folder: to, by: "cli" }),
   );
-  assert.deepEqual(readdirSync(disk), [".speakmore"]);
+  assert.deepEqual(readdirSync(disk), [".orangespeakeasy"]);
   assert.deepEqual(readdirSync(to), []);
 });
 
@@ -303,47 +303,47 @@ test("不搬：家目录里的程序太旧、应用程序里的 App 太旧、这
   await assert.rejects(mover({ paths, root }).plan(disk), key("move.homeTooOld"));
   rmSync(join(from, "app"), { recursive: true });
 
-  const oldApp = join(root, "SpeakMore.app");
+  const oldApp = join(root, "OrangeSpeakEasy.app");
   mkdirSync(oldApp);
   const bundles = { find: async () => ({ path: oldApp, version: "0.11.0" }) };
   await assert.rejects(mover({ paths, root, bundles }).plan(disk), key("move.appTooOld"));
   put(join(oldApp, "Contents", "Resources", "app", "src", "storage", "location.mjs"));
   await mover({ paths, root, bundles }).plan(disk);
 
-  // SPEAKMORE_HOME 临时指到别处（开发、测试）：定位文件不能被改指到它
-  const other = resolvePaths({ SPEAKMORE_HOME: join(root, "dev-home") }, root, "darwin");
+  // ORANGESPEAKEASY_HOME 临时指到别处（开发、测试）：定位文件不能被改指到它
+  const other = resolvePaths({ ORANGESPEAKEASY_HOME: join(root, "dev-home") }, root, "darwin");
   mkdirSync(other.home);
   await assert.rejects(mover({ paths: other, root }).plan(disk), key("move.notRecorded"));
 
   // 装着程序、却没有能换家的安装脚本（Mac 上 0.10.x 的终端安装，app 里不带 install.sh）：不能当成只装了 dmg 的来搬
   put(join(from, "app", "package.json"), "{}");
-  put(join(from, "bin", "speakmore"), "#!/bin/sh\n");
+  put(join(from, "bin", "orangespeakeasy"), "#!/bin/sh\n");
   await assert.rejects(mover({ paths, root, bundles }).plan(disk), key("move.homeTooOld"));
 });
 
 test(
-  "0.11.0 及以前用 SPEAKMORE_HOME 装到别处的（从没记进定位文件）：默认位置没装过时认它，搬完记下新位置",
+  "0.11.0 及以前用 ORANGESPEAKEASY_HOME 装到别处的（从没记进定位文件）：默认位置没装过时认它，搬完记下新位置",
   posixOnly,
   async (t) => {
     const root = realpathSync(mkdtempSync("/tmp/sm-m-"));
     t.after(() => rmSync(root, { recursive: true, force: true }));
     const from = join(root, "custom");
     put(join(from, "settings.json"), "{}");
-    put(join(from, "app", "install.sh"), "# 认得 SPEAKMORE_PREVIOUS_HOME\n");
-    const paths = resolvePaths({ SPEAKMORE_HOME: from }, root, "darwin");
+    put(join(from, "app", "install.sh"), "# 认得 ORANGESPEAKEASY_PREVIOUS_HOME\n");
+    const paths = resolvePaths({ ORANGESPEAKEASY_HOME: from }, root, "darwin");
     const disk = join(root, "disk");
     mkdirSync(disk);
-    const to = join(disk, ".speakmore");
+    const to = join(disk, ".orangespeakeasy");
     const rehome = fakeRehome({ paths, root });
     const plan = await mover({ paths, root, rehome }).plan(disk);
     assert.equal(plan.to, to);
     // 默认位置也装过（这一份多半是开发、测试临时指的）：不认
-    put(join(root, ".speakmore", "settings.json"), "{}");
+    put(join(root, ".orangespeakeasy", "settings.json"), "{}");
     await assert.rejects(
       mover({ paths, root, rehome }).plan(disk),
       (error) => error.problem?.key === "move.notRecorded",
     );
-    rmSync(join(root, ".speakmore"), { recursive: true });
+    rmSync(join(root, ".orangespeakeasy"), { recursive: true });
     await mover({ paths, root, rehome }).run({ folder: disk, by: "cli" });
     assert.deepEqual(readLocationRecord(paths.locationFile, "darwin"), { home: to, moving: null });
   },
@@ -388,19 +388,19 @@ test("搬家的进程号过了六小时还在（断电重启后分给了别的�
   assert.deepEqual(readLocationRecord(paths.locationFile, "darwin"), { home: from, moving: null });
 });
 
-test("进程号在、跑的却不是 SpeakMore：不算在搬", () => {
+test("进程号在、跑的却不是 OrangeSpeakEasy：不算在搬", () => {
   const running = (command) => moverAlive(4242, { alive: () => true, commandOf: () => command });
   assert.equal(running("/usr/sbin/syslogd"), false);
   assert.equal(running(null), false);
-  assert.equal(running("/Applications/SpeakMore.app/Contents/MacOS/SpeakMore"), true);
+  assert.equal(running("/Applications/OrangeSpeakEasy.app/Contents/MacOS/OrangeSpeakEasy"), true);
   assert.equal(
     running(
-      "/Users/u/.speakmore/runtime/Electron.app/Contents/MacOS/Electron /Users/u/.speakmore/app/bin/speakmore.mjs move /x",
+      "/Users/u/.orangespeakeasy/runtime/Electron.app/Contents/MacOS/Electron /Users/u/.orangespeakeasy/app/bin/orangespeakeasy.mjs move /x",
     ),
     true,
   );
-  assert.equal(running("C:\\Users\\u\\.speakmore\\versions\\0.12.0-1\\runtime\\electron.exe"), true);
-  assert.equal(running("node bin/speakmore.mjs move /tmp/x"), true);
+  assert.equal(running("C:\\Users\\u\\.orangespeakeasy\\versions\\0.12.0-1\\runtime\\electron.exe"), true);
+  assert.equal(running("node bin/orangespeakeasy.mjs move /tmp/x"), true);
   assert.equal(moverAlive(4242, { alive: () => false, commandOf: () => assert.fail("进程不在就不用问") }), false);
 });
 
@@ -420,7 +420,7 @@ test(
         runRehome: rehome.run,
         alive: () => false,
       });
-    const half = resolvePaths({ SPEAKMORE_HOME: to }, root, "darwin");
+    const half = resolvePaths({ ORANGESPEAKEASY_HOME: to }, root, "darwin");
     await assert.rejects(settle(half), (error) => error.problem?.key === "move.putBack");
     assert.deepEqual(rehome.calls, [{ home: from, previous: to }]);
     assert.equal(existsSync(to), true, "正跑在它上面，不删");
@@ -460,7 +460,7 @@ test(
 );
 
 test(
-  "定位文件说搬去的地方不是这次拷的（另一份 SpeakMore、别的文件夹）：不碰它，只去掉 moving",
+  "定位文件说搬去的地方不是这次拷的（另一份 OrangeSpeakEasy、别的文件夹）：不碰它，只去掉 moving",
   posixOnly,
   async (t) => {
     const { root, from, paths, to } = setup(t, { installer: true, located: true });
@@ -498,7 +498,7 @@ test("搬家的那个还在：不启动；从拷了一半的那一份启动：�
   writeLocation(paths.locationFile, { home: from, moving: { to, pid: 4242, startedAt: new Date().toISOString() } });
   await assert.rejects(settle(paths, true), (error) => error.problem?.key === "move.inProgress");
   mkdirSync(to);
-  const half = resolvePaths({ SPEAKMORE_HOME: to }, root, "darwin");
+  const half = resolvePaths({ ORANGESPEAKEASY_HOME: to }, root, "darwin");
   await assert.rejects(settle(half, false), (error) => error.problem?.key === "move.unfinishedCopy");
   // 没在搬：什么都不做
   writeLocation(paths.locationFile, { home: from });
@@ -515,8 +515,8 @@ test(
     t.after(() => rmSync(linked, { recursive: true, force: true }));
     const real = realpathSync(linked);
     assert.notEqual(linked, real);
-    put(join(real, ".speakmore", "settings.json"), "{}");
-    const paths = resolvePaths({ SPEAKMORE_HOME: join(real, ".speakmore") }, linked, "darwin");
+    put(join(real, ".orangespeakeasy", "settings.json"), "{}");
+    const paths = resolvePaths({ ORANGESPEAKEASY_HOME: join(real, ".orangespeakeasy") }, linked, "darwin");
     const disk = join(real, "disk");
     mkdirSync(disk);
     const move = createMove({
@@ -528,15 +528,15 @@ test(
       bundles: { find: async () => null },
     });
     const plan = await move.plan(join(linked, "disk"));
-    assert.equal(plan.to, join(real, "disk", ".speakmore"));
+    assert.equal(plan.to, join(real, "disk", ".orangespeakeasy"));
     await move.run({ folder: join(linked, "disk"), by: "cli" });
     assert.deepEqual(readLocationRecord(paths.locationFile, "darwin"), {
-      home: join(real, "disk", ".speakmore"),
+      home: join(real, "disk", ".orangespeakeasy"),
       moving: null,
     });
     // 搬回默认位置（用不解开的写法给）：定位文件删掉
     const back = createMove({
-      paths: resolvePaths({ SPEAKMORE_HOME: join(real, "disk", ".speakmore") }, linked, "darwin"),
+      paths: resolvePaths({ ORANGESPEAKEASY_HOME: join(real, "disk", ".orangespeakeasy") }, linked, "darwin"),
       env: {},
       instance: fakeInstance(),
       platform: "darwin",
@@ -545,6 +545,6 @@ test(
     });
     await back.run({ folder: linked, by: "cli" });
     assert.equal(existsSync(paths.locationFile), false);
-    assert.equal(existsSync(join(real, ".speakmore", "settings.json")), true);
+    assert.equal(existsSync(join(real, ".orangespeakeasy", "settings.json")), true);
   },
 );

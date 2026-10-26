@@ -59,10 +59,10 @@ export function createPresetPicker({ refresh, configureKey }) {
     const usesCloud = preset.hops.some(({ platform }) => platform !== "local");
     return async () => {
       if (usesLocal) {
-        const result = await window.speakmore.checkTranscriber(local);
+        const result = await window.orangespeakeasy.checkTranscriber(local);
         if (!result.ok) return result;
       }
-      return usesCloud ? window.speakmore.checkModel(preset.mode, preset.settings) : { ok: true };
+      return usesCloud ? window.orangespeakeasy.checkModel(preset.mode, preset.settings) : { ok: true };
     };
   }
 
@@ -89,7 +89,7 @@ export function createPresetPicker({ refresh, configureKey }) {
         class: "button block",
         disabled: busy !== null,
         text: t("presets.download", { size: `${Math.round((item?.bytes ?? 0) / 1e6)} MB` }),
-        onclick: () => run(preset.id, () => window.speakmore.downloadModel(need.model)),
+        onclick: () => run(preset.id, () => window.orangespeakeasy.downloadModel(need.model)),
       });
     }
     return null;
@@ -198,7 +198,7 @@ export function createPresetPicker({ refresh, configureKey }) {
   }
 
   async function pick(preset) {
-    const result = await run(preset.id, () => window.speakmore.setMode(preset.mode, preset.settings));
+    const result = await run(preset.id, () => window.orangespeakeasy.setMode(preset.mode, preset.settings));
     if (!result) return;
     panel.hidePopover();
     toast(t("presets.enabled", { name: nameOf(preset.id) }));

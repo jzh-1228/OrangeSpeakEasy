@@ -12,7 +12,7 @@ import { startServer, WS_PATH } from "./server.mjs";
 let config;
 /** 本地模型放在哪：只有本地转写链路用得上 */
 let modelsDir = null;
-/** 用户的词典：和后台应用读的是同一份（SPEAKMORE_HOME 下的 vocabulary.json） */
+/** 用户的词典：和后台应用读的是同一份（ORANGESPEAKEASY_HOME 下的 vocabulary.json） */
 let vocabulary;
 try {
   config = loadConfig(process.env);

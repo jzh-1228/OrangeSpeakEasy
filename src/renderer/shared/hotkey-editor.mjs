@@ -68,7 +68,7 @@ export function createHotkeyEditor(root, { onChanged }) {
     const token = ++lastToken;
     recording = { action: actionId, index: at, token, codes: [], unknown: false, tooMany: false };
     draw();
-    window.speakmore.recordHotkey(actionId, index, token).catch((error) => {
+    window.orangespeakeasy.recordHotkey(actionId, index, token).catch((error) => {
       if (recording?.token !== token) return;
       recording = null;
       say(actionId, describeError(error), "problem");
@@ -80,11 +80,11 @@ export function createHotkeyEditor(root, { onChanged }) {
   function stop(reason) {
     if (recording === null) return;
     recording = null;
-    window.speakmore.stopRecordingHotkey(reason);
+    window.orangespeakeasy.stopRecordingHotkey(reason);
     draw();
   }
 
-  window.speakmore.onHotkeyRecording((payload) => {
+  window.orangespeakeasy.onHotkeyRecording((payload) => {
     if (recording === null || payload.token !== recording.token) return;
     if (payload.state === "recording") {
       recording = {
@@ -161,7 +161,7 @@ export function createHotkeyEditor(root, { onChanged }) {
               class: "chord-remove",
               "data-key": `${action.id}:${index}:remove`,
               "aria-label": t("hotkeyRecord.remove", { chord: text }),
-              onclick: () => run(action.id, () => window.speakmore.removeHotkey(action.id, index)),
+              onclick: () => run(action.id, () => window.orangespeakeasy.removeHotkey(action.id, index)),
             },
             svg("i-close"),
           )
@@ -232,7 +232,7 @@ export function createHotkeyEditor(root, { onChanged }) {
                 class: "button small ghost hotkey-reset",
                 "data-key": `${action.id}:reset`,
                 "aria-label": t("hotkeyRecord.resetLabel", { action: t(`actions.${action.id}.name`) }),
-                onclick: () => run(action.id, () => window.speakmore.resetHotkey(action.id)),
+                onclick: () => run(action.id, () => window.orangespeakeasy.resetHotkey(action.id)),
               },
               t("hotkeyRecord.reset"),
             ),

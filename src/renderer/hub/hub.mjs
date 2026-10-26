@@ -80,7 +80,7 @@ function renderBanner(current) {
 }
 
 async function refreshSetup() {
-  setup = await window.speakmore.getSetup();
+  setup = await window.orangespeakeasy.getSetup();
   renderBanner(setup);
   settings.render(setup);
   engine.render(setup);
@@ -94,10 +94,10 @@ async function refreshSetup() {
 async function refreshData() {
   try {
     const [page, usage, insights, app] = await Promise.all([
-      window.speakmore.listHistory(),
-      window.speakmore.usageReport(),
-      window.speakmore.insights(),
-      window.speakmore.appInfo(),
+      window.orangespeakeasy.listHistory(),
+      window.orangespeakeasy.usageReport(),
+      window.orangespeakeasy.insights(),
+      window.orangespeakeasy.appInfo(),
     ]);
     home.render({ insights, usage, app });
     history.render({ rows: page.rows, total: page.total });
@@ -135,10 +135,10 @@ content.addEventListener("scroll", () => content.toggleAttribute("data-scrolled"
 
 // ---------- 主进程来的 ----------
 
-window.speakmore.onHistoryChanged(refreshData);
-window.speakmore.onSetupChanged(refreshSetup);
+window.orangespeakeasy.onHistoryChanged(refreshData);
+window.orangespeakeasy.onSetupChanged(refreshSetup);
 // 菜单栏、命令行、首次引导要打开某一页（"显示历史记录"、"设置…"、"前往引擎"）
-window.speakmore.onNavigate(({ route, pane, engine: section, presets }) => {
+window.orangespeakeasy.onNavigate(({ route, pane, engine: section, presets }) => {
   if (route) navigate(route);
   // 引擎页的哪一段（划词卡片上的"配置密钥"要划词那一段）
   if (section) engine.show({ section });

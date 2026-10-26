@@ -26,7 +26,7 @@ let processes;
 
 beforeEach(() => {
   dir = mkdtempSync(join(tmpdir(), "sm-"));
-  paths = resolvePaths({ SPEAKMORE_HOME: dir });
+  paths = resolvePaths({ ORANGESPEAKEASY_HOME: dir });
   // 后台应用启动时自己会建；这里的假应用没有这一步
   ensureHome(paths);
   app = null;
@@ -131,7 +131,7 @@ test("启动：用 Electron 跑这个包，脱离终端，输出接到日志文�
   assert.deepEqual(args, ["/pkg"]);
   assert.equal(options.detached, true);
   assert.equal(options.stdio[0], "ignore");
-  assert.equal(options.env.SPEAKMORE_CLI, "1");
+  assert.equal(options.env.ORANGESPEAKEASY_CLI, "1");
   assert.equal(options.env.PATH, "/usr/bin");
   // 带着这个变量 Electron 会把自己当成普通的 Node，窗口和热键都不会有
   assert.equal("ELECTRON_RUN_AS_NODE" in options.env, false);
@@ -245,10 +245,10 @@ const startHungApp = () => startFakeApp(() => new Promise(() => {}));
 test("卡住不答话时也停得掉：照它启动时记下的进程号结束它；命令启动的和装成应用的都认", async () => {
   for (const command of [
     "/pkg/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron /pkg",
-    "/Applications/SpeakMore.app/Contents/MacOS/SpeakMore",
+    "/Applications/OrangeSpeakEasy.app/Contents/MacOS/OrangeSpeakEasy",
     // Windows：装好的那份和从源码跑的都是 electron.exe
-    "C:\\Users\\someone\\.speakmore\\runtime\\electron.exe",
-    "C:\\dev\\speakmore\\node_modules\\electron\\dist\\electron.exe",
+    "C:\\Users\\someone\\.orangespeakeasy\\runtime\\electron.exe",
+    "C:\\dev\\orangespeakeasy\\node_modules\\electron\\dist\\electron.exe",
   ]) {
     processes = fakeProcesses();
     processes.alive.add(4321);

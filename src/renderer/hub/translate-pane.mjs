@@ -24,7 +24,7 @@ export function createTranslatePane({ refresh }) {
     showNote("voice-translate-problem", null);
     showNote("translate-note", null);
     try {
-      const result = await window.speakmore.setTranslateTo(next);
+      const result = await window.orangespeakeasy.setTranslateTo(next);
       showNote("translate-note", result.note ?? null);
     } catch (error) {
       showNote(

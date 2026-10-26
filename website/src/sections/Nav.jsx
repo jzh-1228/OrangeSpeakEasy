@@ -62,7 +62,7 @@ export function Nav() {
           aria-label={m.nav.home}
         >
           <img src={seal} alt="" width="28" height="28" className="size-7" />
-          SpeakMore
+          OrangeSpeakEasy
         </a>
         <ul className="ml-auto hidden items-center gap-7 text-sm text-ink-2 md:flex">
           {items.map(([id, label]) => (

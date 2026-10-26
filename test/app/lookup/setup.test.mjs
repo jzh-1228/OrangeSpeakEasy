@@ -39,7 +39,7 @@ function setupWith({ env = {}, stored = null, checks = [] } = {}) {
         calls.keys.push(null);
       },
     },
-    customKeyEnv: "SPEAKMORE_LOOKUP_CUSTOM_API_KEY",
+    customKeyEnv: "ORANGESPEAKEASY_LOOKUP_CUSTOM_API_KEY",
     env,
     log: quiet,
   });
@@ -58,7 +58,7 @@ test("说给引擎页的：译成哪种、交给谁、自定义服务的地址�
     customKey: null,
   });
   assert.equal(setupWith({ stored: "sk-local" }).lookupSetup.describe().customKey, "stored");
-  const fromEnv = setupWith({ stored: "sk-local", env: { SPEAKMORE_LOOKUP_CUSTOM_API_KEY: "sk-env" } });
+  const fromEnv = setupWith({ stored: "sk-local", env: { ORANGESPEAKEASY_LOOKUP_CUSTOM_API_KEY: "sk-env" } });
   assert.equal(fromEnv.lookupSetup.describe().customKey, "env");
 });
 
@@ -77,10 +77,10 @@ test("换译成的语言、换模型：存进划词自己的那一项；写错�
 });
 
 test("被环境变量盖着：照存，再说一句要去掉哪个环境变量才生效", () => {
-  const { lookupSetup } = setupWith({ env: { SPEAKMORE_LOOKUP_MODEL: "moonshot" } });
+  const { lookupSetup } = setupWith({ env: { ORANGESPEAKEASY_LOOKUP_MODEL: "moonshot" } });
   assert.deepEqual(lookupSetup.use("deepseek/deepseek-flash"), {
     ok: true,
-    note: msg("notes.envRemove", { variable: "SPEAKMORE_LOOKUP_MODEL" }),
+    note: msg("notes.envRemove", { variable: "ORANGESPEAKEASY_LOOKUP_MODEL" }),
   });
 });
 

@@ -1,4 +1,4 @@
-module speakmore/setup
+module orangespeakeasy/setup
 
 go 1.27
 

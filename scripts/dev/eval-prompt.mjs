@@ -5,7 +5,7 @@
 //
 // 用法：评哪条链路、用哪个模型和服务端一样由环境变量定（src/server/config.mjs），key 经 with-key.sh 喂进来：
 //   scripts/dev/with-key.sh gemini node scripts/dev/eval-prompt.mjs --label <名字> [--out <目录>] [--concurrency 4]
-//   SPEAKMORE_MODE=local scripts/dev/with-key.sh deepseek node scripts/dev/eval-prompt.mjs --label <名字>
+//   ORANGESPEAKEASY_MODE=local scripts/dev/with-key.sh deepseek node scripts/dev/eval-prompt.mjs --label <名字>
 // 原生链路只评估 Gemini：Typeless 的录音是 Ogg，服务端不把 Ogg 转给 OpenAI（见 src/server/audio/transcode.mjs），
 // 作者也只同意这些录音发给 Gemini。OpenAI 的提示词边用边调。
 // 本地转写链路评的是润色的提示词：录音只在本机转写，发给润色那一家的是转出来的文字（2026-10-16 作者同意）。
@@ -97,7 +97,7 @@ async function main() {
     console.log(`样本 ${samples.length} 条，${describeRoute(route)}${thinking}，标签 ${args.label}`);
     const promptFile = args["polish-prompt"];
     if (promptFile && route.mode !== "local") {
-      console.error("--polish-prompt 只用在本地转写链路（SPEAKMORE_MODE=local）");
+      console.error("--polish-prompt 只用在本地转写链路（ORANGESPEAKEASY_MODE=local）");
       process.exit(2);
     }
     const prompt = promptFile ? readFileSync(promptFile, "utf8").trim() : undefined;

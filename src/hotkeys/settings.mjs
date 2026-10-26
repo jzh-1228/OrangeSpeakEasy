@@ -11,7 +11,7 @@ import { checkBindings } from "./validate.mjs";
 /** 动作的设置项叫什么 */
 export const settingNameOf = (action) => `hotkey.${action.id}`;
 /** 动作的环境变量：只管这一次运行，写法同设置文件 */
-export const envOf = (action) => `SPEAKMORE_HOTKEY_${action.id.toUpperCase()}`;
+export const envOf = (action) => `ORANGESPEAKEASY_HOTKEY_${action.id.toUpperCase()}`;
 
 /** 设置里的值 → 组合列表，每个组合是 code 数组。值是 parse 规整过的，code 名里不会有加号 */
 export const chordsOf = (value) => JSON.parse(value).map((text) => text.split("+"));
@@ -31,7 +31,7 @@ function parseChords(text) {
     try {
       items = JSON.parse(trimmed);
     } catch {
-      // PowerShell 调 speakmore.cmd 时会去掉参数里的双引号（[Fn,MetaRight]）。code 名里没有逗号和引号，照样拆得开
+      // PowerShell 调 orangespeakeasy.cmd 时会去掉参数里的双引号（[Fn,MetaRight]）。code 名里没有逗号和引号，照样拆得开
       if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) throw notList();
       items = trimmed.slice(1, -1).split(",");
     }

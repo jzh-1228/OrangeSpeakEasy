@@ -3,7 +3,7 @@
 //
 //   ../node_modules/.bin/electron scripts/screenshots.mjs -- <输出目录>     （在 website/ 下，用仓库根上装的 Electron）
 //
-// 造的数据只活在一个临时目录里，跑完删掉；不读也不碰 ~/.speakmore。截完用 scripts/upload-media.mjs 传到 COS。
+// 造的数据只活在一个临时目录里，跑完删掉；不读也不碰 ~/.orangespeakeasy。截完用 scripts/upload-media.mjs 传到 COS。
 
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -114,7 +114,7 @@ ipcMain.handle("insights:get", () => insights(current.history.dictations(), { no
 const HOTKEYS = { dictate: [["AltRight"]], cancel: [["Escape"]] };
 ipcMain.handle("app:info", () => ({ version: VERSION, hotkeys: HOTKEYS }));
 /** 首页标题右边的识别方式、引擎页按它画：出厂设置、原生识别、配了 Gemini 的密钥，拼法同 app/main.mjs 的 describePlazaNow */
-const settings = resolveSettings({ file: join(tmpdir(), "speakmore-shots-none", "settings.json"), env: {} });
+const settings = resolveSettings({ file: join(tmpdir(), "orangespeakeasy-shots-none", "settings.json"), env: {} });
 const plaza = describePlaza({
   mode: "native",
   chosen: {
@@ -155,7 +155,7 @@ ipcMain.handle("setup:get", () => ({
   theme: { value: current.theme.id, choices: THEMES.map(({ id }) => id) },
   language: { value: "system", locale: current.locale },
   openAtLogin: { supported: true, enabled: true },
-  home: "~/.speakmore",
+  home: "~/.orangespeakeasy",
   version: VERSION,
   provider: gemini,
   // 设置里"模型"那一页按识别模式画（src/app/main.mjs 的 describeModes）。截图用不到本地转写，给个空的模型列表
@@ -323,7 +323,7 @@ app.dock?.hide();
 app.whenReady().then(async () => {
   mkdirSync(out, { recursive: true });
   for (const locale of LOCALES) {
-    const dir = mkdtempSync(join(tmpdir(), "speakmore-shots-"));
+    const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-shots-"));
     current = { theme: findTheme("ink"), locale, history: openHistory(join(dir, "history.db")) };
     try {
       seed(current.history, locale);

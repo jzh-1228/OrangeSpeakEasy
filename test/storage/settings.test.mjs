@@ -25,7 +25,7 @@ const said = (pattern) => (error) => pattern.test(zh.text(error.problem ?? error
 let dir;
 let file;
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "speakmore-settings-"));
+  dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-settings-"));
   file = join(dir, "settings.json");
 });
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
@@ -72,7 +72,7 @@ test("语音翻译译成什么：一个、逗号隔开的几个、JSON 数组都
   assert.equal(saveSetting(file, "translate.to", "[ko,fr]").value, '["ko","fr"]');
   assert.deepEqual(JSON.parse(readFileSync(file, "utf8"))["translate.to"], ["ko", "fr"]);
   assert.equal(resolveSettings({ file, env: {} })["translate.to"].value, '["ko","fr"]');
-  assert.equal(resolveSettings({ file, env: { SPEAKMORE_TRANSLATE_TO: "de" } })["translate.to"].value, '["de"]');
+  assert.equal(resolveSettings({ file, env: { ORANGESPEAKEASY_TRANSLATE_TO: "de" } })["translate.to"].value, '["de"]');
   // 手改文件写成数组也认
   writeFileSync(file, JSON.stringify({ "translate.to": ["vi"] }));
   assert.equal(resolveSettings({ file, env: {} })["translate.to"].value, '["vi"]');
@@ -107,7 +107,10 @@ test("划词翻译：译成一种语言（默认简体中文），模型写 厂�
     customUrl: null,
     customParams: null,
   });
-  assert.equal(resolveSettings({ file, env: { SPEAKMORE_LOOKUP_MODEL: "moonshot" } })["lookup.model"].source, "env");
+  assert.equal(
+    resolveSettings({ file, env: { ORANGESPEAKEASY_LOOKUP_MODEL: "moonshot" } })["lookup.model"].source,
+    "env",
+  );
 });
 
 test("存下来的值下次读得到，没动过的仍是默认值", () => {
@@ -126,7 +129,11 @@ test("环境变量优先于文件", () => {
   saveSetting(file, "model", "gemini-3.8-flash");
   const settings = resolveSettings({
     file,
-    env: { SPEAKMORE_HOTKEY_DICTATE: "AltRight", SPEAKMORE_MODEL: "openai", GEMINI_THINKING_LEVEL: "high" },
+    env: {
+      ORANGESPEAKEASY_HOTKEY_DICTATE: "AltRight",
+      ORANGESPEAKEASY_MODEL: "openai",
+      GEMINI_THINKING_LEVEL: "high",
+    },
   });
   assert.deepEqual(settings["hotkey.dictate"], { value: DEFAULT_HOTKEY, source: "env" });
   assert.deepEqual(settings.model, { value: "openai/gpt-audio-mini", source: "env" });
@@ -136,7 +143,7 @@ test("环境变量优先于文件", () => {
 test("本机模型的加速：auto（有显卡就用，出问题退回 CPU）或 cpu，大小写都认，别的不收", () => {
   saveSetting(file, "acceleration", "CPU");
   assert.deepEqual(resolveSettings({ file, env: {} }).acceleration, { value: "cpu", source: "file" });
-  assert.deepEqual(resolveSettings({ file, env: { SPEAKMORE_ACCELERATION: "auto" } }).acceleration, {
+  assert.deepEqual(resolveSettings({ file, env: { ORANGESPEAKEASY_ACCELERATION: "auto" } }).acceleration, {
     value: "auto",
     source: "env",
   });
@@ -151,10 +158,13 @@ test("本机模型常驻内存，或空闲 1、5、10、30 分钟后释放：大
   }
   saveSetting(file, "localModelMemory", " 5M ");
   assert.deepEqual(resolveSettings({ file, env: {} }).localModelMemory, { value: "5m", source: "file" });
-  assert.deepEqual(resolveSettings({ file, env: { SPEAKMORE_LOCAL_MODEL_MEMORY: "resident" } }).localModelMemory, {
-    value: "resident",
-    source: "env",
-  });
+  assert.deepEqual(
+    resolveSettings({ file, env: { ORANGESPEAKEASY_LOCAL_MODEL_MEMORY: "resident" } }).localModelMemory,
+    {
+      value: "resident",
+      source: "env",
+    },
+  );
   for (const value of ["on-demand", "5", "2m", "0m"]) {
     assert.throws(() => saveSetting(file, "localModelMemory", value), /resident \/ 1m \/ 5m \/ 10m \/ 30m/);
   }
@@ -163,7 +173,7 @@ test("本机模型常驻内存，或空闲 1、5、10、30 分钟后释放：大
 test("悬浮条上方的操作提示能关掉（GitHub issue #3）：on 或 off，大小写都认，别的不收", () => {
   saveSetting(file, "barHint", "OFF");
   assert.deepEqual(resolveSettings({ file, env: {} }).barHint, { value: "off", source: "file" });
-  assert.deepEqual(resolveSettings({ file, env: { SPEAKMORE_BAR_HINT: "on" } }).barHint, {
+  assert.deepEqual(resolveSettings({ file, env: { ORANGESPEAKEASY_BAR_HINT: "on" } }).barHint, {
     value: "on",
     source: "env",
   });
@@ -189,7 +199,7 @@ test("0.3 以前的写法照样认：设置文件里只写了 Gemini 的模型�
   });
   // 新旧都设了：新的优先
   assert.equal(
-    resolveSettings({ file, env: { GEMINI_MODEL: "gemini-3.6-flash", SPEAKMORE_MODEL: "openai" } }).model.value,
+    resolveSettings({ file, env: { GEMINI_MODEL: "gemini-3.6-flash", ORANGESPEAKEASY_MODEL: "openai" } }).model.value,
     "openai/gpt-audio-mini",
   );
 });
@@ -214,8 +224,8 @@ test("热键写坏了也能用 config set 改回来：写入前的检查不读�
 test("overridingEnv：这一项现在被哪个环境变量盖着；没有就是 null", () => {
   assert.equal(overridingEnv("model", {}), null);
   assert.equal(overridingEnv("model", { GEMINI_MODEL: "x" }), "GEMINI_MODEL");
-  assert.equal(overridingEnv("model", { GEMINI_MODEL: "x", SPEAKMORE_MODEL: "openai" }), "SPEAKMORE_MODEL");
-  assert.equal(overridingEnv("theme", { SPEAKMORE_THEME: "ink" }), "SPEAKMORE_THEME");
+  assert.equal(overridingEnv("model", { GEMINI_MODEL: "x", ORANGESPEAKEASY_MODEL: "openai" }), "ORANGESPEAKEASY_MODEL");
+  assert.equal(overridingEnv("theme", { ORANGESPEAKEASY_THEME: "ink" }), "ORANGESPEAKEASY_THEME");
 });
 
 test("不认识的设置项、不认识的热键、不认识的思考档位都拒绝保存，并列出能填什么", () => {
@@ -230,7 +240,7 @@ test("主题：写 id 或写名字都行，存下来的是 id；没有的那一�
   assert.equal(saveSetting(file, "theme", "靛青").value, "indigo");
   assert.deepEqual(JSON.parse(readFileSync(file, "utf8")), { theme: "indigo" });
   assert.deepEqual(resolveSettings({ file, env: {} }).theme, { value: "indigo", source: "file" });
-  assert.deepEqual(resolveSettings({ file, env: { SPEAKMORE_THEME: "朱砂" } }).theme, {
+  assert.deepEqual(resolveSettings({ file, env: { ORANGESPEAKEASY_THEME: "朱砂" } }).theme, {
     value: "cinnabar",
     source: "env",
   });
@@ -252,7 +262,7 @@ test("改名前的名字（legacyName）：命令行 config set/unset hotkey 照
   assert.throws(() => settingName("volume"), said(/没有 "volume" 这项设置/));
   assert.equal(saveSetting(file, "hotkey", "right_control").value, '["ControlRight"]');
   assert.deepEqual(JSON.parse(readFileSync(file, "utf8")), { "hotkey.dictate": ["ControlRight"] });
-  assert.equal(overridingEnv("hotkey", { SPEAKMORE_HOTKEY: "fn" }), "SPEAKMORE_HOTKEY");
+  assert.equal(overridingEnv("hotkey", { ORANGESPEAKEASY_HOTKEY: "fn" }), "ORANGESPEAKEASY_HOTKEY");
   unsetSetting(file, "hotkey");
   assert.deepEqual(JSON.parse(readFileSync(file, "utf8")), {});
   // 列出来的、读出来的都只有新名字
@@ -260,19 +270,19 @@ test("改名前的名字（legacyName）：命令行 config set/unset hotkey 照
   assert.equal(Object.hasOwn(resolveSettings({ file, env: {} }), "hotkey"), false);
 });
 
-test("热键的环境变量：每个动作一个；听写另认 0.13 以前的 SPEAKMORE_HOTKEY，旧 id 和新写法都收，新的优先", () => {
+test("热键的环境变量：每个动作一个；听写另认 0.13 以前的 ORANGESPEAKEASY_HOTKEY，旧 id 和新写法都收，新的优先", () => {
   const dictate = (env) => resolveSettings({ file, env })["hotkey.dictate"];
-  assert.deepEqual(dictate({ SPEAKMORE_HOTKEY: "right_command" }), {
+  assert.deepEqual(dictate({ ORANGESPEAKEASY_HOTKEY: "right_command" }), {
     value: '["MetaRight"]',
     source: "env",
-    env: "SPEAKMORE_HOTKEY",
+    env: "ORANGESPEAKEASY_HOTKEY",
   });
-  assert.equal(dictate({ SPEAKMORE_HOTKEY: "ControlRight+Space" }).value, '["ControlRight+Space"]');
+  assert.equal(dictate({ ORANGESPEAKEASY_HOTKEY: "ControlRight+Space" }).value, '["ControlRight+Space"]');
   assert.equal(
-    dictate({ SPEAKMORE_HOTKEY: "fn", SPEAKMORE_HOTKEY_DICTATE: '["Fn","MetaRight"]' }).value,
+    dictate({ ORANGESPEAKEASY_HOTKEY: "fn", ORANGESPEAKEASY_HOTKEY_DICTATE: '["Fn","MetaRight"]' }).value,
     '["Fn","MetaRight"]',
   );
-  assert.deepEqual(resolveSettings({ file, env: { SPEAKMORE_HOTKEY_CANCEL: "F13" } })["hotkey.cancel"], {
+  assert.deepEqual(resolveSettings({ file, env: { ORANGESPEAKEASY_HOTKEY_CANCEL: "F13" } })["hotkey.cancel"], {
     value: '["F13"]',
     source: "env",
   });
@@ -309,7 +319,7 @@ test("界面语言：默认跟随系统；写哪种都认（大小写、_ 不论
   assert.deepEqual(JSON.parse(readFileSync(file, "utf8")), { language: "zh-CN" });
   assert.equal(saveSetting(file, "language", "EN").value, "en");
   assert.equal(saveSetting(file, "language", "System").value, "system");
-  assert.deepEqual(resolveSettings({ file, env: { SPEAKMORE_LANGUAGE: "zh-CN" } }).language, {
+  assert.deepEqual(resolveSettings({ file, env: { ORANGESPEAKEASY_LANGUAGE: "zh-CN" } }).language, {
     value: "zh-CN",
     source: "env",
   });
@@ -323,14 +333,17 @@ test("写错时的说法也跟着语言换", () => {
     (error) => en.text(error.problem) === 'hotkey.dictate is "caps_lock": Unknown key "caps_lock"',
   );
   assert.throws(
-    () => resolveSettings({ file, env: { SPEAKMORE_THEME: "neon" } }),
+    () => resolveSettings({ file, env: { ORANGESPEAKEASY_THEME: "neon" } }),
     (error) =>
-      en.text(error.problem) === 'The SPEAKMORE_THEME env var is "neon": must be one of ink / cinnabar / indigo',
+      en.text(error.problem) === 'The ORANGESPEAKEASY_THEME env var is "neon": must be one of ink / cinnabar / indigo',
   );
 });
 
 test("环境变量或文件里的值写错时报错，不悄悄换成默认值", () => {
-  assert.throws(() => resolveSettings({ file, env: { SPEAKMORE_HOTKEY: "caps_lock" } }), said(/SPEAKMORE_HOTKEY/));
+  assert.throws(
+    () => resolveSettings({ file, env: { ORANGESPEAKEASY_HOTKEY: "caps_lock" } }),
+    said(/ORANGESPEAKEASY_HOTKEY/),
+  );
   writeFileSync(file, JSON.stringify({ "hotkey.dictate": ["caps_lock"] }));
   assert.throws(() => resolveSettings({ file, env: {} }), said(/settings\.json/));
   writeFileSync(file, "{ 不是 JSON");
@@ -382,9 +395,9 @@ test("识别链路：默认是原生的；改成 local 后，路线里是本地�
   });
   // 环境变量也能换，和单独启动服务端时同名
   const env = {
-    SPEAKMORE_MODE: "native",
-    SPEAKMORE_POLISH: "deepseek",
-    SPEAKMORE_TRANSCRIBER: "sensevoice-small-q8",
+    ORANGESPEAKEASY_MODE: "native",
+    ORANGESPEAKEASY_POLISH: "deepseek",
+    ORANGESPEAKEASY_TRANSCRIBER: "sensevoice-small-q8",
   };
   const overridden = resolveSettings({ file, env });
   assert.equal(overridden.mode.value, "native");
@@ -431,7 +444,7 @@ test("自定义服务的额外参数：存成紧凑的 JSON，路线里是对象
   });
   assert.deepEqual(routeOf(settings).customParams, { max_completion_tokens: 1024, reasoning_effort: "minimal" });
   // 环境变量也能写，和单独启动服务端时同名
-  const fromEnv = resolveSettings({ file, env: { SPEAKMORE_CUSTOM_PARAMS: '{"temperature": 0.2}' } });
+  const fromEnv = resolveSettings({ file, env: { ORANGESPEAKEASY_CUSTOM_PARAMS: '{"temperature": 0.2}' } });
   assert.deepEqual(routeOf(fromEnv).customParams, { temperature: 0.2 });
   assert.equal(saveSetting(file, "customParams", "{}").value, "");
   assert.equal(routeOf(resolveSettings({ file, env: {} })).customParams, null);
@@ -457,7 +470,7 @@ test("数据隐私模式的本机模型：和 local 的第一跳分开存，只�
   assert.equal(routeOf(saved, "private").transcriber, "sensevoice-small-q8");
   assert.equal(routeOf(saved, "local").transcriber, "bailian/qwen3-asr-flash");
   assert.throws(() => saveSetting(file, "privateTranscriber", "bailian/qwen3-asr-flash"), /qwen3-asr-0\.6b-q8/);
-  const fromEnv = resolveSettings({ file, env: { SPEAKMORE_PRIVATE_TRANSCRIBER: "qwen3-asr-0.6b-q8" } });
+  const fromEnv = resolveSettings({ file, env: { ORANGESPEAKEASY_PRIVATE_TRANSCRIBER: "qwen3-asr-0.6b-q8" } });
   assert.equal(fromEnv.privateTranscriber.value, "qwen3-asr-0.6b-q8");
   assert.equal(patchSettings(saved, { mode: "PRIVATE" }).mode.value, "private");
 });

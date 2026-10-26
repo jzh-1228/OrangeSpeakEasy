@@ -1,7 +1,7 @@
 {
-  "name": "speakmore-website",
+  "name": "orangespeakeasy-website",
   "private": true,
-  "description": "SpeakMore 官网：React + Tailwind CSS v4 的单页静态站，中英双语",
+  "description": "OrangeSpeakEasy 官网：React + Tailwind CSS v4 的单页静态站，中英双语",
   "license": "MIT",
   "type": "module",
   "scripts": {

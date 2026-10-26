@@ -43,7 +43,7 @@ func fakeSetup(t *testing.T, entries []tar.Header, contents map[string]string, m
 	if mangle != nil {
 		data = mangle(data)
 	}
-	path := filepath.Join(t.TempDir(), "SpeakMore-Setup-x64.exe")
+	path := filepath.Join(t.TempDir(), "OrangeSpeakEasy-Setup-x64.exe")
 	if err := os.WriteFile(path, data, 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -69,8 +69,8 @@ func unpackFile(t *testing.T, path string, into string) error {
 
 func TestPayloadUnpacksTheTree(t *testing.T) {
 	path := fakeSetup(t,
-		[]tar.Header{dir("app/"), file("app/install.ps1"), dir("app/bin/"), file("app/bin/speakmore.mjs"), file("runtime/electron.exe")},
-		map[string]string{"app/install.ps1": "& { 'hi' }", "app/bin/speakmore.mjs": "js", "runtime/electron.exe": "MZ"},
+		[]tar.Header{dir("app/"), file("app/install.ps1"), dir("app/bin/"), file("app/bin/orangespeakeasy.mjs"), file("runtime/electron.exe")},
+		map[string]string{"app/install.ps1": "& { 'hi' }", "app/bin/orangespeakeasy.mjs": "js", "runtime/electron.exe": "MZ"},
 		nil)
 	into := t.TempDir()
 	if err := unpackFile(t, path, into); err != nil {

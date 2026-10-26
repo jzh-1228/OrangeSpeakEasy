@@ -5,7 +5,7 @@ import { chmodSync } from "node:fs";
 //   macOS：权限位 700。
 //   Windows：权限位没有意义（chmod 只管只读属性），改的是目录的访问控制表：去掉从上层继承来的条目，
 //     只留自己和 SYSTEM，往下的文件和子目录都继承这两条。账户名会按系统语言变，所以按 SID 给，不按名字。
-//     放在用户目录下时继承来的本来就差不多是这样（自己、SYSTEM、Administrators），但 SPEAKMORE_HOME
+//     放在用户目录下时继承来的本来就差不多是这样（自己、SYSTEM、Administrators），但 ORANGESPEAKEASY_HOME
 //     可以指到别的盘上，那里 Users 组通常读得到。
 
 /** SYSTEM 账户。系统服务（备份、杀毒）照常要能读，去掉它反而出怪问题 */

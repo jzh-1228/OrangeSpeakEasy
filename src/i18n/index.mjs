@@ -203,10 +203,10 @@ export function createTranslator(id, platform = defaultPlatform()) {
 
 /**
  * 这一端是哪个系统：Node 里（主进程、命令行、服务端）看 process；页面里没有 process，看预加载脚本给的
- * window.speakmore.platform。都没有（在 Node 里跑页面模块的单元测试也有 process）按 macOS
+ * window.orangespeakeasy.platform。都没有（在 Node 里跑页面模块的单元测试也有 process）按 macOS
  */
 function defaultPlatform() {
-  return globalThis.process?.platform ?? globalThis.window?.speakmore?.platform ?? "darwin";
+  return globalThis.process?.platform ?? globalThis.window?.orangespeakeasy?.platform ?? "darwin";
 }
 
 /** 英文的那一份：给日志、给错误的 message 用 */

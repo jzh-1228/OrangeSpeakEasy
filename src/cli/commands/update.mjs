@@ -1,6 +1,6 @@
 import { noPositionals, parse } from "../common.mjs";
 
-// speakmore update：把这台电脑上装着的 SpeakMore（终端安装的这一份；装着 SpeakMore.app 的话连它一起）都换成最新的，
+// orangespeakeasy update：把这台电脑上装着的 OrangeSpeakEasy（终端安装的这一份；装着 OrangeSpeakEasy.app 的话连它一起）都换成最新的，
 // 原来在运行的重新打开。设置、key、历史、录音和词典不动。
 // 怎么查、怎么换都在内核里（src/update），App 里"设置 › 通用"的更新按钮走的是同一套，两边看到的是同一份状态。
 // 从源码跑的用 git pull；只装了 App、没有这个命令的，在 App 里更新。

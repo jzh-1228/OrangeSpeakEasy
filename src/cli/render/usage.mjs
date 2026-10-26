@@ -1,7 +1,7 @@
 import { formatSeconds, formatTokens, formatUsd } from "../../usage/format.mjs";
 import { displayWidth, INDENT, paint } from "./text.mjs";
 
-// 用量（speakmore usage）：今天、本月、累计花了多少钱、多少 token、模型多久回话，再按型号分开列累计。
+// 用量（orangespeakeasy usage）：今天、本月、累计花了多少钱、多少 token、模型多久回话，再按型号分开列累计。
 // 本机转写那一跳单列一行（不花钱、没有 token），听写的时间花在哪一跳、钱花在谁身上一眼看得出。
 
 const GAP = "   ";

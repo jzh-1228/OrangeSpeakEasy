@@ -3,7 +3,7 @@
 
 export default {
   meta: {
-    title: "SpeakMore — 口述成文，划词即译",
+    title: "OrangeSpeakEasy — 口述成文，划词即译",
     description:
       "语音输入、语音翻译、划词翻译，各由一个快捷键唤起。开源免费，支持 Mac 与 Windows；模型、识别方式与费用自选。",
   },
@@ -15,13 +15,13 @@ export default {
     privacy: "隐私",
     developers: "开发者",
     download: "下载",
-    github: "SpeakMore 的 GitHub 仓库",
-    home: "SpeakMore 首页",
+    github: "OrangeSpeakEasy 的 GitHub 仓库",
+    home: "OrangeSpeakEasy 首页",
   },
   hero: {
     title: "口述成文，划词即译",
     lead: "Mac 与 Windows 上的语音输入与翻译，开源免费",
-    shotAlt: "SpeakMore 主窗口首页：三项功能的快捷键、字数、省时、语速与每日热力图，右上角为当前识别方式",
+    shotAlt: "OrangeSpeakEasy 主窗口首页：三项功能的快捷键、字数、省时、语速与每日热力图，右上角为当前识别方式",
     barAlt: "口述时的悬浮条：左侧取消，中间为随语音起伏的声波，右侧完成",
   },
   // 快捷键的写法：Mac 和 Windows 的右侧那个键名字不同，按访客的系统显示
@@ -223,17 +223,17 @@ export default {
       cli: [
         {
           comment: "切换识别方式，当场生效",
-          command: "speakmore mode private",
+          command: "orangespeakeasy mode private",
           output: ["切到了 private 模式：本机的 qwen3-asr-0.6b-q8，不整理、不上传。", "已经换上，不用重启。"],
         },
         {
           comment: "换一套主题",
-          command: "speakmore theme indigo",
+          command: "orangespeakeasy theme indigo",
           output: ["主题换成了靛青（indigo）。", "已经生效，不用重启。"],
         },
         {
           comment: "状态，输出 JSON",
-          command: "speakmore status --json",
+          command: "orangespeakeasy status --json",
           output: ['{"running":true,"status":{…},"settings":{"mode":{"value":"private",…},…},…}'],
         },
       ],

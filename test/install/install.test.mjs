@@ -21,7 +21,7 @@ import { afterEach, beforeEach, test } from "node:test";
 
 // 安装脚本的测试：拿一个假的发布包（里面的"Electron"是个记下自己怎么被调用的小脚本）真的跑 install.sh，
 // 装进临时的家目录。系统信息（系统版本、芯片、磁盘、是不是 root、连不连得上各家模型）用排在 PATH 前面的
-// 同名小脚本冒充，所以不联网，也不碰真的 ~/.speakmore。
+// 同名小脚本冒充，所以不联网，也不碰真的 ~/.orangespeakeasy。
 // 每条都要真的执行几个刚生成的脚本，macOS 第一次执行新文件时会先检查它，一次安装要 3–6 秒，
 // 所以这一组单独跑、限时放得宽（npm run test:install），不拖慢平时的那一组。
 
@@ -38,12 +38,12 @@ let callLog;
 
 /** 假的 Electron：记下环境和参数，按第二个参数（脚本路径后面的那个）装样子 */
 const FAKE_ELECTRON = `#!/bin/sh
-printf '%s|%s|%s|%s\\n' "$ELECTRON_RUN_AS_NODE" "$SPEAKMORE_HOME" "$#" "$*" >> "$FAKE_CALL_LOG"
+printf '%s|%s|%s|%s\\n' "$ELECTRON_RUN_AS_NODE" "$ORANGESPEAKEASY_HOME" "$#" "$*" >> "$FAKE_CALL_LOG"
 case "$2" in
   --version) [ -z "$FAKE_BROKEN" ] || exit 1; echo "$FAKE_VERSION" ;;
   # 真的命令行按终端的语言说话：没指定英文时就说中文（安装脚本靠它说的话判断停没停、搬没搬）
-  stop) [ -z "$FAKE_STOP_FAILS" ] || { echo "Couldn't stop SpeakMore (pid 1)" >&2; exit 1; }
-    [ "$SPEAKMORE_LANGUAGE" = en ] || { echo "SpeakMore 本来就没有在运行。"; exit 0; }; echo "\${FAKE_STOP_SAYS:-SpeakMore was not running.}" ;;
+  stop) [ -z "$FAKE_STOP_FAILS" ] || { echo "Couldn't stop OrangeSpeakEasy (pid 1)" >&2; exit 1; }
+    [ "$ORANGESPEAKEASY_LANGUAGE" = en ] || { echo "OrangeSpeakEasy 本来就没有在运行。"; exit 0; }; echo "\${FAKE_STOP_SAYS:-OrangeSpeakEasy was not running.}" ;;
 esac
 `;
 
@@ -67,8 +67,11 @@ function makeTree(version) {
   writeFileSync(electron, FAKE_ELECTRON.replace('"$FAKE_VERSION"', `"${version}"`));
   chmodSync(electron, 0o755);
   mkdirSync(join(staging, "app", "bin"), { recursive: true });
-  writeFileSync(join(staging, "app", "bin", "speakmore.mjs"), "// 假的\n");
-  writeFileSync(join(staging, "app", "package.json"), `{\n  "name": "speakmore",\n  "version": "${version}"\n}\n`);
+  writeFileSync(join(staging, "app", "bin", "orangespeakeasy.mjs"), "// 假的\n");
+  writeFileSync(
+    join(staging, "app", "package.json"),
+    `{\n  "name": "orangespeakeasy",\n  "version": "${version}"\n}\n`,
+  );
   return staging;
 }
 
@@ -76,10 +79,10 @@ function makeArchive(arch, version = "9.9.9") {
   const staging = makeTree(version);
   // 和真的下载地址一个样子：每个版本的包在各自的目录里，根上的 channel.json 记着最新的是哪个（release.mjs 写的那种）
   mkdirSync(join(release, `v${version}`), { recursive: true });
-  const archive = join(release, `v${version}`, `speakmore-darwin-${arch}.tar.xz`);
+  const archive = join(release, `v${version}`, `orangespeakeasy-darwin-${arch}.tar.xz`);
   execFileSync("tar", ["-cJf", archive, "-C", staging, "app", "runtime"]);
   const digest = createHash("sha256").update(readFileSync(archive)).digest("hex");
-  writeFileSync(`${archive}.sha256`, `${digest}  speakmore-darwin-${arch}.tar.xz\n`);
+  writeFileSync(`${archive}.sha256`, `${digest}  orangespeakeasy-darwin-${arch}.tar.xz\n`);
   const channel = { version, electron: "44.0.0", targets: { [`darwin-${arch}`]: "a".repeat(64) } };
   writeFileSync(join(release, "channel.json"), `${JSON.stringify(channel, null, 2)}\n`);
   rmSync(staging, { recursive: true });
@@ -108,7 +111,7 @@ function install({ env = {}, args = [], path = "" } = {}) {
     env: {
       HOME: userHome,
       PATH: `${shims}:${path}/usr/bin:/bin:/usr/sbin:/sbin`,
-      SPEAKMORE_INSTALL_BASE: release,
+      ORANGESPEAKEASY_INSTALL_BASE: release,
       FAKE_CALL_LOG: callLog,
       ...env,
     },
@@ -116,40 +119,43 @@ function install({ env = {}, args = [], path = "" } = {}) {
   return { code: result.status, out: result.stdout, err: result.stderr, all: result.stdout + result.stderr };
 }
 
-const home = () => join(userHome, ".speakmore");
+const home = () => join(userHome, ".orangespeakeasy");
 const calls = () => (existsSync(callLog) ? readFileSync(callLog, "utf8").trim().split("\n") : []);
 const installedVersion = (dir = home()) => JSON.parse(readFileSync(join(dir, "app", "package.json"), "utf8")).version;
 
-/** 定位文件（src/storage/location.mjs）：装在默认位置以外时记着 SpeakMore 的目录在哪 */
+/** 定位文件（src/storage/location.mjs）：装在默认位置以外时记着 OrangeSpeakEasy 的目录在哪 */
 const locationFile = () =>
-  join(userHome, "Library", "Application Support", "com.zephyrxiang.speakmore", "location.json");
+  join(userHome, "Library", "Application Support", "com.juzihai.orangespeakeasy", "location.json");
 const recorded = () => (existsSync(locationFile()) ? JSON.parse(readFileSync(locationFile(), "utf8")).home : null);
 
-test("全新安装：程序和运行环境进了 ~/.speakmore，命令能用，家目录以外只多一个链接", () => {
+test("全新安装：程序和运行环境进了 ~/.orangespeakeasy，命令能用，家目录以外只多一个链接", () => {
   const { code, out, all } = install();
   assert.equal(code, 0, all);
-  assert.match(out, /Checks[\s\S]*Install[\s\S]*Installed SpeakMore 9\.9\.9/);
+  assert.match(out, /Checks[\s\S]*Install[\s\S]*Installed OrangeSpeakEasy 9\.9\.9/);
   assert.equal(installedVersion(), "9.9.9");
   assert.equal(statSync(home()).mode & 0o777, 0o700, "里面有录音和 key，只有自己进得去");
   // 下载和解包用的临时目录不留下
   assert.deepEqual(readdirSync(home()).sort(), ["app", "bin", "runtime"]);
 
-  const link = join(userHome, ".local", "bin", "speakmore");
+  const link = join(userHome, ".local", "bin", "orangespeakeasy");
   assert.equal(lstatSync(link).isSymbolicLink(), true);
-  assert.equal(readlinkSync(link), join(home(), "bin", "speakmore"));
+  assert.equal(readlinkSync(link), join(home(), "bin", "orangespeakeasy"));
   assert.equal(readFileSync(join(home(), "bin", "links"), "utf8"), `${link}\n`);
   // 装在默认位置不要定位文件；用户的家目录里除了这两处，没有别的东西
   assert.equal(recorded(), null);
-  assert.deepEqual(readdirSync(userHome).sort(), [".local", ".speakmore"]);
+  assert.deepEqual(readdirSync(userHome).sort(), [".local", ".orangespeakeasy"]);
 
   // 从链接运行：拿自带的 Electron 当 Node，跑的是装好的那份程序，参数原样传过去
   execFileSync(link, ["config", "set", "model", "a b"], { env: { PATH: "/usr/bin:/bin", FAKE_CALL_LOG: callLog } });
-  assert.equal(calls().at(-1), `1|${home()}|5|${join(home(), "app", "bin", "speakmore.mjs")} config set model a b`);
+  assert.equal(
+    calls().at(-1),
+    `1|${home()}|5|${join(home(), "app", "bin", "orangespeakeasy.mjs")} config set model a b`,
+  );
 });
 
 test("没有终端可用时只装不启动，并说怎么启动", () => {
   const { out } = install();
-  assert.match(out, /Run speakmore to start/);
+  assert.match(out, /Run orangespeakeasy to start/);
   // 安装过程中只为了问版本和停掉旧的调过程序
   assert.deepEqual(
     calls().map((line) => line.split(" ").at(-1)),
@@ -182,10 +188,10 @@ test("再装一次就是升级：程序换成新的，设置、key、历史和�
   rmSync(callLog);
   makeArchive("arm64", "10.0.0");
 
-  const { code, out } = install({ env: { FAKE_STOP_SAYS: "SpeakMore stopped." } });
+  const { code, out } = install({ env: { FAKE_STOP_SAYS: "OrangeSpeakEasy stopped." } });
   assert.equal(code, 0, out);
   assert.match(out, /Found 9\.9\.9/);
-  assert.match(out, /Stopped the running SpeakMore/);
+  assert.match(out, /Stopped the running OrangeSpeakEasy/);
   assert.match(out, /Upgraded: 9\.9\.9 → 10\.0\.0/);
   assert.equal(installedVersion(), "10.0.0");
   assert.equal(readFileSync(join(home(), "settings.json"), "utf8"), '{"hotkey":"fn"}');
@@ -203,9 +209,9 @@ test("再装一次就是升级：程序换成新的，设置、key、历史和�
 
 test("安装时把 0.1 版搬数据的结果说出来", () => {
   const { out } = install({
-    env: { FAKE_STOP_SAYS: "Moved the old version's data to /x/.speakmore (history.db, Recordings)." },
+    env: { FAKE_STOP_SAYS: "Moved the old version's data to /x/.orangespeakeasy (history.db, Recordings)." },
   });
-  assert.match(out, /✓ Moved the old version's data to \/x\/\.speakmore/);
+  assert.match(out, /✓ Moved the old version's data to \/x\/\.orangespeakeasy/);
 });
 
 /** 预检查没过、或者中途出错：以非零退出，把原因说清楚，已经装着的不动，没装过的不留下东西 */
@@ -232,21 +238,21 @@ test("预检查不过就不往下走：不是 macOS、系统太旧、用了 sudo
 test("Intel 芯片下的是 x64 的包；这个版本没有那种包时在下载之前就说清楚", () => {
   const result = install({ env: { FAKE_ARCH: "x86_64" } });
   assertRefused(result, /Couldn't reach the release package/);
-  assert.match(result.err, /speakmore-darwin-x64\.tar\.xz/);
+  assert.match(result.err, /orangespeakeasy-darwin-x64\.tar\.xz/);
   assert.equal(existsSync(home()), false);
 
   makeArchive("x64", "9.9.9");
   assert.equal(install({ env: { FAKE_ARCH: "x86_64" } }).code, 0);
 });
 
-test("默认装下载地址上标着最新的那个版本；SPEAKMORE_VERSION 可以指定另一个，带不带 v 都行", () => {
+test("默认装下载地址上标着最新的那个版本；ORANGESPEAKEASY_VERSION 可以指定另一个，带不带 v 都行", () => {
   makeArchive("arm64", "10.0.0");
   assert.equal(install().code, 0);
   assert.equal(installedVersion(), "10.0.0");
 
-  assert.equal(install({ env: { SPEAKMORE_VERSION: "v9.9.9" } }).code, 0);
+  assert.equal(install({ env: { ORANGESPEAKEASY_VERSION: "v9.9.9" } }).code, 0);
   assert.equal(installedVersion(), "9.9.9");
-  assert.equal(install({ env: { SPEAKMORE_VERSION: "10.0.0" } }).code, 0);
+  assert.equal(install({ env: { ORANGESPEAKEASY_VERSION: "10.0.0" } }).code, 0);
   assert.equal(installedVersion(), "10.0.0");
 });
 
@@ -259,8 +265,14 @@ test("问不到最新版本、问到的不像版本号、指定的版本不存�
   rmSync(join(release, "channel.json"));
   assertRefused(install(), /Couldn't find the latest version/);
 
-  assertRefused(install({ env: { SPEAKMORE_VERSION: "v1.2.3" } }), /Couldn't reach the release package[\s\S]*v1\.2\.3/);
-  assertRefused(install({ env: { SPEAKMORE_VERSION: "../../etc" } }), /SPEAKMORE_VERSION doesn't look like a version/);
+  assertRefused(
+    install({ env: { ORANGESPEAKEASY_VERSION: "v1.2.3" } }),
+    /Couldn't reach the release package[\s\S]*v1\.2\.3/,
+  );
+  assertRefused(
+    install({ env: { ORANGESPEAKEASY_VERSION: "../../etc" } }),
+    /ORANGESPEAKEASY_VERSION doesn't look like a version/,
+  );
 });
 
 test("安装脚本里查的几家，和程序里登记的模型厂商是同一份", async () => {
@@ -299,7 +311,7 @@ test("能用的几家模型都查一遍连不连得上：连得上的打勾，�
 test("下到的包和发布时的不一样（校验不过）：不装，已经装着的那一份不动", () => {
   assert.equal(install().code, 0);
   makeArchive("arm64", "10.0.0");
-  writeFileSync(join(release, "v10.0.0", "speakmore-darwin-arm64.tar.xz.sha256"), `${"0".repeat(64)}  x\n`);
+  writeFileSync(join(release, "v10.0.0", "orangespeakeasy-darwin-arm64.tar.xz.sha256"), `${"0".repeat(64)}  x\n`);
   assertRefused(install(), /Checksum mismatch/);
   assert.equal(installedVersion(), "9.9.9");
   assert.deepEqual(readdirSync(home()).sort(), ["app", "bin", "runtime"]);
@@ -316,40 +328,40 @@ test("正在运行的停不掉：不换（它还开着旧程序的文件）", ()
   assert.equal(install().code, 0);
   makeArchive("arm64", "10.0.0");
   const result = install({ env: { FAKE_STOP_FAILS: "1" } });
-  assertRefused(result, /Couldn't stop the running SpeakMore/);
+  assertRefused(result, /Couldn't stop the running OrangeSpeakEasy/);
   assert.equal(installedVersion(), "9.9.9");
 });
 
 test("链接的位置上已经有别人的同名文件：不动它，告诉用户用完整路径", () => {
-  const theirs = join(userHome, ".local", "bin", "speakmore");
+  const theirs = join(userHome, ".local", "bin", "orangespeakeasy");
   mkdirSync(join(theirs, ".."), { recursive: true });
   writeFileSync(theirs, "别人的");
   const { code, out } = install();
   assert.equal(code, 0);
-  assert.match(out, /is another speakmore; left it alone/);
+  assert.match(out, /is another orangespeakeasy; left it alone/);
   assert.equal(readFileSync(theirs, "utf8"), "别人的");
   assert.equal(existsSync(join(home(), "bin", "links")), false);
 });
 
-test("PATH 里排在前面的是另一个 speakmore 时提醒一句", () => {
+test("PATH 里排在前面的是另一个 orangespeakeasy 时提醒一句", () => {
   const other = join(root, "other-bin");
   mkdirSync(other);
-  writeFileSync(join(other, "speakmore"), "#!/bin/sh\n");
-  chmodSync(join(other, "speakmore"), 0o755);
+  writeFileSync(join(other, "orangespeakeasy"), "#!/bin/sh\n");
+  chmodSync(join(other, "orangespeakeasy"), 0o755);
   const { out } = install({ path: `${other}:${join(userHome, ".local", "bin")}:` });
-  assert.match(out, /Another speakmore comes first on your PATH/);
+  assert.match(out, /Another orangespeakeasy comes first on your PATH/);
 });
 
-test("装到别处（SPEAKMORE_HOME），路径里有空格和引号也行；链接可以另指一个目录", () => {
+test("装到别处（ORANGESPEAKEASY_HOME），路径里有空格和引号也行；链接可以另指一个目录", () => {
   const custom = join(root, "my 'own' home");
   const bin = join(root, "bin dir");
-  const { code, out } = install({ env: { SPEAKMORE_HOME: custom, SPEAKMORE_BIN_DIR: bin } });
+  const { code, out } = install({ env: { ORANGESPEAKEASY_HOME: custom, ORANGESPEAKEASY_BIN_DIR: bin } });
   assert.equal(code, 0, out);
   assert.equal(installedVersion(custom), "9.9.9");
   assert.equal(existsSync(home()), false);
-  execFileSync(join(bin, "speakmore"), ["status"], { env: { PATH: "/usr/bin:/bin", FAKE_CALL_LOG: callLog } });
-  assert.equal(calls().at(-1), `1|${custom}|2|${join(custom, "app", "bin", "speakmore.mjs")} status`);
-  // SPEAKMORE_HOME 只管这一次：不写定位文件（开发时装进临时目录，不能把正式的 App 也指过去）
+  execFileSync(join(bin, "orangespeakeasy"), ["status"], { env: { PATH: "/usr/bin:/bin", FAKE_CALL_LOG: callLog } });
+  assert.equal(calls().at(-1), `1|${custom}|2|${join(custom, "app", "bin", "orangespeakeasy.mjs")} status`);
+  // ORANGESPEAKEASY_HOME 只管这一次：不写定位文件（开发时装进临时目录，不能把正式的 App 也指过去）
   assert.equal(recorded(), null);
 });
 
@@ -357,26 +369,26 @@ test("装在路径里带反斜杠的文件夹：校验照样对得上，定位�
   // 临时目录的路径本来就长，名字取短：家目录最长 86 个字节
   const folder = join(root, "a\\b");
   mkdirSync(folder);
-  const result = install({ env: { SPEAKMORE_INSTALL_DIR: folder } });
+  const result = install({ env: { ORANGESPEAKEASY_INSTALL_DIR: folder } });
   assert.equal(result.code, 0, result.all);
-  assert.equal(installedVersion(join(folder, ".speakmore")), "9.9.9");
-  assert.equal(recorded(), join(folder, ".speakmore"));
+  assert.equal(installedVersion(join(folder, ".orangespeakeasy")), "9.9.9");
+  assert.equal(recorded(), join(folder, ".orangespeakeasy"));
 });
 
-test("SPEAKMORE_HOME 装一份试试：不动已有的定位文件", () => {
+test("ORANGESPEAKEASY_HOME 装一份试试：不动已有的定位文件", () => {
   const custom = join(root, "Data");
   mkdirSync(custom);
-  assert.equal(install({ env: { SPEAKMORE_INSTALL_DIR: custom } }).code, 0);
-  assert.equal(install({ env: { SPEAKMORE_HOME: join(root, "try") } }).code, 0);
-  assert.equal(recorded(), join(custom, ".speakmore"));
+  assert.equal(install({ env: { ORANGESPEAKEASY_INSTALL_DIR: custom } }).code, 0);
+  assert.equal(install({ env: { ORANGESPEAKEASY_HOME: join(root, "try") } }).code, 0);
+  assert.equal(recorded(), join(custom, ".orangespeakeasy"));
 });
 
-test("第一次安装选了文件夹（SPEAKMORE_INSTALL_DIR）：装进它里面的 .speakmore、记进定位文件；再运行安装命令照定位文件装回原处", () => {
+test("第一次安装选了文件夹（ORANGESPEAKEASY_INSTALL_DIR）：装进它里面的 .orangespeakeasy、记进定位文件；再运行安装命令照定位文件装回原处", () => {
   const folder = join(root, "my data");
   mkdirSync(folder);
-  const first = install({ env: { SPEAKMORE_INSTALL_DIR: folder } });
+  const first = install({ env: { ORANGESPEAKEASY_INSTALL_DIR: folder } });
   assert.equal(first.code, 0, first.all);
-  const custom = join(folder, ".speakmore");
+  const custom = join(folder, ".orangespeakeasy");
   assert.equal(installedVersion(custom), "9.9.9");
   assert.equal(recorded(), custom);
   assert.equal(existsSync(home()), false);
@@ -407,7 +419,7 @@ function installInTerminal(answers, { env = {} } = {}) {
     env: {
       HOME: userHome,
       PATH: `${shims}:/usr/bin:/bin:/usr/sbin:/sbin`,
-      SPEAKMORE_INSTALL_BASE: release,
+      ORANGESPEAKEASY_INSTALL_BASE: release,
       FAKE_CALL_LOG: callLog,
       NO_COLOR: "1",
       TERM: "dumb",
@@ -420,12 +432,12 @@ function installInTerminal(answers, { env = {} } = {}) {
 test("第一次安装、在终端里：先说默认装在哪，回车就装在那里，不多出定位文件", () => {
   const { code, all } = installInTerminal([""]);
   assert.equal(code, 0, all);
-  assert.match(all, /Where to install[\s\S]*Press Enter to use ~\/\.speakmore/);
+  assert.match(all, /Where to install[\s\S]*Press Enter to use ~\/\.orangespeakeasy/);
   assert.equal(installedVersion(), "9.9.9");
   assert.equal(recorded(), null);
 });
 
-test("第一次安装、在终端里：输入（或从访达拖进来）一个文件夹就装进它里面的 .speakmore、记进定位文件；不能装的说清楚再问", () => {
+test("第一次安装、在终端里：输入（或从访达拖进来）一个文件夹就装进它里面的 .orangespeakeasy、记进定位文件；不能装的说清楚再问", () => {
   const disk = join(root, "My Disk");
   mkdirSync(disk);
   // 拖进终端的路径：空格前带反斜杠，末尾一个空格
@@ -434,7 +446,7 @@ test("第一次安装、在终端里：输入（或从访达拖进来）一个�
   assert.equal(code, 0, all);
   assert.match(all, /No such folder/);
   assert.match(all, /Use a full path/);
-  const custom = join(disk, ".speakmore");
+  const custom = join(disk, ".orangespeakeasy");
   assert.equal(installedVersion(custom), "9.9.9");
   assert.equal(recorded(), custom);
   assert.equal(existsSync(home()), false);
@@ -446,19 +458,19 @@ test("第一次安装、在终端里：输入（或从访达拖进来）一个�
   assert.equal(installedVersion(custom), "10.0.0");
 });
 
-test("第一次安装、在终端里：选的地方已经有别的东西不装；有一份 SpeakMore 的就沿用；输入 ~ 是默认位置", () => {
+test("第一次安装、在终端里：选的地方已经有别的东西不装；有一份 OrangeSpeakEasy 的就沿用；输入 ~ 是默认位置", () => {
   const taken = join(root, "Taken");
-  mkdirSync(join(taken, ".speakmore"), { recursive: true });
-  writeFileSync(join(taken, ".speakmore", "notes.txt"), "别人的");
+  mkdirSync(join(taken, ".orangespeakeasy"), { recursive: true });
+  writeFileSync(join(taken, ".orangespeakeasy", "notes.txt"), "别人的");
   const reused = join(root, "Old");
-  mkdirSync(join(reused, ".speakmore"), { recursive: true });
-  writeFileSync(join(reused, ".speakmore", "settings.json"), '{"hotkey":"fn"}');
+  mkdirSync(join(reused, ".orangespeakeasy"), { recursive: true });
+  writeFileSync(join(reused, ".orangespeakeasy", "settings.json"), '{"hotkey":"fn"}');
   const { code, all } = installInTerminal([taken, `"${reused}"`]);
   assert.equal(code, 0, all);
   assert.match(all, /already has other things in it/);
-  assert.match(all, /Found SpeakMore data there/);
-  assert.equal(recorded(), join(reused, ".speakmore"));
-  assert.equal(readFileSync(join(reused, ".speakmore", "settings.json"), "utf8"), '{"hotkey":"fn"}');
+  assert.match(all, /Found OrangeSpeakEasy data there/);
+  assert.equal(recorded(), join(reused, ".orangespeakeasy"));
+  assert.equal(readFileSync(join(reused, ".orangespeakeasy", "settings.json"), "utf8"), '{"hotkey":"fn"}');
 
   rmSync(locationFile());
   rmSync(reused, { recursive: true });
@@ -472,10 +484,10 @@ test("选的文件夹在 exFAT、FAT32 这类盘上（套接字、符号链接�
   const folder = join(root, "Stick");
   mkdirSync(folder);
   assertRefused(
-    install({ env: { SPEAKMORE_INSTALL_DIR: folder, FAKE_FS: "exfat" } }),
-    /is on a disk formatted as exFAT; SpeakMore needs APFS or Mac OS Extended/,
+    install({ env: { ORANGESPEAKEASY_INSTALL_DIR: folder, FAKE_FS: "exfat" } }),
+    /is on a disk formatted as exFAT; OrangeSpeakEasy needs APFS or Mac OS Extended/,
   );
-  assert.equal(existsSync(join(folder, ".speakmore")), false);
+  assert.equal(existsSync(join(folder, ".orangespeakeasy")), false);
   const asked = installInTerminal([folder, ""], { env: { FAKE_FS: "exfat" } });
   assert.equal(asked.code, 0, asked.all);
   assert.match(asked.all, /formatted as exFAT/);
@@ -486,12 +498,12 @@ test("挂载的盘很多（mount 说的比管道一次装得下的还多）：�
   const folder = join(root, "Data");
   mkdirSync(folder);
   assertRefused(
-    install({ env: { SPEAKMORE_INSTALL_DIR: folder, FAKE_FS: "exfat", FAKE_MOUNT_PAD: "1" } }),
+    install({ env: { ORANGESPEAKEASY_INSTALL_DIR: folder, FAKE_FS: "exfat", FAKE_MOUNT_PAD: "1" } }),
     /formatted as exFAT/,
   );
-  const result = install({ env: { SPEAKMORE_INSTALL_DIR: folder, FAKE_MOUNT_PAD: "1" } });
+  const result = install({ env: { ORANGESPEAKEASY_INSTALL_DIR: folder, FAKE_MOUNT_PAD: "1" } });
   assert.equal(result.code, 0, result.all);
-  assert.equal(installedVersion(join(folder, ".speakmore")), "9.9.9");
+  assert.equal(installedVersion(join(folder, ".orangespeakeasy")), "9.9.9");
 });
 
 test("不在终端里（脚本、CI 调的）：不问，装在默认位置", () => {
@@ -500,69 +512,75 @@ test("不在终端里（脚本、CI 调的）：不问，装在默认位置", ()
   assert.doesNotMatch(all, /Where to install/);
 });
 
-test("选文件夹：文件夹要已经在；选的就是一个 .speakmore 时用它本身，不再套一层", () => {
-  const custom = join(root, "Data", ".speakmore");
-  assertRefused(install({ env: { SPEAKMORE_INSTALL_DIR: join(root, "Data") } }), /No such folder/);
+test("选文件夹：文件夹要已经在；选的就是一个 .orangespeakeasy 时用它本身，不再套一层", () => {
+  const custom = join(root, "Data", ".orangespeakeasy");
+  assertRefused(install({ env: { ORANGESPEAKEASY_INSTALL_DIR: join(root, "Data") } }), /No such folder/);
   mkdirSync(custom, { recursive: true });
-  assert.equal(install({ env: { SPEAKMORE_INSTALL_DIR: `${custom}/` } }).code, 0);
+  assert.equal(install({ env: { ORANGESPEAKEASY_INSTALL_DIR: `${custom}/` } }).code, 0);
   assert.equal(recorded(), custom);
-  assert.equal(existsSync(join(custom, ".speakmore")), false);
+  assert.equal(existsSync(join(custom, ".orangespeakeasy")), false);
 });
 
-test("选文件夹只用于第一次安装：默认位置已经用过的就停下，说用 speakmore move；和 SPEAKMORE_HOME 不能一起给", () => {
+test("选文件夹只用于第一次安装：默认位置已经用过的就停下，说用 orangespeakeasy move；和 ORANGESPEAKEASY_HOME 不能一起给", () => {
   mkdirSync(home());
   writeFileSync(join(home(), "settings.json"), "{}");
   const folder = join(root, "Data");
   mkdirSync(folder);
-  assertRefused(install({ env: { SPEAKMORE_INSTALL_DIR: folder } }), /already set up in[\s\S]*speakmore move/);
-  assert.equal(existsSync(join(folder, ".speakmore")), false);
+  assertRefused(
+    install({ env: { ORANGESPEAKEASY_INSTALL_DIR: folder } }),
+    /already set up in[\s\S]*orangespeakeasy move/,
+  );
+  assert.equal(existsSync(join(folder, ".orangespeakeasy")), false);
   assert.equal(recorded(), null);
   assertRefused(
-    install({ env: { SPEAKMORE_INSTALL_DIR: folder, SPEAKMORE_HOME: home() } }),
-    /SPEAKMORE_INSTALL_DIR or SPEAKMORE_HOME, not both/,
+    install({ env: { ORANGESPEAKEASY_INSTALL_DIR: folder, ORANGESPEAKEASY_HOME: home() } }),
+    /ORANGESPEAKEASY_INSTALL_DIR or ORANGESPEAKEASY_HOME, not both/,
   );
 });
 
-test("选文件夹时别处已经装过：建议的 speakmore move 命令照抄就能用（路径里有空格、引号）", () => {
+test("选文件夹时别处已经装过：建议的 orangespeakeasy move 命令照抄就能用（路径里有空格、引号）", () => {
   mkdirSync(home());
   writeFileSync(join(home(), "settings.json"), "{}");
   for (const [folder, shown] of [
-    [join(root, "a 'b'"), /run: speakmore move '/],
-    [join(userHome, "Data"), /run: speakmore move ~\/Data$/m],
+    [join(root, "a 'b'"), /run: orangespeakeasy move '/],
+    [join(userHome, "Data"), /run: orangespeakeasy move ~\/Data$/m],
   ]) {
     mkdirSync(folder);
-    const result = install({ env: { SPEAKMORE_INSTALL_DIR: folder } });
+    const result = install({ env: { ORANGESPEAKEASY_INSTALL_DIR: folder } });
     assertRefused(result, /already set up in/);
     assert.match(result.err, shown);
-    const command = result.err.match(/run: (speakmore move .*)$/m)[1];
+    const command = result.err.match(/run: (orangespeakeasy move .*)$/m)[1];
     const words = execFileSync("/bin/sh", ["-c", `set -- ${command}; printf '%s\\n' "$@"`], {
       encoding: "utf8",
       env: { HOME: userHome },
     });
-    assert.deepEqual(words.trim().split("\n"), ["speakmore", "move", folder]);
+    assert.deepEqual(words.trim().split("\n"), ["orangespeakeasy", "move", folder]);
   }
 });
 
-test("选文件夹（SPEAKMORE_INSTALL_DIR）时定位文件记着别处：那里现在不在（移动硬盘没接）也停下，不改定位文件", () => {
+test("选文件夹（ORANGESPEAKEASY_INSTALL_DIR）时定位文件记着别处：那里现在不在（移动硬盘没接）也停下，不改定位文件", () => {
   // 名字取短：临时目录的路径本来就长，家目录最长 86 个字节
-  const unplugged = join(root, "usb", ".speakmore");
+  const unplugged = join(root, "usb", ".orangespeakeasy");
   mkdirSync(join(locationFile(), ".."), { recursive: true });
   writeFileSync(locationFile(), JSON.stringify({ home: unplugged }));
   const folder = join(root, "Data");
   mkdirSync(folder);
   assertRefused(
-    install({ env: { SPEAKMORE_INSTALL_DIR: folder } }),
-    /Can't find the SpeakMore folder[\s\S]*connect the drive[\s\S]*delete/,
+    install({ env: { ORANGESPEAKEASY_INSTALL_DIR: folder } }),
+    /Can't find the OrangeSpeakEasy folder[\s\S]*connect the drive[\s\S]*delete/,
   );
   assert.equal(recorded(), unplugged);
-  assert.equal(existsSync(join(folder, ".speakmore")), false);
-  // 接上了：说已经装在那里，用 speakmore move 搬
+  assert.equal(existsSync(join(folder, ".orangespeakeasy")), false);
+  // 接上了：说已经装在那里，用 orangespeakeasy move 搬
   mkdirSync(unplugged, { recursive: true });
   writeFileSync(join(unplugged, "settings.json"), "{}");
-  assertRefused(install({ env: { SPEAKMORE_INSTALL_DIR: folder } }), /already set up in[\s\S]*speakmore move/);
+  assertRefused(
+    install({ env: { ORANGESPEAKEASY_INSTALL_DIR: folder } }),
+    /already set up in[\s\S]*orangespeakeasy move/,
+  );
   assert.equal(recorded(), unplugged);
   // 选的就是记着的那一处：照常装
-  const same = install({ env: { SPEAKMORE_INSTALL_DIR: join(root, "usb") } });
+  const same = install({ env: { ORANGESPEAKEASY_INSTALL_DIR: join(root, "usb") } });
   assert.equal(same.code, 0, same.all);
   assert.equal(installedVersion(unplugged), "9.9.9");
 });
@@ -575,28 +593,28 @@ test("定位文件坏了：不装，也不改装到默认位置（那样看着�
     assertRefused(result, /location file is invalid[\s\S]*Delete it to use the default place/);
     assert.equal(existsSync(home()), false);
   }
-  // 指定了这一次用哪个目录的不看定位文件：0.11.0 的 speakmore update 就是这样调新版本的安装脚本的
-  assert.equal(install({ env: { SPEAKMORE_HOME: home() } }).code, 0);
+  // 指定了这一次用哪个目录的不看定位文件：0.11.0 的 orangespeakeasy update 就是这样调新版本的安装脚本的
+  assert.equal(install({ env: { ORANGESPEAKEASY_HOME: home() } }).code, 0);
 });
 
 test("定位文件说装在一个现在不在的地方（移动硬盘没接、盘被换了）：不在那里新建，也不改装到默认位置", () => {
   mkdirSync(join(locationFile(), ".."), { recursive: true });
-  writeFileSync(locationFile(), JSON.stringify({ home: join(root, "unplugged", ".speakmore") }));
-  assertRefused(install(), /Can't find the SpeakMore folder[\s\S]*connect the drive/);
+  writeFileSync(locationFile(), JSON.stringify({ home: join(root, "unplugged", ".orangespeakeasy") }));
+  assertRefused(install(), /Can't find the OrangeSpeakEasy folder[\s\S]*connect the drive/);
   assert.equal(existsSync(join(root, "unplugged")), false);
   // 上一级在、家目录本身不在（盘符现在是另一块盘）：一样不建
   mkdirSync(join(root, "unplugged"));
-  assertRefused(install(), /Can't find the SpeakMore folder/);
-  assert.equal(existsSync(join(root, "unplugged", ".speakmore")), false);
+  assertRefused(install(), /Can't find the OrangeSpeakEasy folder/);
+  assert.equal(existsSync(join(root, "unplugged", ".orangespeakeasy")), false);
   assert.equal(existsSync(home()), false);
 });
 
 test("定位文件指着一个已经在、还空着的文件夹（App 第一次打开时选的）：装到一半出错也不删它", () => {
-  const picked = join(root, "Picked", ".speakmore");
+  const picked = join(root, "Picked", ".orangespeakeasy");
   mkdirSync(picked, { recursive: true });
   mkdirSync(join(locationFile(), ".."), { recursive: true });
   writeFileSync(locationFile(), JSON.stringify({ home: picked }));
-  writeFileSync(join(release, "v9.9.9", "speakmore-darwin-arm64.tar.xz.sha256"), `${"0".repeat(64)}  x\n`);
+  writeFileSync(join(release, "v9.9.9", "orangespeakeasy-darwin-arm64.tar.xz.sha256"), `${"0".repeat(64)}  x\n`);
   assertRefused(install(), /Checksum mismatch/);
   assert.equal(existsSync(picked), true, "不是这一次建的，不删");
   assert.equal(recorded(), picked);
@@ -605,46 +623,46 @@ test("定位文件指着一个已经在、还空着的文件夹（App 第一次�
   assert.equal(installedVersion(picked), "9.9.9");
 });
 
-test("启动脚本里不写死路径：整个目录搬到别处、链接改指过去照样能用；外面残留的 SPEAKMORE_HOME 带不偏", () => {
+test("启动脚本里不写死路径：整个目录搬到别处、链接改指过去照样能用；外面残留的 ORANGESPEAKEASY_HOME 带不偏", () => {
   assert.equal(install().code, 0);
-  const launcher = readFileSync(join(home(), "bin", "speakmore"), "utf8");
+  const launcher = readFileSync(join(home(), "bin", "orangespeakeasy"), "utf8");
   assert.equal(launcher.includes(userHome), false, launcher);
-  const moved = join(root, "moved home", ".speakmore");
+  const moved = join(root, "moved home", ".orangespeakeasy");
   mkdirSync(join(moved, ".."));
   execFileSync("mv", [home(), moved]);
-  const link = join(userHome, ".local", "bin", "speakmore");
-  execFileSync("ln", ["-sfn", join(moved, "bin", "speakmore"), link]);
+  const link = join(userHome, ".local", "bin", "orangespeakeasy");
+  execFileSync("ln", ["-sfn", join(moved, "bin", "orangespeakeasy"), link]);
   execFileSync(link, ["status"], {
-    env: { PATH: "/usr/bin:/bin", FAKE_CALL_LOG: callLog, SPEAKMORE_HOME: "/old/place/.speakmore" },
+    env: { PATH: "/usr/bin:/bin", FAKE_CALL_LOG: callLog, ORANGESPEAKEASY_HOME: "/old/place/.orangespeakeasy" },
   });
-  assert.equal(calls().at(-1), `1|${moved}|2|${join(moved, "app", "bin", "speakmore.mjs")} status`);
+  assert.equal(calls().at(-1), `1|${moved}|2|${join(moved, "app", "bin", "orangespeakeasy.mjs")} status`);
   // 不经链接、直接从 bin 里运行也一样
-  execFileSync("./speakmore", ["status"], {
+  execFileSync("./orangespeakeasy", ["status"], {
     cwd: join(moved, "bin"),
     env: { PATH: "/usr/bin:/bin", FAKE_CALL_LOG: callLog },
   });
-  assert.equal(calls().at(-1), `1|${moved}|2|${join(moved, "app", "bin", "speakmore.mjs")} status`);
+  assert.equal(calls().at(-1), `1|${moved}|2|${join(moved, "app", "bin", "orangespeakeasy.mjs")} status`);
   // 被复制（不是链接）到别处的：说清楚，不拿错的目录去跑
-  const copy = join(root, "copied-speakmore");
-  execFileSync("cp", [join(moved, "bin", "speakmore"), copy]);
+  const copy = join(root, "copied-orangespeakeasy");
+  execFileSync("cp", [join(moved, "bin", "orangespeakeasy"), copy]);
   const copied = spawnSync(copy, ["status"], {
     encoding: "utf8",
     env: { PATH: "/usr/bin:/bin", FAKE_CALL_LOG: callLog },
   });
   assert.equal(copied.status, 1);
-  assert.match(copied.stderr, /must stay in SpeakMore's bin folder; link to it/);
+  assert.match(copied.stderr, /must stay in OrangeSpeakEasy's bin folder; link to it/);
 });
 
 test("0.11.0 及以前装的（启动脚本里写死了路径）：升级时启动脚本换成新的，你的东西不动，默认位置不多出定位文件", () => {
   // 照 0.11.0 的安装脚本摆出来的样子
   mkdirSync(join(home(), "bin"), { recursive: true });
-  execFileSync("tar", ["-xJf", join(release, "v9.9.9", "speakmore-darwin-arm64.tar.xz"), "-C", home()]);
-  const old = `#!/bin/sh\ninstalled_in='${home()}'\nSPEAKMORE_HOME="\${SPEAKMORE_HOME:-$installed_in}"\nexport SPEAKMORE_HOME\nELECTRON_RUN_AS_NODE=1 exec '${home()}/runtime/Electron.app/Contents/MacOS/Electron' '${home()}/app/bin/speakmore.mjs' "$@"\n`;
-  writeFileSync(join(home(), "bin", "speakmore"), old);
-  chmodSync(join(home(), "bin", "speakmore"), 0o755);
-  const link = join(userHome, ".local", "bin", "speakmore");
+  execFileSync("tar", ["-xJf", join(release, "v9.9.9", "orangespeakeasy-darwin-arm64.tar.xz"), "-C", home()]);
+  const old = `#!/bin/sh\ninstalled_in='${home()}'\nORANGESPEAKEASY_HOME="\${ORANGESPEAKEASY_HOME:-$installed_in}"\nexport ORANGESPEAKEASY_HOME\nELECTRON_RUN_AS_NODE=1 exec '${home()}/runtime/Electron.app/Contents/MacOS/Electron' '${home()}/app/bin/orangespeakeasy.mjs' "$@"\n`;
+  writeFileSync(join(home(), "bin", "orangespeakeasy"), old);
+  chmodSync(join(home(), "bin", "orangespeakeasy"), 0o755);
+  const link = join(userHome, ".local", "bin", "orangespeakeasy");
   mkdirSync(join(link, ".."), { recursive: true });
-  execFileSync("ln", ["-s", join(home(), "bin", "speakmore"), link]);
+  execFileSync("ln", ["-s", join(home(), "bin", "orangespeakeasy"), link]);
   writeFileSync(join(home(), "bin", "links"), `${link}\n`);
   writeFileSync(join(home(), "settings.json"), '{"hotkey":"fn"}');
   makeArchive("arm64", "10.0.0");
@@ -652,42 +670,44 @@ test("0.11.0 及以前装的（启动脚本里写死了路径）：升级时启�
   const { code, out } = install();
   assert.equal(code, 0, out);
   assert.match(out, /Upgraded: 9\.9\.9 → 10\.0\.0/);
-  assert.equal(readFileSync(join(home(), "bin", "speakmore"), "utf8").includes(home()), false);
+  assert.equal(readFileSync(join(home(), "bin", "orangespeakeasy"), "utf8").includes(home()), false);
   assert.equal(recorded(), null);
   assert.equal(readFileSync(join(home(), "settings.json"), "utf8"), '{"hotkey":"fn"}');
   assert.equal(readFileSync(join(home(), "bin", "links"), "utf8"), `${link}\n`);
   execFileSync(link, ["status"], { env: { PATH: "/usr/bin:/bin", FAKE_CALL_LOG: callLog } });
-  assert.equal(calls().at(-1), `1|${home()}|2|${join(home(), "app", "bin", "speakmore.mjs")} status`);
+  assert.equal(calls().at(-1), `1|${home()}|2|${join(home(), "app", "bin", "orangespeakeasy.mjs")} status`);
 });
 
 test("选了别处却记不下装在哪（放定位文件的地方被占了）：照实报错，说清楚程序已经装在哪", () => {
   writeFileSync(join(userHome, "Library"), "不是目录");
   const folder = join(root, "Data");
   mkdirSync(folder);
-  const result = install({ env: { SPEAKMORE_INSTALL_DIR: folder } });
+  const result = install({ env: { ORANGESPEAKEASY_INSTALL_DIR: folder } });
   assert.equal(result.code, 1, result.all);
-  assert.match(result.err, /Couldn't write[\s\S]*SpeakMore 9\.9\.9 is in/);
+  assert.match(result.err, /Couldn't write[\s\S]*OrangeSpeakEasy 9\.9\.9 is in/);
   assert.doesNotMatch(result.err, /Nothing was installed/);
 });
 
-/** 把整个目录拷到另一处（speakmore move 做的那一步），符号链接原样 */
+/** 把整个目录拷到另一处（orangespeakeasy move 做的那一步），符号链接原样 */
 function copyHome(from, to) {
   mkdirSync(join(to, ".."), { recursive: true });
   execFileSync("cp", ["-pPR", from, to]);
 }
 
-test("换家（speakmore move 拷完以后）：不联网、不换程序；命令的链接和定位文件改指到新目录；换回默认位置就删掉定位文件", () => {
+test("换家（orangespeakeasy move 拷完以后）：不联网、不换程序；命令的链接和定位文件改指到新目录；换回默认位置就删掉定位文件", () => {
   assert.equal(install().code, 0);
-  const link = join(userHome, ".local", "bin", "speakmore");
-  const moved = join(root, "Data", ".speakmore");
+  const link = join(userHome, ".local", "bin", "orangespeakeasy");
+  const moved = join(root, "Data", ".orangespeakeasy");
   copyHome(home(), moved);
   rmSync(callLog);
-  const offline = { SPEAKMORE_INSTALL_BASE: join(root, "nowhere") };
-  const { code, out } = install({ env: { ...offline, SPEAKMORE_HOME: moved, SPEAKMORE_PREVIOUS_HOME: home() } });
+  const offline = { ORANGESPEAKEASY_INSTALL_BASE: join(root, "nowhere") };
+  const { code, out } = install({
+    env: { ...offline, ORANGESPEAKEASY_HOME: moved, ORANGESPEAKEASY_PREVIOUS_HOME: home() },
+  });
   assert.equal(code, 0, out);
-  assert.match(out, /Copied SpeakMore 9\.9\.9[\s\S]*Moved SpeakMore 9\.9\.9 to/);
+  assert.match(out, /Copied OrangeSpeakEasy 9\.9\.9[\s\S]*Moved OrangeSpeakEasy 9\.9\.9 to/);
   assert.doesNotMatch(out, /Download server reachable/);
-  assert.equal(readlinkSync(link), join(moved, "bin", "speakmore"));
+  assert.equal(readlinkSync(link), join(moved, "bin", "orangespeakeasy"));
   assert.equal(recorded(), moved);
   // 只在新目录里试跑、停过，旧目录的程序没动
   assert.deepEqual(
@@ -696,38 +716,40 @@ test("换家（speakmore move 拷完以后）：不联网、不换程序；命�
   );
   assert.equal(readFileSync(join(moved, "bin", "links"), "utf8"), `${link}\n`);
 
-  // 搬失败时由 speakmore move 换回去：对旧目录再换一次家
-  const back = install({ env: { ...offline, SPEAKMORE_HOME: home(), SPEAKMORE_PREVIOUS_HOME: moved } });
+  // 搬失败时由 orangespeakeasy move 换回去：对旧目录再换一次家
+  const back = install({ env: { ...offline, ORANGESPEAKEASY_HOME: home(), ORANGESPEAKEASY_PREVIOUS_HOME: moved } });
   assert.equal(back.code, 0, back.all);
-  assert.equal(readlinkSync(link), join(home(), "bin", "speakmore"));
+  assert.equal(readlinkSync(link), join(home(), "bin", "orangespeakeasy"));
   assert.equal(recorded(), null);
 });
 
 test("换家：新目录里拷过去的程序跑不起来（比如那块盘不让执行）就不改指，原来的照常用", () => {
   assert.equal(install().code, 0);
-  const link = join(userHome, ".local", "bin", "speakmore");
-  const moved = join(root, "Data", ".speakmore");
+  const link = join(userHome, ".local", "bin", "orangespeakeasy");
+  const moved = join(root, "Data", ".orangespeakeasy");
   copyHome(home(), moved);
-  const result = install({ env: { SPEAKMORE_HOME: moved, SPEAKMORE_PREVIOUS_HOME: home(), FAKE_BROKEN: "1" } });
+  const result = install({
+    env: { ORANGESPEAKEASY_HOME: moved, ORANGESPEAKEASY_PREVIOUS_HOME: home(), FAKE_BROKEN: "1" },
+  });
   assertRefused(result, /won't run on this Mac/);
-  assert.equal(readlinkSync(link), join(home(), "bin", "speakmore"));
+  assert.equal(readlinkSync(link), join(home(), "bin", "orangespeakeasy"));
   assert.equal(recorded(), null);
 });
 
-test("换家时改不了指着旧目录的命令链接（所在的目录不让写）：停下，不说“装好了、再运行一次”（speakmore move 接着会换回去）", () => {
+test("换家时改不了指着旧目录的命令链接（所在的目录不让写）：停下，不说“装好了、再运行一次”（orangespeakeasy move 接着会换回去）", () => {
   assert.equal(install().code, 0);
   const bin = join(userHome, ".local", "bin");
-  const link = join(bin, "speakmore");
-  const moved = join(root, "Data", ".speakmore");
+  const link = join(bin, "orangespeakeasy");
+  const moved = join(root, "Data", ".orangespeakeasy");
   copyHome(home(), moved);
   chmodSync(bin, 0o555);
   try {
-    const result = install({ env: { SPEAKMORE_HOME: moved, SPEAKMORE_PREVIOUS_HOME: home() } });
+    const result = install({ env: { ORANGESPEAKEASY_HOME: moved, ORANGESPEAKEASY_PREVIOUS_HOME: home() } });
     assert.equal(result.code, 1, result.all);
     assert.match(result.err, /Couldn't update the link/);
-    assert.match(result.err, /Switching SpeakMore to .*Data\/\.speakmore didn't finish/);
+    assert.match(result.err, /Switching OrangeSpeakEasy to .*Data\/\.orangespeakeasy didn't finish/);
     assert.doesNotMatch(result.err, /run this again|Nothing was installed/);
-    assert.equal(readlinkSync(link), join(home(), "bin", "speakmore"));
+    assert.equal(readlinkSync(link), join(home(), "bin", "orangespeakeasy"));
   } finally {
     chmodSync(bin, 0o755);
   }
@@ -736,44 +758,44 @@ test("换家时改不了指着旧目录的命令链接（所在的目录不让�
 test("换家换回去（或启动时收拾半路断掉的搬家）：已经指着这里的命令链接不动，所在的目录不让写也照常换完", () => {
   assert.equal(install().code, 0);
   const bin = join(userHome, ".local", "bin");
-  const link = join(bin, "speakmore");
+  const link = join(bin, "orangespeakeasy");
   // 另一条也指着这里，只是写法经过一个符号链接
   const otherBin = join(root, "other bin");
-  const other = join(otherBin, "speakmore");
-  const spelled = join(root, "linked-u", ".speakmore", "bin", "speakmore");
+  const other = join(otherBin, "orangespeakeasy");
+  const spelled = join(root, "linked-u", ".orangespeakeasy", "bin", "orangespeakeasy");
   execFileSync("ln", ["-s", userHome, join(root, "linked-u")]);
   mkdirSync(otherBin);
   execFileSync("ln", ["-s", spelled, other]);
   writeFileSync(join(home(), "bin", "links"), `${link}\n${other}\n`);
-  const moved = join(root, "Data", ".speakmore");
+  const moved = join(root, "Data", ".orangespeakeasy");
   copyHome(home(), moved);
   chmodSync(bin, 0o555);
   chmodSync(otherBin, 0o555);
   try {
-    const back = install({ env: { SPEAKMORE_HOME: home(), SPEAKMORE_PREVIOUS_HOME: moved } });
+    const back = install({ env: { ORANGESPEAKEASY_HOME: home(), ORANGESPEAKEASY_PREVIOUS_HOME: moved } });
     assert.equal(back.code, 0, back.all);
-    assert.equal(readlinkSync(link), join(home(), "bin", "speakmore"));
+    assert.equal(readlinkSync(link), join(home(), "bin", "orangespeakeasy"));
     assert.equal(readlinkSync(other), spelled);
-    assert.match(back.out, /speakmore command: ~\/\.local\/bin\/speakmore/);
+    assert.match(back.out, /orangespeakeasy command: ~\/\.local\/bin\/orangespeakeasy/);
   } finally {
     chmodSync(bin, 0o755);
     chmodSync(otherBin, 0o755);
   }
 });
 
-test("换家要和 SPEAKMORE_HOME 一起给；新目录里没有拷过去的程序不换", () => {
+test("换家要和 ORANGESPEAKEASY_HOME 一起给；新目录里没有拷过去的程序不换", () => {
   assert.equal(install().code, 0);
-  assertRefused(install({ env: { SPEAKMORE_PREVIOUS_HOME: home() } }), /goes with SPEAKMORE_HOME/);
+  assertRefused(install({ env: { ORANGESPEAKEASY_PREVIOUS_HOME: home() } }), /goes with ORANGESPEAKEASY_HOME/);
   const empty = join(root, "empty");
   mkdirSync(empty);
   assertRefused(
-    install({ env: { SPEAKMORE_HOME: empty, SPEAKMORE_PREVIOUS_HOME: home() } }),
-    /has no copy of SpeakMore/,
+    install({ env: { ORANGESPEAKEASY_HOME: empty, ORANGESPEAKEASY_PREVIOUS_HOME: home() } }),
+    /has no copy of OrangeSpeakEasy/,
   );
   assert.equal(recorded(), null);
 });
 
-test("从拼好的树装（speakmore update）：不联网，家目录里 .update- 开头的那个改名换上，原来的东西不动", () => {
+test("从拼好的树装（orangespeakeasy update）：不联网，家目录里 .update- 开头的那个改名换上，原来的东西不动", () => {
   assert.equal(install().code, 0);
   writeFileSync(join(home(), "settings.json"), '{"hotkey":"fn"}');
   const tree = makeTree("10.0.0");
@@ -781,11 +803,11 @@ test("从拼好的树装（speakmore update）：不联网，家目录里 .updat
   execFileSync("mv", [tree, prepared]);
   // 下载地址指到一个不存在的地方：从拼好的树装不该去问
   const { code, out } = install({
-    env: { SPEAKMORE_INSTALL_FROM: prepared, SPEAKMORE_INSTALL_BASE: join(root, "nowhere") },
+    env: { ORANGESPEAKEASY_INSTALL_FROM: prepared, ORANGESPEAKEASY_INSTALL_BASE: join(root, "nowhere") },
     args: ["--no-start"],
   });
   assert.equal(code, 0, out);
-  assert.match(out, /Prepared SpeakMore 10\.0\.0/);
+  assert.match(out, /Prepared OrangeSpeakEasy 10\.0\.0/);
   assert.doesNotMatch(out, /Download server reachable/);
   assert.equal(installedVersion(), "10.0.0");
   assert.equal(readFileSync(join(home(), "settings.json"), "utf8"), '{"hotkey":"fn"}');
@@ -799,11 +821,17 @@ test("从拼好的树装（speakmore update）：不联网，家目录里 .updat
 test("从拼好的树装：只认家目录里 .update- 开头的目录；别处的、不存在的、跑不起来的都不装", () => {
   assert.equal(install().code, 0);
   const elsewhere = makeTree("10.0.0");
-  assertRefused(install({ env: { SPEAKMORE_INSTALL_FROM: elsewhere } }), /must be a \.update- folder inside/);
-  assertRefused(install({ env: { SPEAKMORE_INSTALL_FROM: join(home(), ".update-10.0.0-missing") } }), /No such folder/);
+  assertRefused(install({ env: { ORANGESPEAKEASY_INSTALL_FROM: elsewhere } }), /must be a \.update- folder inside/);
+  assertRefused(
+    install({ env: { ORANGESPEAKEASY_INSTALL_FROM: join(home(), ".update-10.0.0-missing") } }),
+    /No such folder/,
+  );
   const prepared = join(home(), ".update-10.0.0-0badf00d");
   execFileSync("mv", [elsewhere, prepared]);
-  assertRefused(install({ env: { SPEAKMORE_INSTALL_FROM: prepared, FAKE_BROKEN: "1" } }), /won't run on this Mac/);
+  assertRefused(
+    install({ env: { ORANGESPEAKEASY_INSTALL_FROM: prepared, FAKE_BROKEN: "1" } }),
+    /won't run on this Mac/,
+  );
   assert.equal(installedVersion(), "9.9.9");
 });
 
@@ -811,12 +839,12 @@ test("从拼好的树装：家目录写成 a//b、末尾带 /、经过符号链�
   assert.equal(install().code, 0);
   const prepared = join(home(), ".update-10.0.0-0badf00d");
   execFileSync("mv", [makeTree("10.0.0"), prepared]);
-  // 家目录经过一个符号链接、写法又不规整；交来的是真实路径（speakmore update 规范化过的）
+  // 家目录经过一个符号链接、写法又不规整；交来的是真实路径（orangespeakeasy update 规范化过的）
   const linked = join(root, "linked-home");
   execFileSync("ln", ["-s", userHome, linked]);
-  const messy = `${linked}//.speakmore/`;
+  const messy = `${linked}//.orangespeakeasy/`;
   const { code, out } = install({
-    env: { SPEAKMORE_HOME: messy, SPEAKMORE_INSTALL_FROM: prepared },
+    env: { ORANGESPEAKEASY_HOME: messy, ORANGESPEAKEASY_INSTALL_FROM: prepared },
     args: ["--no-start"],
   });
   assert.equal(code, 0, out);
@@ -825,14 +853,17 @@ test("从拼好的树装：家目录写成 a//b、末尾带 /、经过符号链�
   const outside = makeTree("10.0.1");
   mkdirSync(join(home(), ".update-10.0.1-0badf00d"));
   const sneaky = join(home(), ".update-10.0.1-0badf00d", "..", "..", "..", outside.split("/").at(-1));
-  assertRefused(install({ env: { SPEAKMORE_INSTALL_FROM: sneaky } }), /must be a \.update- folder inside/);
+  assertRefused(install({ env: { ORANGESPEAKEASY_INSTALL_FROM: sneaky } }), /must be a \.update- folder inside/);
   assert.ok(existsSync(join(outside, "app", "package.json")), "绕出去的那个目录没被删");
   assert.equal(installedVersion(), "10.0.0");
 });
 
-test("0.11.0 以前的版本（包是 tar.gz）不装：说清楚怎么办；0.10.0 及以前的 speakmore update 就是这么指定 v0.10.1 的", () => {
-  const result = install({ env: { SPEAKMORE_VERSION: "v0.10.1" } });
-  assertRefused(result, /can't install v0\.10\.1[\s\S]*packaged differently[\s\S]*v0\.10\.1\/SpeakMore-arm64\.dmg/);
+test("0.11.0 以前的版本（包是 tar.gz）不装：说清楚怎么办；0.10.0 及以前的 orangespeakeasy update 就是这么指定 v0.10.1 的", () => {
+  const result = install({ env: { ORANGESPEAKEASY_VERSION: "v0.10.1" } });
+  assertRefused(
+    result,
+    /can't install v0\.10\.1[\s\S]*packaged differently[\s\S]*v0\.10\.1\/OrangeSpeakEasy-arm64\.dmg/,
+  );
   assert.equal(existsSync(join(home(), "app")), false);
 });
 
@@ -841,20 +872,20 @@ test("0.12.0 以前的版本只认默认位置：不装到别处（卸载它时�
   const folder = join(root, "Data");
   mkdirSync(folder);
   assertRefused(
-    install({ env: { SPEAKMORE_INSTALL_DIR: folder, SPEAKMORE_VERSION: "v0.11.0" } }),
-    /v0\.11\.0 can only be installed in ~\/\.speakmore[\s\S]*v0\.12\.0/,
+    install({ env: { ORANGESPEAKEASY_INSTALL_DIR: folder, ORANGESPEAKEASY_VERSION: "v0.11.0" } }),
+    /v0\.11\.0 can only be installed in ~\/\.orangespeakeasy[\s\S]*v0\.12\.0/,
   );
-  assert.equal(existsSync(join(folder, ".speakmore")), false);
+  assert.equal(existsSync(join(folder, ".orangespeakeasy")), false);
   assert.equal(recorded(), null);
   // 已经装在别处（照定位文件）的，也不降到它：先搬回默认位置
   makeArchive("arm64", "9.9.9");
-  assert.equal(install({ env: { SPEAKMORE_INSTALL_DIR: folder } }).code, 0);
-  assertRefused(install({ env: { SPEAKMORE_VERSION: "v0.11.0" } }), /speakmore move ~/);
-  assert.equal(installedVersion(join(folder, ".speakmore")), "9.9.9");
-  assert.equal(recorded(), join(folder, ".speakmore"));
+  assert.equal(install({ env: { ORANGESPEAKEASY_INSTALL_DIR: folder } }).code, 0);
+  assertRefused(install({ env: { ORANGESPEAKEASY_VERSION: "v0.11.0" } }), /orangespeakeasy move ~/);
+  assert.equal(installedVersion(join(folder, ".orangespeakeasy")), "9.9.9");
+  assert.equal(recorded(), join(folder, ".orangespeakeasy"));
 
   rmSync(locationFile());
-  assert.equal(install({ env: { SPEAKMORE_VERSION: "v0.11.0" } }).code, 0);
+  assert.equal(install({ env: { ORANGESPEAKEASY_VERSION: "v0.11.0" } }).code, 0);
   assert.equal(installedVersion(), "0.11.0");
 });
 
@@ -863,7 +894,7 @@ test("从拼好的树装：只是改名换上，磁盘剩得不多也装（拼�
   const prepared = join(home(), ".update-10.0.0-0badf00d");
   execFileSync("mv", [makeTree("10.0.0"), prepared]);
   const { code, out } = install({
-    env: { SPEAKMORE_INSTALL_FROM: prepared, FAKE_FREE_KB: String(300 * 1024) },
+    env: { ORANGESPEAKEASY_INSTALL_FROM: prepared, FAKE_FREE_KB: String(300 * 1024) },
     args: ["--no-start"],
   });
   assert.equal(code, 0, out);

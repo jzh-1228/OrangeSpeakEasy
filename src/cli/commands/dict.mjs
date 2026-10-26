@@ -2,7 +2,7 @@ import { LocalizedError, msg } from "../../i18n/index.mjs";
 import { openVocabulary, readImportFile } from "../../storage/vocabulary.mjs";
 import { parse, say, UsageError } from "../common.mjs";
 
-// speakmore dict：看、加、删、导入词典。词典只是本机的一个文件（storage/vocabulary.mjs），这里直接读写，
+// orangespeakeasy dict：看、加、删、导入词典。词典只是本机的一个文件（storage/vocabulary.mjs），这里直接读写，
 // 不经过后台应用：后台每次听写时重读一次，改完下一句话就用上。
 
 const usage = () => new UsageError(msg("cli.dict.usage"));

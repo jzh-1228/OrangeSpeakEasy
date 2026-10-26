@@ -36,11 +36,11 @@ test("认版本号：带不带 v、前后的空白都认；不像版本号的（
     assert.equal(parseVersion(bad), null, String(bad));
 });
 
-test("从哪下载：和安装脚本一样，默认是发布的地址，SPEAKMORE_INSTALL_BASE 可以换成网址或者本机的目录", () => {
+test("从哪下载：和安装脚本一样，默认是发布的地址，ORANGESPEAKEASY_INSTALL_BASE 可以换成网址或者本机的目录", () => {
   assert.equal(downloadBase({}), DOWNLOAD_URL);
-  assert.equal(downloadBase({ SPEAKMORE_INSTALL_BASE: "https://example.com/sm" }), "https://example.com/sm");
-  assert.equal(downloadBase({ SPEAKMORE_INSTALL_BASE: "/tmp/release" }), "file:///tmp/release");
-  assert.equal(downloadBase({ SPEAKMORE_INSTALL_BASE: "C:\\dist\\release" }), "file:///C:/dist/release");
+  assert.equal(downloadBase({ ORANGESPEAKEASY_INSTALL_BASE: "https://example.com/sm" }), "https://example.com/sm");
+  assert.equal(downloadBase({ ORANGESPEAKEASY_INSTALL_BASE: "/tmp/release" }), "file:///tmp/release");
+  assert.equal(downloadBase({ ORANGESPEAKEASY_INSTALL_BASE: "C:\\dist\\release" }), "file:///C:/dist/release");
 });
 
 /** 摆一个本机的下载地址：channel.json 和 store/ 里的对象（压好的） */
@@ -95,7 +95,7 @@ test("真的去问、真的下载：用本机的一个目录当下载地址；�
     ],
     { format: 1, version: "9.9.9", electron: "44.0.0", targets: { "win32-x64": a } },
   );
-  const server = createRelease({ env: { ...process.env, SPEAKMORE_INSTALL_BASE: root } });
+  const server = createRelease({ env: { ...process.env, ORANGESPEAKEASY_INSTALL_BASE: root } });
   assert.equal((await server.channel(5)).version, "9.9.9");
 
   const into = join(dir, "cache");
@@ -105,7 +105,7 @@ test("真的去问、真的下载：用本机的一个目录当下载地址；�
   assert.deepEqual(readdirSync(into).sort(), [a, b].sort());
   assert.deepEqual(got.sort(), [packedA.length, packedB.length].sort());
   // 自己换不了时告诉用户去哪下：和下载用的是同一个地址（Windows 上是 file:///C:/… 的写法）
-  assert.equal(server.url("v9.9.9/x.dmg"), `${downloadBase({ SPEAKMORE_INSTALL_BASE: root })}/v9.9.9/x.dmg`);
+  assert.equal(server.url("v9.9.9/x.dmg"), `${downloadBase({ ORANGESPEAKEASY_INSTALL_BASE: root })}/v9.9.9/x.dmg`);
 });
 
 test("取到的对象内容不对（被换了、坏了）：不留下，说是哪个对象坏了；没取到的说取不到", async () => {
@@ -113,7 +113,7 @@ test("取到的对象内容不对（被换了、坏了）：不留下，说是�
   const [a] = objectOf("要的那块");
   const [, packedOther] = objectOf("别的内容");
   makeRelease(root, [[a, packedOther]]);
-  const server = createRelease({ env: { ...process.env, SPEAKMORE_INSTALL_BASE: root } });
+  const server = createRelease({ env: { ...process.env, ORANGESPEAKEASY_INSTALL_BASE: root } });
   const into = join(dir, "cache");
   mkdirSync(into);
   await assert.rejects(server.fetchObjects([a], into), (error) => {
@@ -139,7 +139,7 @@ test("清单：取回来核对过再解析，交回它压过的大小（算进�
     [good, packedGood],
     [bad, packedBad],
   ]);
-  const server = createRelease({ env: { ...process.env, SPEAKMORE_INSTALL_BASE: root } });
+  const server = createRelease({ env: { ...process.env, ORANGESPEAKEASY_INSTALL_BASE: root } });
   assert.deepEqual(await server.manifest(good), { manifest, bytes: packedGood.length });
   await assert.rejects(server.manifest(bad), (error) => {
     assert.match(zh.text(error.problem), new RegExp(`更新清单（${bad.slice(0, 12)}）无效`));
@@ -150,7 +150,7 @@ test("清单：取回来核对过再解析，交回它压过的大小（算进�
 });
 
 test("下载地址问不到：报出地址和 curl 说的原因", async () => {
-  const server = createRelease({ env: { ...process.env, SPEAKMORE_INSTALL_BASE: join(dir, "nowhere") } });
+  const server = createRelease({ env: { ...process.env, ORANGESPEAKEASY_INSTALL_BASE: join(dir, "nowhere") } });
   mkdirSync(join(dir, "cache"));
   for (const attempt of [() => server.channel(5), () => server.fetchObjects(["c".repeat(64)], join(dir, "cache"))]) {
     await assert.rejects(attempt, (error) => {

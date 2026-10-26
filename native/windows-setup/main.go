@@ -1,7 +1,7 @@
-// SpeakMore 的 Windows 安装程序（SpeakMore-Setup-x64.exe）：双击就装好，装完打开 App 进首次引导。
+// OrangeSpeakEasy 的 Windows 安装程序（OrangeSpeakEasy-Setup-x64.exe）：双击就装好，装完打开 App 进首次引导。
 //
 // 它身上带着这个版本的整棵程序（见 payload.go），解到临时目录，再让程序里自带的 install.ps1 从那里装
-// （SPEAKMORE_INSTALL_FROM，它拷进 versions 下的新目录）：怎么装只有 install.ps1 这一份，和 PowerShell 里
+// （ORANGESPEAKEASY_INSTALL_FROM，它拷进 versions 下的新目录）：怎么装只有 install.ps1 这一份，和 PowerShell 里
 // irm | iex 那一行装出来的一模一样，装的时候也不用联网。
 // 控制台程序：安装的进度就是 install.ps1 打的那几行。出错时停住等按回车，免得窗口一闪就没了，看不到原因。
 // 第一次安装时用系统的对话框问装在哪（ask_windows.go）。依赖只有解 zstd 的 klauspost/compress、弹系统对话框的
@@ -22,10 +22,10 @@ import (
 
 // 和 src/update/home.mjs 跑 install.ps1 的写法一样：按 UTF-8 读进来当脚本块跑
 // （直接 -File 的话，Windows PowerShell 5.1 把没有 BOM 的脚本当成系统编码读）
-const runInstall = "& ([scriptblock]::Create([IO.File]::ReadAllText($env:SPEAKMORE_INSTALL_SCRIPT, [Text.Encoding]::UTF8))); exit $LASTEXITCODE"
+const runInstall = "& ([scriptblock]::Create([IO.File]::ReadAllText($env:ORANGESPEAKEASY_INSTALL_SCRIPT, [Text.Encoding]::UTF8))); exit $LASTEXITCODE"
 
 func main() {
-	setTitle("SpeakMore Setup")
+	setTitle("OrangeSpeakEasy Setup")
 	code := install()
 	if code != 0 {
 		fmt.Print("\n  Press Enter to close this window.")
@@ -60,17 +60,17 @@ func install() int {
 	}
 	cmd := exec.Command("powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", runInstall)
 	cmd.Env = append(withoutHome(os.Environ()),
-		"SPEAKMORE_INSTALL_SCRIPT="+script,
-		"SPEAKMORE_INSTALL_FROM="+dir,
+		"ORANGESPEAKEASY_INSTALL_SCRIPT="+script,
+		"ORANGESPEAKEASY_INSTALL_FROM="+dir,
 		// 装完由这里打开 App；install.ps1 自己启动的是命令行那一份，会在终端里问 key
-		"SPEAKMORE_NO_START=1",
+		"ORANGESPEAKEASY_NO_START=1",
 	)
-	// 装在哪明确告诉 install.ps1，装完打开的就是同一个：第一次安装选了别处的交给 SPEAKMORE_INSTALL_DIR（它记进定位文件），
+	// 装在哪明确告诉 install.ps1，装完打开的就是同一个：第一次安装选了别处的交给 ORANGESPEAKEASY_INSTALL_DIR（它记进定位文件），
 	// 别的就是这一次用的目录
 	if choice.installDir != "" {
-		cmd.Env = append(cmd.Env, "SPEAKMORE_INSTALL_DIR="+choice.installDir)
+		cmd.Env = append(cmd.Env, "ORANGESPEAKEASY_INSTALL_DIR="+choice.installDir)
 	} else {
-		cmd.Env = append(cmd.Env, "SPEAKMORE_HOME="+choice.home)
+		cmd.Env = append(cmd.Env, "ORANGESPEAKEASY_HOME="+choice.home)
 	}
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 	if err := cmd.Run(); err != nil {
@@ -82,21 +82,21 @@ func install() int {
 	}
 
 	if err := openApp(choice.home); err != nil {
-		fmt.Printf("  Couldn't open SpeakMore (%v). Open it from the Start menu.\n", err)
+		fmt.Printf("  Couldn't open OrangeSpeakEasy (%v). Open it from the Start menu.\n", err)
 		return 0
 	}
-	fmt.Println("  Opening SpeakMore…")
+	fmt.Println("  Opening OrangeSpeakEasy…")
 	// 留一会儿让人看见装好了，再关窗口
 	time.Sleep(3 * time.Second)
 	return 0
 }
 
-// withoutHome 去掉环境里的 SPEAKMORE_HOME、SPEAKMORE_INSTALL_DIR：由 resolveHome 定下的那一个交给 install.ps1
+// withoutHome 去掉环境里的 ORANGESPEAKEASY_HOME、ORANGESPEAKEASY_INSTALL_DIR：由 resolveHome 定下的那一个交给 install.ps1
 func withoutHome(env []string) []string {
 	kept := env[:0:0]
 	for _, entry := range env {
 		name := strings.ToUpper(strings.SplitN(entry, "=", 2)[0])
-		if name == "SPEAKMORE_HOME" || name == "SPEAKMORE_INSTALL_DIR" {
+		if name == "ORANGESPEAKEASY_HOME" || name == "ORANGESPEAKEASY_INSTALL_DIR" {
 			continue
 		}
 		kept = append(kept, entry)
@@ -162,7 +162,7 @@ func unpack() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	dir, err := os.MkdirTemp("", "speakmore-setup-")
+	dir, err := os.MkdirTemp("", "orangespeakeasy-setup-")
 	if err != nil {
 		return "", err
 	}

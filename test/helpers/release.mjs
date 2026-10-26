@@ -1,4 +1,4 @@
-// 测试用：在本机的一个目录里摆出下载地址的样子（src/update/layout.mjs），当 SPEAKMORE_INSTALL_BASE 用。
+// 测试用：在本机的一个目录里摆出下载地址的样子（src/update/layout.mjs），当 ORANGESPEAKEASY_INSTALL_BASE 用。
 // 和 scripts/release/release.mjs 一样：每棵树切块存进 store/，清单也存成对象，channel.json 写着每种装法用哪份清单。
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";

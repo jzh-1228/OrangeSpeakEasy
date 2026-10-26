@@ -11,8 +11,8 @@ let paths;
 const logged = [];
 const log = { info: (event, fields) => logged.push({ event, ...fields }), warn() {} };
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "speakmore-app-keys-"));
-  paths = resolvePaths({ SPEAKMORE_HOME: join(dir, "home") });
+  dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-app-keys-"));
+  paths = resolvePaths({ ORANGESPEAKEASY_HOME: join(dir, "home") });
   mkdirSync(paths.home, { recursive: true });
   logged.length = 0;
 });
@@ -70,5 +70,5 @@ test("目录里别的文件不管；家目录还没建也不报错", () => {
   writeFileSync(join(paths.home, "Gemini-key.app.bin"), "名字不对");
   adoptAppKeys({ paths, log });
   assert.deepEqual(logged, []);
-  adoptAppKeys({ paths: resolvePaths({ SPEAKMORE_HOME: join(dir, "nowhere") }), log });
+  adoptAppKeys({ paths: resolvePaths({ ORANGESPEAKEASY_HOME: join(dir, "nowhere") }), log });
 });

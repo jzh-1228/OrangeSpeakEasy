@@ -28,7 +28,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const withSecureInput = process.argv.includes("--secure-input");
 
 ensureHelper(ROOT, { onBuild: () => console.log("小帮手的源码变了，先编一遍…") });
-const scratch = mkdtempSync(join(tmpdir(), "speakmore-hotkeys-"));
+const scratch = mkdtempSync(join(tmpdir(), "orangespeakeasy-hotkeys-"));
 const posterBinary = join(scratch, "poster");
 await run("swiftc", ["-O", "-o", posterBinary, join(ROOT, "scripts/dev/mac-hotkeys-poster.swift")]);
 // 锁屏时不跑：末尾接不住的键会打进锁屏的密码框。每个场景开始前发键程序还会自己再查一次

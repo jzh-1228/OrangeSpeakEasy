@@ -91,13 +91,13 @@ import { describeVocabularySupport, vocabularyHops } from "./vocabulary.mjs";
 
 // 后台应用的主进程：两个窗口（悬浮条、主窗口）、菜单栏图标、原生小帮手、内置的听写服务，
 // 以及页面和命令行要它代办的事。窗口用什么颜色由主题定（src/themes），这里负责把它交给每个窗口。
-// 平时由 speakmore 命令启动（src/cli），也可以打成应用双击启动。
+// 平时由 orangespeakeasy 命令启动（src/cli），也可以打成应用双击启动。
 // 结构对应原版的"主进程 + 悬浮条 + 主窗口（hub）+ 键盘子进程"（targets/typeless/docs/03-process-architecture.md）。
 
 /** 调试用：设了就连这个地址上单独启动的服务端，不启动内置的那个 */
-const EXTERNAL_SERVER_URL = process.env.SPEAKMORE_SERVER_URL ?? null;
-/** 是 speakmore 命令启动的：日志由它接到文件里，缺什么也由它在终端里说，这边不自己弹主窗口 */
-const LAUNCHED_BY_CLI = process.env.SPEAKMORE_CLI === "1";
+const EXTERNAL_SERVER_URL = process.env.ORANGESPEAKEASY_SERVER_URL ?? null;
+/** 是 orangespeakeasy 命令启动的：日志由它接到文件里，缺什么也由它在终端里说，这边不自己弹主窗口 */
+const LAUNCHED_BY_CLI = process.env.ORANGESPEAKEASY_CLI === "1";
 /**
  * 这一次启动不是来跑 App 本身的，先办一件事（办这些时不找家目录、不拿单实例锁、不起服务）：
  *   "move"   设置里点了"存储位置 › 更改"，App 另起的搬家进度窗口（move-window.mjs）
@@ -140,7 +140,7 @@ let acceleration;
 let localModelMemory;
 /**
  * 启动时就出错了（家目录找不到、定位文件坏了、设置读不出）：照实说出来再退出，不留一个按了热键没反应的进程。
- * 写在标准错误上的，speakmore 命令起的会在终端里转述（它接着日志）；从程序坞、开始菜单、开机启动起的没有终端，
+ * 写在标准错误上的，orangespeakeasy 命令起的会在终端里转述（它接着日志）；从程序坞、开始菜单、开机启动起的没有终端，
  * 另外弹系统的错误框（ready 之前也能弹），不然只是闪一下就没了，用户不知道为什么打不开。设置可能还没读出来，按系统的语言说
  */
 function reportStartupProblem(error) {
@@ -153,14 +153,14 @@ function reportStartupProblem(error) {
   } catch {
     // 翻不出来就用它自己的英文
   }
-  dialog.showErrorBox("SpeakMore", text);
+  dialog.showErrorBox("OrangeSpeakEasy", text);
 }
 
-// Windows 上装好的那一份（开始菜单、开机启动、命令行起的都是它）：家目录就是程序所在的那个，外面传进来的 SPEAKMORE_HOME
+// Windows 上装好的那一份（开始菜单、开机启动、命令行起的都是它）：家目录就是程序所在的那个，外面传进来的 ORANGESPEAKEASY_HOME
 // 不算数。程序和数据永远是同一个目录里的：搬过家以后环境里残留的旧位置带不偏它
 if (process.platform === "win32" && PRELUDE === null) {
   const home = installedHomeOf(process.execPath, existsSync);
-  if (home) process.env.SPEAKMORE_HOME = home;
+  if (home) process.env.ORANGESPEAKEASY_HOME = home;
 }
 
 if (PRELUDE === null) {
@@ -214,9 +214,9 @@ const WINDOW_ICON = join(import.meta.dirname, "../../assets/icon.ico");
 const CAPTION_HEIGHT = 44;
 /** 划词翻译自己的自定义服务的 key 存在哪（keyFile 的厂商 id）、从哪个环境变量来：和语音那边的 custom 分开 */
 const LOOKUP_CUSTOM_KEY = "lookupcustom";
-const LOOKUP_CUSTOM_KEY_ENV = "SPEAKMORE_LOOKUP_CUSTOM_API_KEY";
+const LOOKUP_CUSTOM_KEY_ENV = "ORANGESPEAKEASY_LOOKUP_CUSTOM_API_KEY";
 /** 关于里"在 GitHub 上看"打开的地方 */
-const HOMEPAGE = "https://github.com/zephyr4123/speakmore";
+const HOMEPAGE = "https://github.com/jzh-1228/OrangeSpeakEasy";
 /** 这台机器是哪类芯片：本地模型的实测按它挑（models/catalog.mjs 的 CHIPS） */
 const CHIP = chipOf();
 /** 主窗口的大小，照原版（targets/typeless 的 hub 窗口：1080×750，最小 988×685） */
@@ -258,7 +258,7 @@ function launchUpdate() {
       detached: true,
       windowsHide: true,
       stdio: ["ignore", logFd, logFd],
-      env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", SPEAKMORE_HOME: PATHS.home },
+      env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", ORANGESPEAKEASY_HOME: PATHS.home },
     });
     child.unref();
     log.info("update_launched", { pid: child.pid });
@@ -269,24 +269,24 @@ function launchUpdate() {
 }
 
 /**
- * 起搬家的进度窗口：用这个 App 自己的程序另起一个（不当 Node 跑，它要开窗口），环境变量 SPEAKMORE_MOVE_TO 说搬去哪
+ * 起搬家的进度窗口：用这个 App 自己的程序另起一个（不当 Node 跑，它要开窗口），环境变量 ORANGESPEAKEASY_MOVE_TO 说搬去哪
  * （见文件开头的 PRELUDE）。它不挂在这个 App 名下（detached）：这个 App 马上会被它请退出
  */
 function launchMove(folder) {
-  const { ELECTRON_RUN_AS_NODE: _asNode, SPEAKMORE_CLI: _byCli, ...env } = process.env;
+  const { ELECTRON_RUN_AS_NODE: _asNode, ORANGESPEAKEASY_CLI: _byCli, ...env } = process.env;
   // 在临时目录里起：从开始菜单打开的 App 工作目录就是家目录，进度窗口要是跟着继承，旧目录就删不掉
   const child = spawn(process.execPath, app.isPackaged ? [] : [app.getAppPath()], {
     detached: true,
     stdio: "ignore",
     cwd: tmpdir(),
-    env: { ...env, SPEAKMORE_HOME: PATHS.home, SPEAKMORE_MOVE_TO: folder },
+    env: { ...env, ORANGESPEAKEASY_HOME: PATHS.home, ORANGESPEAKEASY_MOVE_TO: folder },
   });
   child.unref();
   log.info("move_launched", { pid: child.pid, folder });
 }
 
 // Windows 认应用靠这个 id：任务栏把窗口归到一起、通知写谁发的。和 macOS 应用包的标识一样
-if (WINDOWS) app.setAppUserModelId("com.zephyrxiang.speakmore");
+if (WINDOWS) app.setAppUserModelId("com.juzihai.orangespeakeasy");
 
 // 所有东西都放在 paths.mjs 定的那一个目录里，命令行和这里用同一处。Electron 默认会按应用名在
 // ~/Library/Application Support 下另开一个目录放 Chromium 的缓存和状态，把它也收进来，和我们的数据分开放
@@ -294,7 +294,7 @@ if (PRELUDE === null) app.setPath("userData", PATHS.cacheDir);
 
 /**
  * Windows 上装好的那一份：程序在家目录 versions 下某一个版本里。没有单独的"应用"：命令行起的、开始菜单起的都是它，
- * 用的是同一套 key 和设置（不像 macOS 的 SpeakMore.app 有自己的一套权限）
+ * 用的是同一套 key 和设置（不像 macOS 的 OrangeSpeakEasy.app 有自己的一套权限）
  */
 const INSTALLED_ON_WINDOWS =
   PRELUDE === null && WINDOWS && process.execPath.toLowerCase().startsWith(`${PATHS.versionsDir.toLowerCase()}\\`);
@@ -302,10 +302,10 @@ const INSTALLED_ON_WINDOWS =
  * 开机启动登记的是这个可执行文件加上程序目录（Windows 上没有应用包，要把参数也记下来）。
  * 装了新版本时 install.ps1 把这一项改指到新版本的程序上（Electron 认开没开只比程序路径）
  */
-const LOGIN_ITEM = WINDOWS ? { path: process.execPath, args: [app.getAppPath()], name: "SpeakMore" } : {};
+const LOGIN_ITEM = WINDOWS ? { path: process.execPath, args: [app.getAppPath()], name: "OrangeSpeakEasy" } : {};
 
 /**
- * 开机启动开着没有。Windows 上 openAtLogin 只认以 AppUserModelId 为名的那一项，我们写的名字是 SpeakMore，
+ * 开机启动开着没有。Windows 上 openAtLogin 只认以 AppUserModelId 为名的那一项，我们写的名字是 OrangeSpeakEasy，
  * 读回来永远是 false（真机上试过）：看 executableWillLaunchAtLogin，Run 里有指向这个程序、这些参数的一项，
  * 并且没在任务管理器里被停用
  */
@@ -322,7 +322,7 @@ if (PRELUDE === null && (app.isPackaged || (INSTALLED_ON_WINDOWS && !LAUNCHED_BY
 const isOnlyInstance = PRELUDE === null && app.requestSingleInstanceLock({ byCli: LAUNCHED_BY_CLI });
 if (PRELUDE === null && !isOnlyInstance) {
   console.error("已经有一个在运行了");
-  // 约定的退出码：启动它的 speakmore 命令据此知道"不是没起来，是有别的先起来了"，接着等那一个
+  // 约定的退出码：启动它的 orangespeakeasy 命令据此知道"不是没起来，是有别的先起来了"，接着等那一个
   app.exit(ALREADY_RUNNING_EXIT_CODE);
 }
 
@@ -342,7 +342,7 @@ app.on("web-contents-created", (_event, contents) => {
 });
 
 /** 第一次打开时问存储位置的那一次（PRELUDE 是 "choose"）：Chromium 的缓存先放临时目录，问完重新启动 */
-const FIRST_RUN_PROFILE = join(tmpdir(), "speakmore-first-run");
+const FIRST_RUN_PROFILE = join(tmpdir(), "orangespeakeasy-first-run");
 
 // 不能写成顶层的 await app.whenReady()：Electron 要等主模块加载完才会就绪，
 // 而顶层 await 让模块一直加载不完，两边互相等（Electron 44.7 实测如此）。
@@ -388,14 +388,14 @@ function startHomeChoice() {
 }
 
 /**
- * 删掉以前搬家、第一次打开时放在临时目录里的 Chromium 缓存（speakmore-move-*、speakmore-first-run）。
+ * 删掉以前搬家、第一次打开时放在临时目录里的 Chromium 缓存（orangespeakeasy-move-*、orangespeakeasy-first-run）。
  * 只删一个小时以前的：刚起这个 App 的搬家进度窗口可能还开着。删不掉的留给系统清临时目录
  */
 function removeOldTemporaryProfiles() {
   const hourAgo = Date.now() - 60 * 60 * 1000;
   let names = [];
   try {
-    names = readdirSync(tmpdir()).filter((name) => /^speakmore-(move-.+|first-run)$/.test(name));
+    names = readdirSync(tmpdir()).filter((name) => /^orangespeakeasy-(move-.+|first-run)$/.test(name));
   } catch (error) {
     log.warn("temporary_profiles_unreadable", { error: error.code ?? error.message });
   }
@@ -422,10 +422,10 @@ async function main() {
   });
   ensureHome(PATHS);
   removeOldTemporaryProfiles();
-  // 记下进程号：万一卡住了不答话，speakmore stop 靠它找到这个进程。要赶在控制通道开始听之前写好，
+  // 记下进程号：万一卡住了不答话，orangespeakeasy stop 靠它找到这个进程。要赶在控制通道开始听之前写好，
   // 这样只要通道连得上，文件里记的就一定是通道那头的进程
   writeFileSync(PATHS.pidFile, `${process.pid}\n`);
-  // 0.1 版的数据在别处。平时是 speakmore 命令在启动之前搬好的；直接双击应用启动时由这里搬
+  // 0.1 版的数据在别处。平时是 orangespeakeasy 命令在启动之前搬好的；直接双击应用启动时由这里搬
   await migrateLegacyData({ paths: PATHS, log });
   // 0.7.0 及以前 App 另存的那份 key 搬进 App 和命令行共用的文件
   adoptAppKeys({ paths: PATHS, log });
@@ -435,7 +435,7 @@ async function main() {
   const { history, problem: historyProblem } = openHistoryForApp(PATHS.historyDb, { log });
   // 模型广场上的标价、推荐组合的月成本：各家的价目模块启动时加载一次
   const prices = await loadPriceBook();
-  // 每家一把 key，各存一个文件。正在用的那家之外的也要在：speakmore key openai、model check 要用
+  // 每家一把 key，各存一个文件。正在用的那家之外的也要在：orangespeakeasy key openai、model check 要用
   const keyStores = Object.fromEntries(
     VENDORS.map(({ id }) => [
       id,
@@ -491,7 +491,7 @@ async function main() {
         vocabulary: vocabulary.terms,
       });
   const serverUrl = EXTERNAL_SERVER_URL ?? service.url;
-  const e2e = process.env.SPEAKMORE_E2E_OUT ? await import("./e2e.mjs") : null;
+  const e2e = process.env.ORANGESPEAKEASY_E2E_OUT ? await import("./e2e.mjs") : null;
 
   const keys = createKeyManager({
     service,
@@ -1163,7 +1163,7 @@ async function main() {
   // 设置 › 通用的"软件更新"：检查、开始更新。进行到哪了跟着 setup:get 一起给（update）
   handle("update:check", () => appUpdates.check());
   handle("update:start", () => appUpdates.start());
-  // 设置 › 通用的"存储位置 › 更改"：选文件夹，先检查（和命令行的 speakmore move 同一套，src/move），说清楚要拷多少、问一句，
+  // 设置 › 通用的"存储位置 › 更改"：选文件夹，先检查（和命令行的 orangespeakeasy move 同一套，src/move），说清楚要拷多少、问一句，
   // 再起搬家的进度窗口（move-window.mjs）。它会请这个 App 退出，搬完从新位置把它打开
   handle("storage:change", async () => {
     const parent = hubWindow ?? undefined;
@@ -1429,7 +1429,7 @@ async function main() {
   /** 这几件事归模式那一层管；连着单独启动的服务端时做不了 */
   const viaModes = (action) => (modes ? action(modes) : { ok: false, problem: msg("key.externalModel") });
 
-  // 设置里和 speakmore key 存 key、删 key，走的是同一处。
+  // 设置里和 orangespeakeasy key 存 key、删 key，走的是同一处。
   // 给别家存 key 时可以带上要一起换成的设置（changes），拿它们验证：自定义服务没有默认模型，要连模型名一起给
   handle("setup:save-key", (_event, value, id, changes) =>
     keys.save(value, {
@@ -1746,7 +1746,7 @@ async function main() {
   function createHub(target) {
     const window = new BrowserWindow({
       ...HUB_SIZE,
-      title: "SpeakMore",
+      title: "OrangeSpeakEasy",
       backgroundColor: windowBackground(),
       // 和原版一样把标题栏藏起来，红绿灯放进侧栏的左上角
       ...frame({ x: 26, y: 24 }),
@@ -1775,7 +1775,7 @@ async function main() {
     if (onboardingWindow === null) {
       onboardingWindow = new BrowserWindow({
         ...HUB_SIZE,
-        title: "SpeakMore",
+        title: "OrangeSpeakEasy",
         backgroundColor: windowBackground(),
         ...frame({ x: 20, y: 16 }),
         // 功能演示里嵌着悬浮条、划词卡片的真页面（onboarding/demo/，iframe）：预加载脚本在 iframe 里也跑，
@@ -1817,12 +1817,12 @@ async function main() {
     showHub(engine ? { route: "models", presets: true } : { route: "home" });
   });
 
-  /** 菜单栏、双击图标要打开 SpeakMore 时：引导还没走完就回到引导，走完了是主窗口 */
+  /** 菜单栏、双击图标要打开 OrangeSpeakEasy 时：引导还没走完就回到引导，走完了是主窗口 */
   const showMain = () => (onboardingWindow ? showOnboarding() : showHub());
 
   const trayIcon = nativeImage.createFromPath(TRAY_ICON);
   const tray = new Tray(trayIcon);
-  tray.setToolTip("SpeakMore");
+  tray.setToolTip("OrangeSpeakEasy");
   // 图标读不出来时菜单栏上会是空的一格，找不到入口。退回写两个字，并记下来
   if (trayIcon.isEmpty()) {
     log.error("tray_icon_missing", { path: TRAY_ICON });
@@ -1870,7 +1870,7 @@ async function main() {
   // 没有窗口时也继续待在菜单栏里
   app.on("window-all-closed", () => {});
   // 已经开着时又启动了一次。双击图标来的：把主窗口亮出来，让人知道它在哪。
-  // speakmore 命令来的（两条命令同时启动，后到的那个）：那个人正看着终端，不弹窗口
+  // orangespeakeasy 命令来的（两条命令同时启动，后到的那个）：那个人正看着终端，不弹窗口
   app.on("second-instance", (_event, _argv, _cwd, additionalData) => {
     if (!additionalData?.byCli) showMain();
   });

@@ -84,7 +84,7 @@ export function createAppUpdates({
       latest: check?.latest ?? null,
       checkedAt: check?.checkedAt ?? null,
       available: Boolean(check?.available),
-      // 旧了的不是这个 App 自己、是另一份（终端安装的，或者 SpeakMore.app）时是那一份：设置里说是哪一份旧了
+      // 旧了的不是这个 App 自己、是另一份（终端安装的，或者 OrangeSpeakEasy.app）时是那一份：设置里说是哪一份旧了
       other: check?.available && !check.behind.some((copy) => copy.kind === updates.self) ? check.behind[0] : null,
       checking,
       checkProblem,

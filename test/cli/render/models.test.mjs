@@ -18,9 +18,9 @@ test("一行一家：现在用的那家打一个点、写正在用的模型，�
   assert.match(text, /\n {4}openai\s+OpenAI\s+gpt-audio-mini（默认）\s+还没有 key\n/);
   assert.match(text, /现在用的是 Gemini 的 gemini-3\.8-flash · 存在设置文件里/);
   // 举的例子是另一家
-  assert.match(text, /speakmore model openai\b/);
-  assert.match(text, /speakmore model openai\/gpt-audio-mini/);
-  assert.match(text, /speakmore model check/);
+  assert.match(text, /orangespeakeasy model openai\b/);
+  assert.match(text, /orangespeakeasy model openai\/gpt-audio-mini/);
+  assert.match(text, /orangespeakeasy model check/);
   assert.ok(!text.includes("\x1b["));
 });
 
@@ -34,6 +34,6 @@ test("key 来自环境变量时写出是哪一个；设置被环境变量盖着�
     plain,
   );
   assert.match(text, /● openai\s+OpenAI\s+gpt-audio-mini\s+key 来自环境变量 OPENAI_API_KEY/);
-  assert.match(text, /现在用的是 OpenAI 的 gpt-audio-mini · 这次运行来自环境变量 SPEAKMORE_MODEL/);
-  assert.match(text, /speakmore model gemini\b/);
+  assert.match(text, /现在用的是 OpenAI 的 gpt-audio-mini · 这次运行来自环境变量 ORANGESPEAKEASY_MODEL/);
+  assert.match(text, /orangespeakeasy model gemini\b/);
 });

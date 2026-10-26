@@ -6,19 +6,19 @@ import { checkLength, homeIn } from "../move/target.mjs";
 import { canonicalDir, locationFileOf, writeLocation } from "../storage/location.mjs";
 import { legacyDataDir, usedBefore } from "../storage/paths.mjs";
 
-// macOS 上从"应用程序"第一次打开 SpeakMore.app：还什么都没装过时，先问一句存储位置放哪（程序数据、本机模型、录音、设置
-// 都在那一个文件夹里，模型一个就有零点几到一点几 GB）。默认就是用户目录下的 .speakmore；选了别处就把那里记进定位文件。
+// macOS 上从"应用程序"第一次打开 OrangeSpeakEasy.app：还什么都没装过时，先问一句存储位置放哪（程序数据、本机模型、录音、设置
+// 都在那一个文件夹里，模型一个就有零点几到一点几 GB）。默认就是用户目录下的 .orangespeakeasy；选了别处就把那里记进定位文件。
 // 问完 App 重新启动一次，照常按定位文件找家目录（storage/paths.mjs）。
 // Windows 上程序本身就装在家目录里，位置由安装程序在装之前问（native/windows-setup）；终端安装的由安装脚本问。
 
 /**
- * 这一次是不是要先问：打成应用、不是命令行起的、没指定 SPEAKMORE_HOME、没有定位文件、默认位置还没有，
+ * 这一次是不是要先问：打成应用、不是命令行起的、没指定 ORANGESPEAKEASY_HOME、没有定位文件、默认位置还没有，
  * 也没有 0.1 版的旧数据（有的话是老用户，照旧搬进默认位置，不打扰）
  */
 export function needsHomeChoice({ env, platform, packaged, launchedByCli, userHome, exists = existsSync }) {
-  if (platform !== "darwin" || !packaged || launchedByCli || env.SPEAKMORE_HOME) return false;
+  if (platform !== "darwin" || !packaged || launchedByCli || env.ORANGESPEAKEASY_HOME) return false;
   if (exists(locationFileOf(env, userHome, platform))) return false;
-  if (exists(join(userHome, ".speakmore"))) return false;
+  if (exists(join(userHome, ".orangespeakeasy"))) return false;
   const legacy = legacyDataDir(userHome, platform);
   return !(legacy && exists(legacy));
 }
@@ -41,7 +41,7 @@ export async function chooseHome({
   probe = probeTarget,
   write = writeLocation,
 }) {
-  const defaultHome = join(userHome, ".speakmore");
+  const defaultHome = join(userHome, ".orangespeakeasy");
   const useDefault = () => {
     mkdirSync(defaultHome, { recursive: true, mode: 0o700 });
     return defaultHome;

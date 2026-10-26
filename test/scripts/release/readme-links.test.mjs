@@ -13,7 +13,7 @@ for (const name of READMES) {
     const { version } = JSON.parse(readFileSync(join(repoDir, "package.json"), "utf8"));
     const readme = readFileSync(join(repoDir, name), "utf8");
     for (const file of [...ARCHS.map(dmgName), WINDOWS_SETUP]) {
-      const link = `https://dl.zephyrxiang.com/speakmore/v${version}/${file}`;
+      const link = `https://github.com/jzh-1228/OrangeSpeakEasy/releases/latest/download/v${version}/${file}`;
       assert.ok(readme.includes(link), `${name} 里没有 ${link}：升了版本号要一起改下载链接`);
     }
   });

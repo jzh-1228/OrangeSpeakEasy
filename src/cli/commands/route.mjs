@@ -59,7 +59,7 @@ export async function ensureKey(io, vendor, changes) {
     io.err(io.t("cli.model.noKeyNonInteractive", { provider: vendor.name, id: vendor.id }));
     return false;
   }
-  // 先问再启动：启动的那段时间终端照常回显，提前粘贴的 key 会显示出来（同 speakmore start）
+  // 先问再启动：启动的那段时间终端照常回显，提前粘贴的 key 会显示出来（同 orangespeakeasy start）
   const nextKey = keyPrompter(io, vendor);
   for (let key = await nextKey(); key !== null; key = await nextKey()) {
     await ensureRunning(io);

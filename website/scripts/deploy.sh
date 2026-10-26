@@ -55,7 +55,7 @@ done
 mv .incoming/.dockerignore .incoming/* .
 rmdir .incoming
 
-old="$(docker image inspect speakmore-site:latest --format '{{.Id}}' 2>/dev/null || true)"
+old="$(docker image inspect orangespeakeasy-site:latest --format '{{.Id}}' 2>/dev/null || true)"
 NPM_REGISTRY="${registry}" docker compose -f website/compose.yaml up -d --build
 
 healthy=
@@ -67,13 +67,13 @@ for _ in $(seq 1 30); do
   sleep 1
 done
 if [ -z "${healthy}" ]; then
-  docker logs --tail 30 speakmore-site >&2
+  docker logs --tail 30 orangespeakeasy-site >&2
   echo "deploy：新容器 30 秒内没有响应 127.0.0.1:9800/health" >&2
   exit 1
 fi
 
 # 只删自己的上一版镜像，不碰同机别的项目的
-new="$(docker image inspect speakmore-site:latest --format '{{.Id}}')"
+new="$(docker image inspect orangespeakeasy-site:latest --format '{{.Id}}')"
 if [ -n "${old}" ] && [ "${old}" != "${new}" ]; then
   docker image rm "${old}" >/dev/null || echo "deploy：上一版镜像 ${old} 没删掉，用 docker image rm 手动删" >&2
 fi

@@ -18,7 +18,7 @@ const MAX_DURATION_MS = 540_000;
 
 // 页面的 lang 跟着界面语言：提示是 aria-live 的，读屏软件按它挑用哪种语言念
 localize();
-const { serverUrl, hotkeys: initialHotkeys, barControls, barHint } = await window.speakmore.config();
+const { serverUrl, hotkeys: initialHotkeys, barControls, barHint } = await window.orangespeakeasy.config();
 /** 现在每个动作的热键（组合列表）。提示里写开始这一次的那个组合、取消的键帽，按界面语言写 */
 let hotkeys = initialHotkeys;
 let state = initialState;
@@ -36,21 +36,21 @@ function hintKeys() {
 const voice = new VoiceSocket(serverUrl);
 const ui = createBarUi({
   document,
-  host: { setVisible: window.speakmore.setBarVisible, capture: window.speakmore.captureBarInput },
+  host: { setVisible: window.orangespeakeasy.setBarVisible, capture: window.orangespeakeasy.captureBarInput },
   keys: hintKeys(),
   t,
   onPick: pick,
 });
 ui.setControls(barControls);
 ui.setHintShown(barHint === "on");
-window.speakmore.onBarHint((value) => ui.setHintShown(value === "on"));
-window.speakmore.onHotkeysChanged((next) => {
+window.orangespeakeasy.onBarHint((value) => ui.setHintShown(value === "on"));
+window.orangespeakeasy.onHotkeysChanged((next) => {
   hotkeys = next;
   pressed = { action: pressed.action, index: 0 };
   ui.setKeys(hintKeys());
 });
 // 设置里换了语言：悬浮条不重新加载（可能正在听写），换掉翻译，下一句就是新的语言
-window.speakmore.onLocaleChanged((locale) => {
+window.orangespeakeasy.onLocaleChanged((locale) => {
   setLocale(locale);
   ui.setKeys(hintKeys());
   ui.setTranslator(t, t.text(state.message));
@@ -119,7 +119,7 @@ function start() {
   };
   session = current;
   // 设置每次开口时现读：设置里换了目标语言，下一次就按新的
-  current.ready = window.speakmore.sessionConfig().then((config) => {
+  current.ready = window.orangespeakeasy.sessionConfig().then((config) => {
     current.config = config;
     adopt(current, state.action, config);
   });
@@ -211,7 +211,7 @@ async function stop() {
       throw new LocalizedError(msg("bar.noSignal"));
     }
     const result = await voice.finish({ durationSeconds: recorded.durationSeconds });
-    const { notice } = await window.speakmore.deliver({
+    const { notice } = await window.orangespeakeasy.deliver({
       audioId: current.audioId,
       kind: current.feature.id,
       text: result.text,
@@ -225,7 +225,7 @@ async function stop() {
     const message = describe(error);
     // 录音还在的话交给主进程存下来，失败了话也不会白说。历史里记的是这一刻界面上的那句话
     if (recorded) {
-      await window.speakmore
+      await window.orangespeakeasy
         .reportFailure({
           audioId: current.audioId,
           kind: current.feature.id,
@@ -244,7 +244,7 @@ async function stop() {
 
 // ---------- 来自主进程的事件 ----------
 
-window.speakmore.onInput((input) => {
+window.orangespeakeasy.onInput((input) => {
   // 胶囊上的点击（展开、选一项）由画面自己处理
   if (input.event === "click" && ui.click(input.id)) return;
   const type = eventTypeOf(input);
@@ -263,9 +263,9 @@ window.speakmore.onInput((input) => {
   }
 });
 
-window.speakmore.onBarControls(ui.setControls);
+window.orangespeakeasy.onBarControls(ui.setControls);
 
-window.speakmore.onNotice((message) => {
+window.orangespeakeasy.onNotice((message) => {
   // 权限之类的提醒只在空闲时显示，不打断正在进行的听写
   if (state.phase !== Phase.IDLE && state.phase !== Phase.ERROR) return;
   state = { ...state, message };

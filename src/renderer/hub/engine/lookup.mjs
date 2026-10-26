@@ -83,7 +83,7 @@ export function createLookupSegment({ els, getSetup, refresh, openKeys, toast, p
 
   function use(group, item, key) {
     const choice = view.choiceOf(group, item);
-    act(key, () => window.speakmore.setLookupModel(choice), {
+    act(key, () => window.orangespeakeasy.setLookupModel(choice), {
       done: () => toast(t("plaza.toast.enabled", { model: itemName(group, item) })),
     });
   }
@@ -91,7 +91,7 @@ export function createLookupSegment({ els, getSetup, refresh, openKeys, toast, p
   function saveCustom(key) {
     const inUse = view.holds(...customSpot());
     const form = ui.form ?? formOf();
-    act(key, () => window.speakmore.saveLookupCustom(form), {
+    act(key, () => window.orangespeakeasy.saveLookupCustom(form), {
       done: () => {
         ui.form = null;
         toast(t(inUse ? "plaza.toast.customUpdated" : "plaza.lookup.customEnabled"));
@@ -307,7 +307,9 @@ export function createLookupSegment({ els, getSetup, refresh, openKeys, toast, p
     const choice = view.choiceOf(group, item);
     const left =
       block === null
-        ? checks.control(key, t("plaza.check.modelTip"), () => window.speakmore.checkLookup({ "lookup.model": choice }))
+        ? checks.control(key, t("plaza.check.modelTip"), () =>
+            window.orangespeakeasy.checkLookup({ "lookup.model": choice }),
+          )
         : h("span");
     const right = view.isChosen(group, item)
       ? h("span", { class: "state-box block", "data-tone": "accent" }, svg("i-check"), t("plaza.inUse"))
@@ -394,7 +396,7 @@ export function createLookupSegment({ els, getSetup, refresh, openKeys, toast, p
             disabled: ui.busy !== null,
             text: t("plaza.lookup.removeKey"),
             onclick: () =>
-              act(key, () => window.speakmore.forgetLookupCustomKey(), {
+              act(key, () => window.orangespeakeasy.forgetLookupCustomKey(), {
                 done: () => toast(t("plaza.lookup.keyRemoved")),
               }),
           }),
@@ -416,7 +418,7 @@ export function createLookupSegment({ els, getSetup, refresh, openKeys, toast, p
       "div",
       { class: "detail-actions" },
       view.groupBlocker(customSpot()[0]) === null
-        ? checks.control(key, t("plaza.check.modelTip"), () => window.speakmore.checkLookup({}))
+        ? checks.control(key, t("plaza.check.modelTip"), () => window.orangespeakeasy.checkLookup({}))
         : h("span"),
       h("span", { class: "state-box block", "data-tone": "accent" }, svg("i-check"), t("plaza.inUse")),
     );

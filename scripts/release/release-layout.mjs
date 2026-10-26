@@ -44,7 +44,7 @@ export {
 export const ARCHS = ["arm64", "x64"];
 
 /** 下载地址上，这个产品的东西都在这个前缀下面 */
-const KEY_PREFIX = "speakmore/";
+const KEY_PREFIX = "orangespeakeasy/";
 /** 传上去就不再变的：各处可以放心长期缓存 */
 const IMMUTABLE = "public, max-age=31536000, immutable";
 /** 每次发布都会换的：只缓存一小会儿，新版本一分钟内人人看得到 */

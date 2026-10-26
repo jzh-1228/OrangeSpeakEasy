@@ -6,22 +6,22 @@ import { LocalizedError, msg } from "../i18n/index.mjs";
 import { canonicalDir, isFullPath, locationFileOf, readLocation, sameHome } from "./location.mjs";
 import { restrictToOwner } from "./owner-only.mjs";
 
-// SpeakMore 的家：程序、运行环境、设置、key、历史、录音、日志，全在这一个目录里。
-// 装的时候往里放，删的时候删掉它就干净了，搬的时候整个带走（speakmore move）。命令行和后台应用是两个进程，靠这一份约定找到同一批文件。
+// OrangeSpeakEasy 的家：程序、运行环境、设置、key、历史、录音、日志，全在这一个目录里。
+// 装的时候往里放，删的时候删掉它就干净了，搬的时候整个带走（orangespeakeasy move）。命令行和后台应用是两个进程，靠这一份约定找到同一批文件。
 // 它可以装在任何地方，装在哪记在定位文件里（location.mjs）：那是目录以外唯一的一个文件。找它的顺序：
-//   1. 环境变量 SPEAKMORE_HOME：装在家目录里的程序（启动脚本、Windows 开始菜单起的 App）用它告诉程序"我是哪个家目录的"；
+//   1. 环境变量 ORANGESPEAKEASY_HOME：装在家目录里的程序（启动脚本、Windows 开始菜单起的 App）用它告诉程序"我是哪个家目录的"；
 //      开发、测试、安装脚本指定装到哪也用它
 //   2. 定位文件：装在默认位置以外时才有（location.mjs）
-//   3. 默认位置：用户目录下的 .speakmore（0.11.0 及以前都装在这里）
+//   3. 默认位置：用户目录下的 .orangespeakeasy（0.11.0 及以前都装在这里）
 //
-//   <家目录>/                       默认是 ~/.speakmore
+//   <家目录>/                       默认是 ~/.orangespeakeasy
 //     bin/ app/ runtime/           程序本身：安装时放进去，升级时整个换掉（macOS）
 //     bin\ versions\ current       Windows：每个版本装进 versions 下自己的目录，current 记着现在用哪个
 //     settings.json vocabulary.json <厂商>-key.bin data/    你的东西（词典；每家模型一把 key：gemini-key.bin、openai-key.bin）
 //     models/                      本地转写用的模型：用到时自动下载，删了下次用时再下
 //     logs/ run/ cache/            运行时产生的，删了会自己再建
 //
-// Windows 上也是这一个目录（%USERPROFILE%\.speakmore），只有控制通道不在里面：那里用的是 named pipe，
+// Windows 上也是这一个目录（%USERPROFILE%\.orangespeakeasy），只有控制通道不在里面：那里用的是 named pipe，
 // 名字在系统的 \\.\pipe\ 下，按家目录取，不在磁盘上留任何东西。
 
 /** macOS 上 Unix 套接字的路径最长 103 个字节（sockaddr_un.sun_path 是 104，含结尾的 0） */
@@ -35,7 +35,7 @@ const MAX_SOCKET_PATH_BYTES = 103;
 function controlEndpoint(home, path, platform) {
   if (platform !== "win32") return path.join(home, "run", "control.sock");
   const id = createHash("sha256").update(home.toLowerCase()).digest("hex").slice(0, 16);
-  return `\\\\.\\pipe\\speakmore-${id}`;
+  return `\\\\.\\pipe\\orangespeakeasy-${id}`;
 }
 
 /**
@@ -47,16 +47,16 @@ export function resolvePaths(env = process.env, userHome = homedir(), platform =
   const path = platform === "win32" ? win32 : posix;
   const join = path.join;
   const locationFile = locationFileOf(env, userHome, platform);
-  // SPEAKMORE_HOME 在前：测试用它指到临时目录，不碰真实的历史，也不受这台机器上的定位文件影响
-  const located = env.SPEAKMORE_HOME ? null : readLocation(locationFile, platform);
-  const home = env.SPEAKMORE_HOME || located || join(userHome, ".speakmore");
+  // ORANGESPEAKEASY_HOME 在前：测试用它指到临时目录，不碰真实的历史，也不受这台机器上的定位文件影响
+  const located = env.ORANGESPEAKEASY_HOME ? null : readLocation(locationFile, platform);
+  const home = env.ORANGESPEAKEASY_HOME || located || join(userHome, ".orangespeakeasy");
   // 定位文件说的家目录必须已经在：只有安装和搬家建它。不在（移动硬盘没接、盘符被另一块盘占了）就照实说，
   // 不在那里新建一个空的，看着像数据丢了
   if (located !== null && !existsSync(located)) {
     throw new LocalizedError(msg("paths.homeMissing", { home: located, file: locationFile }));
   }
-  // 搬走了的旧目录（speakmore move 删它之前先放下这个记号）：从残留的旧入口启动时说清楚搬去了哪，不在半个旧目录上跑起来。
-  // 只在 SpeakMore 记着的位置正是记号说的新位置时才算数：新位置后来卸载了、定位文件没了的，是过期的记号，
+  // 搬走了的旧目录（orangespeakeasy move 删它之前先放下这个记号）：从残留的旧入口启动时说清楚搬去了哪，不在半个旧目录上跑起来。
+  // 只在 OrangeSpeakEasy 记着的位置正是记号说的新位置时才算数：新位置后来卸载了、定位文件没了的，是过期的记号，
   // 不理它（不然默认位置永远起不来、也装不上）
   const moved = movedTo(join(home, MOVED_FILE));
   if (moved !== undefined && (moved === null || isRecorded(moved, located, env, locationFile, userHome, platform))) {
@@ -75,7 +75,7 @@ export function resolvePaths(env = process.env, userHome = homedir(), platform =
     /** 定位文件：记着家目录装在哪，家目录以外唯一的一个文件（location.mjs） */
     locationFile,
 
-    /** speakmore 命令（一个启动脚本）。PATH 里的那个是指向它的链接 */
+    /** orangespeakeasy 命令（一个启动脚本）。PATH 里的那个是指向它的链接 */
     binDir: join(home, "bin"),
     /** 安装时在家目录以外建了哪些指向这条命令的链接，一行一个。卸载时照着删 */
     linksFile: join(home, "bin", "links"),
@@ -88,7 +88,7 @@ export function resolvePaths(env = process.env, userHome = homedir(), platform =
      * 不挪、不覆盖已有的文件（刚解出来的文件杀毒软件正扫着，挪不动；正在跑的那份占着自己的目录）
      */
     versionsDir: join(home, "versions"),
-    /** Windows：现在用 versions 里的哪一个，一行目录名。bin\speakmore.cmd 照它找程序，装好新版时改它切过去 */
+    /** Windows：现在用 versions 里的哪一个，一行目录名。bin\orangespeakeasy.cmd 照它找程序，装好新版时改它切过去 */
     currentFile: join(home, "current"),
 
     settingsFile: join(home, "settings.json"),
@@ -124,13 +124,13 @@ export function resolvePaths(env = process.env, userHome = homedir(), platform =
 /** 搬家删旧目录之前在里面放下的记号：{ "to": "<新家目录>" } */
 export const MOVED_FILE = "MOVED.json";
 
-/** SpeakMore 记着的位置（定位文件，没有就是默认位置）是不是 dir。读不出、比不了时当作是：照记号说 */
+/** OrangeSpeakEasy 记着的位置（定位文件，没有就是默认位置）是不是 dir。读不出、比不了时当作是：照记号说 */
 function isRecorded(dir, located, env, locationFile, userHome, platform) {
   try {
     const recorded =
       located ??
-      (env.SPEAKMORE_HOME ? readLocation(locationFile, platform) : null) ??
-      (platform === "win32" ? win32 : posix).join(userHome, ".speakmore");
+      (env.ORANGESPEAKEASY_HOME ? readLocation(locationFile, platform) : null) ??
+      (platform === "win32" ? win32 : posix).join(userHome, ".orangespeakeasy");
     return sameHome(canonicalDir(recorded, platform), canonicalDir(dir, platform), platform);
   } catch {
     return true;
@@ -158,7 +158,7 @@ function movedTo(file) {
 
 /**
  * Windows 上装好的那一份在哪个家目录里：程序是 <家目录>\versions\<版本>\runtime\electron.exe，旁边有 app。
- * 从开始菜单、开机启动起的没有 SPEAKMORE_HOME（只有 speakmore 命令会设），装在别处时靠这个找回家目录。
+ * 从开始菜单、开机启动起的没有 ORANGESPEAKEASY_HOME（只有 orangespeakeasy 命令会设），装在别处时靠这个找回家目录。
  * 不是这种摆法（从源码跑的、macOS）是 null
  * @param {string} execPath 正在跑的可执行文件
  * @param {(path: string) => boolean} exists
@@ -176,7 +176,7 @@ export function installedHomeOf(execPath, exists) {
 
 /**
  * 某一家模型的 key 加密后存在哪。0.3 以前只有 Gemini，文件就叫 gemini-key.bin，所以这个命名不用迁移。
- * App 和命令行启动的后台共用这一个文件：加密用的密钥在钥匙串里只有一条（"SpeakMore Safe Storage"），两边都在它的
+ * App 和命令行启动的后台共用这一个文件：加密用的密钥在钥匙串里只有一条（"OrangeSpeakEasy Safe Storage"），两边都在它的
  * 访问名单上，解得开对方存的密文（2026-10-16 实测）。0.7.0 及以前以为两边互相解不开，App 另存一份（oldAppKeyFile）。
  * @param {ReturnType<typeof resolvePaths>} paths
  * @param {string} provider 厂商的 id（providers/index.mjs）
@@ -199,7 +199,7 @@ function checkedVendorId(provider) {
   return provider;
 }
 
-/** 这个目录里有 SpeakMore 用过的痕迹（设置、数据、模型、程序）。安装脚本的 used_before、安装程序的 usedBefore 认的是同一些 */
+/** 这个目录里有 OrangeSpeakEasy 用过的痕迹（设置、数据、模型、程序）。安装脚本的 used_before、安装程序的 usedBefore 认的是同一些 */
 export function usedBefore(home) {
   return ["settings.json", "data", "models", "app", "versions"].some((name) => existsSync(posix.join(home, name)));
 }
@@ -225,5 +225,5 @@ export function ensureHome(paths, { restrict = restrictToOwner } = {}) {
  * 0.1 只有 macOS 版，别的系统上没有旧数据，是 null
  */
 export function legacyDataDir(userHome = homedir(), platform = process.platform) {
-  return platform === "darwin" ? posix.join(userHome, "Library", "Application Support", "SpeakMore") : null;
+  return platform === "darwin" ? posix.join(userHome, "Library", "Application Support", "OrangeSpeakEasy") : null;
 }

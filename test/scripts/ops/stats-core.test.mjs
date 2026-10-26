@@ -29,8 +29,8 @@ const line = ({
 }) => `${t} ${ip} dl.zephyrxiang.com ${path} ${bytes} 22 2 ${status} NULL 12 "${ua}" "(null)" ${method} HTTPS hit 443`;
 const rowsOf = (...specs) => specs.map((spec) => parseLogLine(line(spec)));
 
-const DMG = "/speakmore/v0.9.3/SpeakMore-arm64.dmg";
-const SETUP = "/speakmore/v0.9.3/SpeakMore-Setup-x64.exe";
+const DMG = "/orangespeakeasy/v0.9.3/OrangeSpeakEasy-arm64.dmg";
+const SETUP = "/orangespeakeasy/v0.9.3/OrangeSpeakEasy-Setup-x64.exe";
 const BROWSER_WIN = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/141.0";
 const PHONE = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15";
 
@@ -52,20 +52,20 @@ test("日志行：拆出时间、日期、IP、路径（去掉查询串）、字
 
 test("安装包按文件名归类（0.10.1 以前的 tar.gz 也认），校验值、脚本、channel.json、更新的块不算包", () => {
   assert.deepEqual(packageKind(DMG), { key: "mac-dmg-arm64", label: "Mac 安装包（Apple 芯片）", platform: "mac" });
-  assert.equal(packageKind("/speakmore/v0.9.3/SpeakMore-x64.dmg").key, "mac-dmg-x64");
-  assert.equal(packageKind("/speakmore/v0.9.3/speakmore-darwin-arm64.tar.gz").key, "mac-cli");
-  assert.equal(packageKind("/speakmore/v0.9.3/speakmore-darwin-x64.tar.gz").key, "mac-cli");
-  assert.equal(packageKind("/speakmore/v0.11.0/speakmore-darwin-arm64.tar.xz").key, "mac-cli");
-  assert.equal(packageKind("/speakmore/v0.11.0/speakmore-darwin-x64.tar.xz").key, "mac-cli");
+  assert.equal(packageKind("/orangespeakeasy/v0.9.3/OrangeSpeakEasy-x64.dmg").key, "mac-dmg-x64");
+  assert.equal(packageKind("/orangespeakeasy/v0.9.3/orangespeakeasy-darwin-arm64.tar.gz").key, "mac-cli");
+  assert.equal(packageKind("/orangespeakeasy/v0.9.3/orangespeakeasy-darwin-x64.tar.gz").key, "mac-cli");
+  assert.equal(packageKind("/orangespeakeasy/v0.11.0/orangespeakeasy-darwin-arm64.tar.xz").key, "mac-cli");
+  assert.equal(packageKind("/orangespeakeasy/v0.11.0/orangespeakeasy-darwin-x64.tar.xz").key, "mac-cli");
   assert.equal(packageKind(SETUP).key, "win-setup");
-  assert.equal(packageKind("/speakmore/v0.9.3/speakmore-win32-x64.zip").key, "win-cli");
+  assert.equal(packageKind("/orangespeakeasy/v0.9.3/orangespeakeasy-win32-x64.zip").key, "win-cli");
   for (const path of [
     `${DMG}.sha256`,
-    "/speakmore/latest",
-    "/speakmore/channel.json",
-    `/speakmore/store/${"a".repeat(64)}`,
-    "/speakmore/install.sh",
-    "/speakmore/install.ps1",
+    "/orangespeakeasy/latest",
+    "/orangespeakeasy/channel.json",
+    `/orangespeakeasy/store/${"a".repeat(64)}`,
+    "/orangespeakeasy/install.sh",
+    "/orangespeakeasy/install.ps1",
     "/",
   ]) {
     assert.equal(packageKind(path), null, path);
@@ -73,30 +73,45 @@ test("安装包按文件名归类（0.10.1 以前的 tar.gz 也认），校验�
 });
 
 test("自测特征一：curl 在两分钟内拉了至少 4 个不同的 .sha256，是 ship 收尾核对", () => {
-  const shas = ["SpeakMore-arm64.dmg", "SpeakMore-x64.dmg", "speakmore-darwin-arm64.tar.gz", "SpeakMore-Setup-x64.exe"];
+  const shas = [
+    "OrangeSpeakEasy-arm64.dmg",
+    "OrangeSpeakEasy-x64.dmg",
+    "orangespeakeasy-darwin-arm64.tar.gz",
+    "OrangeSpeakEasy-Setup-x64.exe",
+  ];
   const ship = rowsOf(
-    ...shas.map((f, i) => ({ ip: "198.51.100.1", t: `2026101712000${i}`, path: `/speakmore/v0.9.3/${f}.sha256` })),
+    ...shas.map((f, i) => ({
+      ip: "198.51.100.1",
+      t: `2026101712000${i}`,
+      path: `/orangespeakeasy/v0.9.3/${f}.sha256`,
+    })),
   );
   assert.deepEqual([...findSelf(ship).get("198.51.100.1")], ["ship"]);
 
   // 只拉了 3 个，或者 4 个分散在十分钟里：都是普通用户装了几次
-  const three = rowsOf(...shas.slice(0, 3).map((f) => ({ ip: "198.51.100.2", path: `/speakmore/v0.9.3/${f}.sha256` })));
+  const three = rowsOf(
+    ...shas.slice(0, 3).map((f) => ({ ip: "198.51.100.2", path: `/orangespeakeasy/v0.9.3/${f}.sha256` })),
+  );
   const spread = rowsOf(
-    ...shas.map((f, i) => ({ ip: "198.51.100.3", t: `202610171${i}0000`, path: `/speakmore/v0.9.3/${f}.sha256` })),
+    ...shas.map((f, i) => ({
+      ip: "198.51.100.3",
+      t: `202610171${i}0000`,
+      path: `/orangespeakeasy/v0.9.3/${f}.sha256`,
+    })),
   );
   // 浏览器连着点了四个校验值，也不是 ship
   const browser = rowsOf(
-    ...shas.map((f) => ({ ip: "198.51.100.4", ua: BROWSER_WIN, path: `/speakmore/v0.9.3/${f}.sha256` })),
+    ...shas.map((f) => ({ ip: "198.51.100.4", ua: BROWSER_WIN, path: `/orangespeakeasy/v0.9.3/${f}.sha256` })),
   );
   assert.equal(findSelf([...three, ...spread, ...browser]).size, 0);
 });
 
 test("自测特征二：请求预发版（版本号带 -）；正式版本号哪怕没发过也不算，那可能是 README 指错了、真用户拿到 404，要报出来", () => {
   const rows = rowsOf(
-    { ip: "198.51.100.5", path: "/speakmore/v0.2.0-rc.1/speakmore-darwin-arm64.tar.gz" },
-    { ip: "198.51.100.6", path: "/speakmore/v0.7.1-dev.2/SpeakMore-arm64.dmg", status: 404 },
-    { ip: "203.0.113.19", path: "/speakmore/v9.9.9/x", status: 404 },
-    { ip: "203.0.113.20", path: "/speakmore/v0.9.1/SpeakMore-Setup-x64.exe", status: 404 },
+    { ip: "198.51.100.5", path: "/orangespeakeasy/v0.2.0-rc.1/orangespeakeasy-darwin-arm64.tar.gz" },
+    { ip: "198.51.100.6", path: "/orangespeakeasy/v0.7.1-dev.2/OrangeSpeakEasy-arm64.dmg", status: 404 },
+    { ip: "203.0.113.19", path: "/orangespeakeasy/v9.9.9/x", status: 404 },
+    { ip: "203.0.113.20", path: "/orangespeakeasy/v0.9.1/OrangeSpeakEasy-Setup-x64.exe", status: 404 },
   );
   const self = findSelf(rows);
   assert.deepEqual([...self.keys()], ["198.51.100.5", "198.51.100.6"]);
@@ -108,7 +123,7 @@ test("自测特征三：不带 UA 拉 Windows 安装程序的校验值，是 Win
     { ip: "198.51.100.7", ua: "NULL", path: `${SETUP}.sha256` },
     { ip: "203.0.113.21", ua: BROWSER_WIN, path: `${SETUP}.sha256` },
     // irm 一行装的真用户：install.ps1 不带 UA 拉 zip 的校验值，不能当成我们
-    { ip: "203.0.113.22", ua: "NULL", path: "/speakmore/v0.9.3/speakmore-win32-x64.zip.sha256" },
+    { ip: "203.0.113.22", ua: "NULL", path: "/orangespeakeasy/v0.9.3/orangespeakeasy-win32-x64.zip.sha256" },
   );
   const self = findSelf(rows);
   assert.deepEqual([...self.keys()], ["198.51.100.7"]);
@@ -163,7 +178,7 @@ test("下载量：按流量折算成完整下载（分段下载拼起来算一�
 });
 
 test("更新的流量：store/ 下的块按字节加起来（不折算次数），自测的单独记；HEAD、404 不算", () => {
-  const object = (n) => `/speakmore/store/${String(n).repeat(64)}`;
+  const object = (n) => `/orangespeakeasy/store/${String(n).repeat(64)}`;
   const rows = rowsOf(
     { ip: "203.0.113.40", path: object(1), bytes: 30_000 },
     { ip: "203.0.113.40", path: object(2), bytes: 20_000 },
@@ -179,7 +194,7 @@ test("更新的流量：store/ 下的块按字节加起来（不折算次数）�
 });
 
 test("真用户拿到的 404：桶里现在有的文件记成 early（当时还没传上去），桶里没有的按路径记成 missing；扫描器和自测的不算", () => {
-  const SETUP_091 = "/speakmore/v0.9.1/SpeakMore-Setup-x64.exe";
+  const SETUP_091 = "/orangespeakeasy/v0.9.1/OrangeSpeakEasy-Setup-x64.exe";
   const rows = rowsOf(
     { ip: "203.0.113.40", t: "20261017214941", path: SETUP_091, status: 404 },
     { ip: "203.0.113.40", t: "20261017214945", path: SETUP_091, status: 404 },
@@ -187,19 +202,19 @@ test("真用户拿到的 404：桶里现在有的文件记成 early（当时还�
     {
       ip: "203.0.113.42",
       t: "20261017100000",
-      path: "/speakmore/v0.9.0/SpeakMore-Setup-x64.exe%EF%BC%88Windows",
+      path: "/orangespeakeasy/v0.9.0/OrangeSpeakEasy-Setup-x64.exe%EF%BC%88Windows",
       status: 404,
     },
     {
       ip: "203.0.113.43",
       t: "20261018090000",
-      path: "/speakmore/v0.9.0/SpeakMore-Setup-x64.exe%EF%BC%88Windows",
+      path: "/orangespeakeasy/v0.9.0/OrangeSpeakEasy-Setup-x64.exe%EF%BC%88Windows",
       status: 404,
     },
     { ip: "203.0.113.44", path: "/api/v1/.env", status: 404 },
     { ip: "203.0.113.44", path: "/wp-json/wp/v2/docs/settings", status: 404 },
-    { ip: "203.0.113.45", path: "/speakmore/v0.9.2", status: 404 },
-    { ip: "198.51.100.6", path: "/speakmore/v9.9.9/SpeakMore-arm64.dmg", status: 404 },
+    { ip: "203.0.113.45", path: "/orangespeakeasy/v0.9.2", status: 404 },
+    { ip: "198.51.100.6", path: "/orangespeakeasy/v9.9.9/OrangeSpeakEasy-arm64.dmg", status: 404 },
   );
   const self = new Map([["198.51.100.6", new Set(["prerelease"])]]);
   const misses = earlyMisses(rows, { files: new Set([SETUP_091]), self });
@@ -207,7 +222,7 @@ test("真用户拿到的 404：桶里现在有的文件记成 early（当时还�
     { kind: "early", version: "v0.9.1", requests: 2, ips: 1, last: "20261017214945" },
     {
       kind: "missing",
-      path: "/speakmore/v0.9.0/SpeakMore-Setup-x64.exe（Windows",
+      path: "/orangespeakeasy/v0.9.0/OrangeSpeakEasy-Setup-x64.exe（Windows",
       requests: 2,
       ips: 2,
       last: "20261018090000",
@@ -218,7 +233,7 @@ test("真用户拿到的 404：桶里现在有的文件记成 early（当时还�
     {
       level: "warn",
       domain: "dl.zephyrxiang.com",
-      text: "没有这个文件：/speakmore/v0.9.0/SpeakMore-Setup-x64.exe（Windows，2 个真用户拿到 404（最近一次 10-18 09:00），多半是哪里的链接写坏了",
+      text: "没有这个文件：/orangespeakeasy/v0.9.0/OrangeSpeakEasy-Setup-x64.exe（Windows，2 个真用户拿到 404（最近一次 10-18 09:00），多半是哪里的链接写坏了",
     },
   ]);
   assert.deepEqual(missAlerts(misses, "dl.zephyrxiang.com", "20261019000000"), []);
@@ -323,7 +338,7 @@ test("按小时封顶：每小时 4 GB（按 1024 算）、超了 404、一小�
 });
 
 test("更新要的块真用户拿到 404：报出来；自测的、早于 since 的不算", () => {
-  const object = `/speakmore/store/${"a".repeat(64)}`;
+  const object = `/orangespeakeasy/store/${"a".repeat(64)}`;
   const rows = rowsOf(
     { ip: "203.0.113.50", t: "20261019100000", path: object, status: 404 },
     { ip: "203.0.113.51", t: "20261019110000", path: object, status: 404 },
@@ -339,17 +354,17 @@ test("更新要的块真用户拿到 404：报出来；自测的、早于 since 
 });
 
 test("包的大小：发过的一直记着（桶里删了旧版本，它们的下载照样折算得出来）；块不记；新列出来的为准", () => {
-  const before = { "speakmore/v0.10.1/SpeakMore-arm64.dmg": 100, "speakmore/install.sh": 10 };
+  const before = { "orangespeakeasy/v0.10.1/OrangeSpeakEasy-arm64.dmg": 100, "orangespeakeasy/install.sh": 10 };
   const listed = {
-    "speakmore/v0.11.0/SpeakMore-arm64.dmg": 105,
-    "speakmore/install.sh": 18,
-    "speakmore/store/abc": 5,
+    "orangespeakeasy/v0.11.0/OrangeSpeakEasy-arm64.dmg": 105,
+    "orangespeakeasy/install.sh": 18,
+    "orangespeakeasy/store/abc": 5,
     "other/x": 1,
   };
-  assert.deepEqual(knownSizes(before, listed, "speakmore"), {
-    "speakmore/v0.10.1/SpeakMore-arm64.dmg": 100,
-    "speakmore/install.sh": 18,
-    "speakmore/v0.11.0/SpeakMore-arm64.dmg": 105,
+  assert.deepEqual(knownSizes(before, listed, "orangespeakeasy"), {
+    "orangespeakeasy/v0.10.1/OrangeSpeakEasy-arm64.dmg": 100,
+    "orangespeakeasy/install.sh": 18,
+    "orangespeakeasy/v0.11.0/OrangeSpeakEasy-arm64.dmg": 105,
   });
-  assert.deepEqual(knownSizes(null, { "speakmore/a": 1 }, "speakmore"), { "speakmore/a": 1 });
+  assert.deepEqual(knownSizes(null, { "orangespeakeasy/a": 1 }, "orangespeakeasy"), { "orangespeakeasy/a": 1 });
 });

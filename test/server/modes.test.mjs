@@ -49,7 +49,10 @@ test("要用谁家的 key：原生链路是收音频的那家，本地转写链�
   assert.equal(keyVendorOf(NATIVE).id, "openai");
   assert.equal(keyVendorOf(LOCAL).id, "deepseek");
   assert.equal(keyVendorOf(LOCAL).keyEnv, "DEEPSEEK_API_KEY");
-  assert.equal(keyVendorOf({ ...LOCAL, polish: { vendor: "custom", model: "m" } }).keyEnv, "SPEAKMORE_CUSTOM_API_KEY");
+  assert.equal(
+    keyVendorOf({ ...LOCAL, polish: { vendor: "custom", model: "m" } }).keyEnv,
+    "ORANGESPEAKEASY_CUSTOM_API_KEY",
+  );
 });
 
 test("一句话说清这条路线（日志和状态里用）", () => {

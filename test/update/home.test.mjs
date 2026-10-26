@@ -29,7 +29,7 @@ let dir;
 let paths;
 beforeEach(() => {
   dir = mkdtempSync(join(tmpdir(), "sm-home-"));
-  paths = resolvePaths({ SPEAKMORE_HOME: join(dir, "home") }, undefined, process.platform);
+  paths = resolvePaths({ ORANGESPEAKEASY_HOME: join(dir, "home") }, undefined, process.platform);
 });
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
@@ -51,7 +51,7 @@ async function publish(release, version, { script, scriptName, target }) {
 const RUNTIME = Buffer.from(Array.from({ length: 300_000 }, (_, i) => (i * 7919) % 251));
 
 const homesFor = (release, options = {}) => {
-  const env = { ...process.env, SPEAKMORE_INSTALL_BASE: release, ...options.env };
+  const env = { ...process.env, ORANGESPEAKEASY_INSTALL_BASE: release, ...options.env };
   return createHomes({
     paths,
     env,
@@ -179,16 +179,16 @@ test(
     const record = join(dir, "record");
     // 假的安装脚本：记下拿到的参数和几个环境变量，按要求的退出码退出
     const channel = await publish(release, "9.9.9", {
-      script: `printf '%s|%s|%s|%s|%s|%s|%s|%s\\n' "$*" "$SPEAKMORE_HOME" "\${SPEAKMORE_VERSION:-}" "\${SPEAKMORE_INSTALL_BASE:-}" "\${ELECTRON_RUN_AS_NODE:-}" "$SPEAKMORE_INSTALL_FROM" "\${SPEAKMORE_INSTALL_DIR:-}" "\${SPEAKMORE_PREVIOUS_HOME:-}" > ${JSON.stringify(record)}\nexit "\${FAKE_EXIT:-0}"\n`,
+      script: `printf '%s|%s|%s|%s|%s|%s|%s|%s\\n' "$*" "$ORANGESPEAKEASY_HOME" "\${ORANGESPEAKEASY_VERSION:-}" "\${ORANGESPEAKEASY_INSTALL_BASE:-}" "\${ELECTRON_RUN_AS_NODE:-}" "$ORANGESPEAKEASY_INSTALL_FROM" "\${ORANGESPEAKEASY_INSTALL_DIR:-}" "\${ORANGESPEAKEASY_PREVIOUS_HOME:-}" > ${JSON.stringify(record)}\nexit "\${FAKE_EXIT:-0}"\n`,
       scriptName: "install.sh",
       target: "darwin-arm64",
     });
-    // 第一次安装时设的 SPEAKMORE_INSTALL_DIR 会一路带进命令行和 App：不带给更新，不然安装脚本说它和 SPEAKMORE_HOME 不能同时设
+    // 第一次安装时设的 ORANGESPEAKEASY_INSTALL_DIR 会一路带进命令行和 App：不带给更新，不然安装脚本说它和 ORANGESPEAKEASY_HOME 不能同时设
     const env = {
       ELECTRON_RUN_AS_NODE: "1",
-      SPEAKMORE_VERSION: "v1.0.0",
-      SPEAKMORE_INSTALL_DIR: "/Volumes/Data",
-      SPEAKMORE_PREVIOUS_HOME: "/old/.speakmore",
+      ORANGESPEAKEASY_VERSION: "v1.0.0",
+      ORANGESPEAKEASY_INSTALL_DIR: "/Volumes/Data",
+      ORANGESPEAKEASY_PREVIOUS_HOME: "/old/.orangespeakeasy",
     };
     const homes = homesFor(release, { env });
     const staged = await homes.stage(channel, { seeds: [], cacheDir: paths.updateCacheDir });
@@ -208,20 +208,20 @@ test(
     const release = join(dir, "release");
     const record = join(dir, "bin-record");
     const channel = await publish(release, "9.9.9", {
-      script: `printf '%s' "\${SPEAKMORE_BIN_DIR:-}" > ${JSON.stringify(record)}\n`,
+      script: `printf '%s' "\${ORANGESPEAKEASY_BIN_DIR:-}" > ${JSON.stringify(record)}\n`,
       scriptName: "install.sh",
       target: "darwin-arm64",
     });
     const linkDir = join(dir, "usr-local-bin");
     mkdirSync(linkDir);
     mkdirSync(paths.binDir, { recursive: true });
-    symlinkSync(join(paths.binDir, "speakmore"), join(linkDir, "speakmore"));
-    writeFileSync(paths.linksFile, `${join(dir, "gone", "speakmore")}\n${join(linkDir, "speakmore")}\n`);
-    const { SPEAKMORE_BIN_DIR: _unset, ...env } = process.env;
+    symlinkSync(join(paths.binDir, "orangespeakeasy"), join(linkDir, "orangespeakeasy"));
+    writeFileSync(paths.linksFile, `${join(dir, "gone", "orangespeakeasy")}\n${join(linkDir, "orangespeakeasy")}\n`);
+    const { ORANGESPEAKEASY_BIN_DIR: _unset, ...env } = process.env;
     const homes = createHomes({
       paths,
-      env: { ...env, SPEAKMORE_INSTALL_BASE: release },
-      release: createRelease({ env: { ...env, SPEAKMORE_INSTALL_BASE: release } }),
+      env: { ...env, ORANGESPEAKEASY_INSTALL_BASE: release },
+      release: createRelease({ env: { ...env, ORANGESPEAKEASY_INSTALL_BASE: release } }),
       stdio: ["ignore", "ignore", "ignore"],
       arch: "arm64",
     });
@@ -232,12 +232,12 @@ test(
   },
 );
 
-test("启动：跑家目录里装好的 speakmore start，带上家目录，不带 ELECTRON_RUN_AS_NODE", macOnly, async () => {
+test("启动：跑家目录里装好的 orangespeakeasy start，带上家目录，不带 ELECTRON_RUN_AS_NODE", macOnly, async () => {
   const record = join(dir, "start-record");
   mkdirSync(paths.binDir, { recursive: true });
   writeFileSync(
-    join(paths.binDir, "speakmore"),
-    `#!/bin/sh\nprintf '%s|%s|%s\\n' "$*" "$SPEAKMORE_HOME" "\${ELECTRON_RUN_AS_NODE:-}" > ${JSON.stringify(record)}\nexit 0\n`,
+    join(paths.binDir, "orangespeakeasy"),
+    `#!/bin/sh\nprintf '%s|%s|%s\\n' "$*" "$ORANGESPEAKEASY_HOME" "\${ELECTRON_RUN_AS_NODE:-}" > ${JSON.stringify(record)}\nexit 0\n`,
     { mode: 0o755 },
   );
   const homes = homesFor(join(dir, "release"), { env: { ELECTRON_RUN_AS_NODE: "1" } });
@@ -246,14 +246,14 @@ test("启动：跑家目录里装好的 speakmore start，带上家目录，不�
 });
 
 test(
-  "Windows：install.ps1 按 UTF-8 读进来再跑，装哪、装哪个版本、只装不启动都走环境变量；启动走 speakmore.cmd",
+  "Windows：install.ps1 按 UTF-8 读进来再跑，装哪、装哪个版本、只装不启动都走环境变量；启动走 orangespeakeasy.cmd",
   windowsOnly,
   async () => {
     const release = join(dir, "release");
     const record = join(dir, "record");
     // 假的安装脚本：记下拿到的几个环境变量（带一句中文：要按 UTF-8 读才对得上），按要求的结果收尾
     const channel = await publish(release, "9.9.9", {
-      script: `& { Set-Content -Encoding UTF8 -Path $env:RECORD -Value "装好了|$($env:SPEAKMORE_HOME)|$($env:SPEAKMORE_VERSION)|$($env:SPEAKMORE_NO_START)|$($env:SPEAKMORE_INSTALL_BASE)|$($env:SPEAKMORE_INSTALL_FROM)"; $global:LASTEXITCODE = [int]$env:FAKE_EXIT }\n`,
+      script: `& { Set-Content -Encoding UTF8 -Path $env:RECORD -Value "装好了|$($env:ORANGESPEAKEASY_HOME)|$($env:ORANGESPEAKEASY_VERSION)|$($env:ORANGESPEAKEASY_NO_START)|$($env:ORANGESPEAKEASY_INSTALL_BASE)|$($env:ORANGESPEAKEASY_INSTALL_FROM)"; $global:LASTEXITCODE = [int]$env:FAKE_EXIT }\n`,
       scriptName: "install.ps1",
       target: "win32-x64",
     });
@@ -272,10 +272,13 @@ test(
     staged.discard();
 
     // 启动：家目录的路径里带空格也跑得起来；说的话经管道转出来（App 起的更新进程用的那种）
-    const spaced = resolvePaths({ SPEAKMORE_HOME: join(dir, "my home") }, undefined, "win32");
+    const spaced = resolvePaths({ ORANGESPEAKEASY_HOME: join(dir, "my home") }, undefined, "win32");
     const startRecord = join(dir, "start record");
     mkdirSync(spaced.binDir, { recursive: true });
-    writeFileSync(join(spaced.binDir, "speakmore.cmd"), `@echo off\r\necho %*^|%SPEAKMORE_HOME%> "${startRecord}"\r\n`);
+    writeFileSync(
+      join(spaced.binDir, "orangespeakeasy.cmd"),
+      `@echo off\r\necho %*^|%ORANGESPEAKEASY_HOME%> "${startRecord}"\r\n`,
+    );
     const spacedHomes = createHomes({
       paths: spaced,
       env: process.env,

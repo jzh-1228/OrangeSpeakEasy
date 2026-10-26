@@ -20,7 +20,7 @@ import {
 } from "../common.mjs";
 import { renderConfig, renderThemes, themeTitle } from "../render/settings.mjs";
 
-// 设置：speakmore config、theme，以及打开设置的 speakmore settings。
+// 设置：orangespeakeasy config、theme，以及打开设置的 orangespeakeasy settings。
 // 主题、语言、下载源、热键改了当场生效（让正在运行的那个重新读一遍设置），别的要重启后台。
 // config set 是手动改设置的后门：只按存设置的规矩查写法，不经过模式那一层（app/modes.mjs）的检查，
 // 不在那种模式里的设置也照写、切过去时才用上。平时换模式、换模型走 mode、model、transcriber、polish。
@@ -135,12 +135,12 @@ async function applyLive(io, name, wanted) {
 
 /** 模式那一层管的几项平时用哪个命令换：那些命令先检查能不能用，不行就不换 */
 const MODE_COMMANDS = {
-  mode: "speakmore mode",
-  model: "speakmore model",
-  transcriber: "speakmore transcriber",
-  polish: "speakmore polish",
-  customUrl: "speakmore polish",
-  customParams: "speakmore polish",
+  mode: "orangespeakeasy mode",
+  model: "orangespeakeasy model",
+  transcriber: "orangespeakeasy transcriber",
+  polish: "orangespeakeasy polish",
+  customUrl: "orangespeakeasy polish",
+  customParams: "orangespeakeasy polish",
 };
 
 /** config set 写了模式那一层的设置：说平时走哪条路；这一项不属于现在的模式时，说切过去才用上 */
@@ -194,7 +194,7 @@ export async function config(args, io) {
     warnIfEnvOverrides(io, current);
     noteModeSetting(io, current);
     if (Object.hasOwn(LIVE, current)) return applyLive(io, current, saved);
-    return applySettings(io, `speakmore config unset ${current}`);
+    return applySettings(io, `orangespeakeasy config unset ${current}`);
   }
   if (action === "unset" && name !== undefined && value === undefined) {
     const current = currentName(name);

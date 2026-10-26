@@ -7,10 +7,10 @@
 //   v<版本>/<首次安装用的包>          完整的包和同名的 .sha256：没有可以拿来拼的旧版本时才用得上（官网下载、一行命令安装）
 //
 // 首次安装用的包：
-//   speakmore-darwin-<芯片>.tar.xz   终端安装（install.sh）：解开是 app/ 和 runtime/，就是家目录里的样子
-//   SpeakMore-<芯片>.dmg             Mac 的安装包：签了名、过了公证的 SpeakMore.app
-//   speakmore-win32-x64.zip          Windows 的终端安装（irm … | iex）：解开是 app\ 和 runtime\
-//   SpeakMore-Setup-x64.exe          Windows 直接下载的安装程序：身上带着同一棵树（zstd 压的），双击就装
+//   orangespeakeasy-darwin-<芯片>.tar.xz   终端安装（install.sh）：解开是 app/ 和 runtime/，就是家目录里的样子
+//   OrangeSpeakEasy-<芯片>.dmg             Mac 的安装包：签了名、过了公证的 OrangeSpeakEasy.app
+//   orangespeakeasy-win32-x64.zip          Windows 的终端安装（irm … | iex）：解开是 app\ 和 runtime\
+//   OrangeSpeakEasy-Setup-x64.exe          Windows 直接下载的安装程序：身上带着同一棵树（zstd 压的），双击就装
 
 export const CHANNEL = "channel.json";
 /**
@@ -21,17 +21,17 @@ export const CHANNEL_FORMAT = 1;
 export const objectPath = (sha) => `store/${sha}`;
 export const versionDir = (version) => `v${version}`;
 
-export const archiveName = (arch) => `speakmore-darwin-${arch}.tar.xz`;
-export const dmgName = (arch) => `SpeakMore-${arch}.dmg`;
+export const archiveName = (arch) => `orangespeakeasy-darwin-${arch}.tar.xz`;
+export const dmgName = (arch) => `OrangeSpeakEasy-${arch}.dmg`;
 /** Windows 只出 x64 的一个（Windows on ARM 靠系统自带的转译跑它） */
-export const WINDOWS_ARCHIVE = "speakmore-win32-x64.zip";
+export const WINDOWS_ARCHIVE = "orangespeakeasy-win32-x64.zip";
 /** Windows 直接下载的安装程序（scripts/build/windows-setup.mjs 打的） */
-export const WINDOWS_SETUP = "SpeakMore-Setup-x64.exe";
+export const WINDOWS_SETUP = "OrangeSpeakEasy-Setup-x64.exe";
 
 /**
  * 更新用的几种装法，每种一棵树、一份清单：
  *   darwin-<芯片>        Mac 终端安装的家目录：app/ 和 runtime/
- *   darwin-<芯片>-app    Mac 的 SpeakMore.app
+ *   darwin-<芯片>-app    Mac 的 OrangeSpeakEasy.app
  *   win32-x64            Windows：versions\<版本> 里的 app\ 和 runtime\
  */
 export const homeTarget = (platform, arch) => (platform === "win32" ? "win32-x64" : `darwin-${arch}`);

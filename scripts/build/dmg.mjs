@@ -1,4 +1,4 @@
-// 把签好名、公证过的 SpeakMore.app 装进一个 dmg：打开后左边是应用，右边是"应用程序"的替身，拖过去就装好了。
+// 把签好名、公证过的 OrangeSpeakEasy.app 装进一个 dmg：打开后左边是应用，右边是"应用程序"的替身，拖过去就装好了。
 // dmg 自己也签名、交苹果公证、钉上票据：浏览器下回来的 dmg 带着"来自网络"的标记，系统打开前先查最外面这一层。
 
 import { execFileSync } from "node:child_process";
@@ -11,13 +11,13 @@ import { basename, join } from "node:path";
  */
 export function makeDmg({ appPath, dmgPath, signing }) {
   const run = (command, args) => execFileSync(command, args, { stdio: "inherit" });
-  const stage = mkdtempSync(join(tmpdir(), "speakmore-dmg-"));
+  const stage = mkdtempSync(join(tmpdir(), "orangespeakeasy-dmg-"));
   try {
     // ditto 原样拷贝应用包，保留签名、票据和里面的符号链接
     run("ditto", [appPath, join(stage, basename(appPath))]);
     symlinkSync("/Applications", join(stage, "Applications"));
-    // ULMO（LZMA）比默认的 UDZO（zlib）小三成（0.10.1 的 App 实测 179 → 125 MB），macOS 10.15 起都打得开（SpeakMore 要 12 起）
-    run("hdiutil", ["create", "-volname", "SpeakMore", "-srcfolder", stage, "-format", "ULMO", "-ov", dmgPath]);
+    // ULMO（LZMA）比默认的 UDZO（zlib）小三成（0.10.1 的 App 实测 179 → 125 MB），macOS 10.15 起都打得开（OrangeSpeakEasy 要 12 起）
+    run("hdiutil", ["create", "-volname", "OrangeSpeakEasy", "-srcfolder", stage, "-format", "ULMO", "-ov", dmgPath]);
   } finally {
     rmSync(stage, { recursive: true, force: true });
   }

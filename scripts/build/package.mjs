@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// 把 SpeakMore 打成一个可以双击的 macOS 应用：dist/SpeakMore-darwin-<架构>/SpeakMore.app
+// 把 OrangeSpeakEasy 打成一个可以双击的 macOS 应用：dist/OrangeSpeakEasy-darwin-<架构>/OrangeSpeakEasy.app
 // 用法：npm run dist
 //
-// 平时用 speakmore 命令启动就够了。打成应用的区别是：三项系统权限记在"SpeakMore"自己名下
+// 平时用 orangespeakeasy 命令启动就够了。打成应用的区别是：三项系统权限记在"OrangeSpeakEasy"自己名下
 // （而不是启动它的终端名下），并且可以设成登录时自动启动。
 // 应用里装的是 src、编好的小帮手和运行时依赖；测试、脚本、命令行入口都不进去。怎么打、怎么签名在 mac-app.mjs。
 

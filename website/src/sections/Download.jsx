@@ -37,7 +37,7 @@ export function Download() {
       <footer className="mx-auto mt-[clamp(5rem,12vw,9rem)] flex max-w-6xl flex-col items-center justify-between gap-4 border-t border-line px-5 py-8 text-xs text-ink-2 sm:flex-row sm:px-8">
         <p className="flex items-center gap-2">
           <img src={seal} alt="" width="16" height="16" className="size-4" />
-          SpeakMore {links.version}
+          OrangeSpeakEasy {links.version}
         </p>
         <p className="flex items-center gap-5">
           <a href={links.license} className="hover:text-ink">

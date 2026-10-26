@@ -16,20 +16,20 @@ import { findTheme } from "../themes/index.mjs";
 import { bundleOfPackage, createBundles } from "../update/bundle.mjs";
 import { clearUserHome, removeHomeAfterExit } from "../windows-system.mjs";
 
-// App 设置里点了"存储位置 › 更改"之后，App 用自己的程序另起一个进程（环境变量 SPEAKMORE_MOVE_TO 是搬去的文件夹），
-// 走到这里：开一个小窗口显示进度，照命令行的 speakmore move 一样搬（src/move）——请 App 退出、拷、换家、从新位置把它打开、
+// App 设置里点了"存储位置 › 更改"之后，App 用自己的程序另起一个进程（环境变量 ORANGESPEAKEASY_MOVE_TO 是搬去的文件夹），
+// 走到这里：开一个小窗口显示进度，照命令行的 orangespeakeasy move 一样搬（src/move）——请 App 退出、拷、换家、从新位置把它打开、
 // 删旧目录。搬完、没搬成都在窗口里说清楚，点"完成"才关。
 // 它不是 App 本身：不拿单实例锁，Chromium 的缓存放在临时目录（家目录正被拷、马上要删），不碰家目录里的缓存。
 
 /** 只给这一次搬家用的环境变量：交给安装脚本、重新打开的 App 之前去掉，不然 App 一打开又当成要搬家 */
-const MOVE_ONLY = ["SPEAKMORE_MOVE_TO", "SPEAKMORE_CLI", "ELECTRON_RUN_AS_NODE"];
+const MOVE_ONLY = ["ORANGESPEAKEASY_MOVE_TO", "ORANGESPEAKEASY_CLI", "ELECTRON_RUN_AS_NODE"];
 
 /** 搬去的文件夹：App 起这个进程时给的。不是搬家时是 null */
-export const MOVE_TO = process.env.SPEAKMORE_MOVE_TO || null;
+export const MOVE_TO = process.env.ORANGESPEAKEASY_MOVE_TO || null;
 
 /** 在 ready 之前调：缓存放进临时目录。之后的事在 ready 后做 */
 export function startMoveWindow({ folder, sourceDir, webPreferences, windowIcon }) {
-  app.setPath("userData", mkdtempSync(join(tmpdir(), "speakmore-move-")));
+  app.setPath("userData", mkdtempSync(join(tmpdir(), "orangespeakeasy-move-")));
   app.dock?.hide();
   app
     .whenReady()
@@ -91,7 +91,7 @@ async function run({ folder, sourceDir, webPreferences, windowIcon }) {
     // 搬的时候不让关：搬到一半停下来才是最糟的
     closable: false,
     show: false,
-    title: "SpeakMore",
+    title: "OrangeSpeakEasy",
     backgroundColor: toHex(theme.window[nativeTheme.shouldUseDarkColors ? "dark" : "light"].bg),
     ...(process.platform === "win32" ? { autoHideMenuBar: true, icon: windowIcon } : {}),
     webPreferences,
@@ -139,7 +139,7 @@ async function run({ folder, sourceDir, webPreferences, windowIcon }) {
     stdio: "forward",
     // 这个进程和要重新打开的 App 是同一个应用包：不加 -n 的话 open 只会把这个窗口叫到前面
     openApp: (bundle, home) =>
-      createBundles({ env: { ...env, SPEAKMORE_HOME: home }, release: null }).open(bundle, { fresh: true }),
+      createBundles({ env: { ...env, ORANGESPEAKEASY_HOME: home }, release: null }).open(bundle, { fresh: true }),
     system: process.platform === "win32" ? { clearUserHome, removeHomeAfterExit } : null,
   });
   log.info("move_started", { from: paths.home, folder });

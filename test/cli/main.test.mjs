@@ -92,7 +92,7 @@ beforeEach(() => {
   dir = mkdtempSync(join(tmpdir(), "sm-"));
   // 定位文件放在另一个临时目录里（当成用户目录），不碰这台电脑上真的那个
   userDir = mkdtempSync(join(tmpdir(), "sm-user-"));
-  paths = resolvePaths({ SPEAKMORE_HOME: dir }, userDir);
+  paths = resolvePaths({ ORANGESPEAKEASY_HOME: dir }, userDir);
 });
 afterEach(() => {
   rmSync(dir, { recursive: true, force: true });
@@ -392,7 +392,7 @@ function harness({
     updates,
     local,
     windows,
-    speakmore: (...argv) => run(argv, io),
+    orangespeakeasy: (...argv) => run(argv, io),
   };
 }
 
@@ -406,16 +406,16 @@ function fakeMover({ problem = null, failure = null, progress = [], unknown = []
     async plan(folder) {
       calls.push(["plan", folder]);
       if (problem) throw new LocalizedError(problem);
-      return { from: paths.home, to: `${folder}/.speakmore`, files: 1234, bytes: 1_200_000_000, unknown };
+      return { from: paths.home, to: `${folder}/.orangespeakeasy`, files: 1234, bytes: 1_200_000_000, unknown };
     },
     async run({ folder, by, report, onProgress }) {
       calls.push(["run", folder, by]);
-      report(msg("move.copying", { to: `${folder}/.speakmore` }));
+      report(msg("move.copying", { to: `${folder}/.orangespeakeasy` }));
       for (const bytes of progress) onProgress({ files: 1, bytes, total: { files: 1234, bytes: 1_200_000_000 } });
       if (failure) throw new LocalizedError(failure);
       return {
         from: paths.home,
-        to: `${folder}/.speakmore`,
+        to: `${folder}/.orangespeakeasy`,
         files: 1234,
         bytes: 1_200_000_000,
         unknown,
@@ -442,18 +442,18 @@ const haveStoredKey = () => writeFileSync(keyFile(paths, "gemini"), "密文");
 // ---------- 启动 ----------
 
 test("不带参数：没在运行就启动，然后给出状态面板", async () => {
-  const { speakmore, output, daemon } = harness();
-  assert.equal(await speakmore(), 0);
+  const { orangespeakeasy, output, daemon } = harness();
+  assert.equal(await orangespeakeasy(), 0);
   assert.deepEqual(daemon.calls, ["start", "recheck"]);
   assert.match(output.out, /正在启动/);
-  assert.match(output.out, /SpeakMore 0\.1\.0 · 运行中/);
+  assert.match(output.out, /OrangeSpeakEasy 0\.1\.0 · 运行中/);
   assert.match(output.out, new RegExp(`按一下${zhHotkey}开始说话`));
 });
 
 test("已经在运行时不再启动一次，只给面板；start 和不带参数是一回事", async () => {
   for (const argv of [[], ["start"]]) {
-    const { speakmore, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
-    assert.equal(await speakmore(...argv), 0);
+    const { orangespeakeasy, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
+    assert.equal(await orangespeakeasy(...argv), 0);
     assert.ok(!daemon.calls.includes("start"));
     assert.match(output.out, /运行中/);
   }
@@ -473,8 +473,8 @@ test("第一次用：先问 key，再启动；存好了直接能用；key 不出
     assert.deepEqual(daemon.calls, [], "问 key 的时候还没开始启动");
     return "AIza-my-secret";
   };
-  const { speakmore, output, asked } = harness({ daemon, secrets: [whenAsked] });
-  assert.equal(await speakmore(), 0);
+  const { orangespeakeasy, output, asked } = harness({ daemon, secrets: [whenAsked] });
+  assert.equal(await orangespeakeasy(), 0);
   assert.deepEqual(daemon.calls, ["start", "set-key", "recheck"]);
   assert.deepEqual(saved, ["AIza-my-secret"]);
   assert.equal(asked.length, 1);
@@ -488,8 +488,8 @@ test("第一次用：先问 key，再启动；存好了直接能用；key 不出
 
 test("第一次用：按模式分组问用哪一家，选 DeepSeek 就进 local 模式、问 DeepSeek 的 key", async () => {
   const daemon = fakeDaemon({ afterStart: { ...NO_KEY, provider: "deepseek", mode: "local" } });
-  const { speakmore, questions, asked, output } = harness({ daemon, answers: ["4"], secrets: ["sk-ds"] });
-  const code = await speakmore();
+  const { orangespeakeasy, questions, asked, output } = harness({ daemon, answers: ["4"], secrets: ["sk-ds"] });
+  const code = await orangespeakeasy();
   assert.equal(code, 0, output.out + output.err);
   assert.match(
     questions[0],
@@ -513,13 +513,17 @@ test("第一次用：先问用哪一家，选 OpenAI 就记进设置、问 OpenA
     assert.deepEqual(daemon.calls, [], "选的时候还没开始启动");
     return "2";
   };
-  const { speakmore, questions, asked, output } = harness({ daemon, answers: [whenChosen], secrets: ["sk-my-secret"] });
-  assert.equal(await speakmore(), 0);
+  const { orangespeakeasy, questions, asked, output } = harness({
+    daemon,
+    answers: [whenChosen],
+    secrets: ["sk-my-secret"],
+  });
+  assert.equal(await orangespeakeasy(), 0);
   assert.equal(questions.length, 1);
   assert.match(questions[0], /1.*Gemini/);
   assert.match(questions[0], /2.*OpenAI/);
   // 以后怎么换也说一句，免得以为选了就定死了
-  assert.match(questions[0], /speakmore model/);
+  assert.match(questions[0], /orangespeakeasy model/);
   assert.equal(resolveSettings({ file: paths.settingsFile, env: {} }).model.value, "openai/gpt-audio-mini");
   assert.equal(asked.length, 1);
   assert.match(asked[0], /platform\.openai\.com\/api-keys/);
@@ -531,8 +535,8 @@ test("第一次用：先问用哪一家，选 OpenAI 就记进设置、问 OpenA
 
 test("第一次用：直接回车就是 Gemini，设置文件不动", async () => {
   const daemon = fakeDaemon({ afterStart: NO_KEY });
-  const { speakmore, questions, asked } = harness({ daemon, answers: [""], secrets: ["AIza-key"] });
-  assert.equal(await speakmore(), 0);
+  const { orangespeakeasy, questions, asked } = harness({ daemon, answers: [""], secrets: ["AIza-key"] });
+  assert.equal(await orangespeakeasy(), 0);
   assert.equal(questions.length, 1);
   assert.ok(!existsSync(paths.settingsFile));
   assert.match(asked[0], /aistudio\.google\.com/);
@@ -540,8 +544,8 @@ test("第一次用：直接回车就是 Gemini，设置文件不动", async () =
 
 test("选的时候写名字也认；写错了说能选什么，再问", async () => {
   const daemon = fakeDaemon({ afterStart: { ...NO_KEY, provider: "openai" } });
-  const { speakmore, questions, output } = harness({ daemon, answers: ["nope", "OpenAI"], secrets: ["sk-key"] });
-  assert.equal(await speakmore(), 0);
+  const { orangespeakeasy, questions, output } = harness({ daemon, answers: ["nope", "OpenAI"], secrets: ["sk-key"] });
+  assert.equal(await orangespeakeasy(), 0);
   assert.equal(questions.length, 2);
   assert.match(output.err, /nope/);
   assert.match(output.err, /1.*2/);
@@ -551,8 +555,8 @@ test("选的时候写名字也认；写错了说能选什么，再问", async ()
 test("别家已经有 key 时标出来；选它就不用再填，直接用它启动", async () => {
   writeFileSync(keyFile(paths, "openai"), "密文");
   const daemon = fakeDaemon({ afterStart: { ...READY, provider: "openai", model: "openai/gpt-audio-mini" } });
-  const { speakmore, questions, asked } = harness({ daemon, answers: ["2"] });
-  assert.equal(await speakmore(), 0);
+  const { orangespeakeasy, questions, asked } = harness({ daemon, answers: ["2"] });
+  assert.equal(await orangespeakeasy(), 0);
   assert.match(questions[0], /OpenAI.*已经有 key/);
   assert.equal(asked.length, 0);
   assert.ok(!daemon.calls.includes("set-key"));
@@ -562,24 +566,24 @@ test("别家已经有 key 时标出来；选它就不用再填，直接用它启
 test("设置里或环境变量里已经定了用哪家：不再问选哪家，直接问那一家的 key", async () => {
   writeFileSync(paths.settingsFile, JSON.stringify({ model: "openai/gpt-audio-1.5" }));
   const fromFile = harness({ daemon: fakeDaemon({ afterStart: NO_KEY }), secrets: ["sk-key"] });
-  assert.equal(await fromFile.speakmore(), 0);
+  assert.equal(await fromFile.orangespeakeasy(), 0);
   assert.equal(fromFile.questions.length, 0);
   assert.match(fromFile.asked[0], /OpenAI/);
   rmSync(paths.settingsFile);
 
   const fromEnv = harness({
     daemon: fakeDaemon({ afterStart: NO_KEY }),
-    env: { SPEAKMORE_MODEL: "gemini" },
+    env: { ORANGESPEAKEASY_MODEL: "gemini" },
     secrets: ["AIza"],
   });
-  assert.equal(await fromEnv.speakmore(), 0);
+  assert.equal(await fromEnv.orangespeakeasy(), 0);
   assert.equal(fromEnv.questions.length, 0);
 });
 
 test("选哪家时按了 Ctrl-C：不问 key，照默认的启动，面板里说还差 key", async () => {
   const daemon = fakeDaemon({ afterStart: NO_KEY });
-  const { speakmore, questions, asked, output } = harness({ daemon, answers: [new Cancelled()] });
-  assert.equal(await speakmore(), 0);
+  const { orangespeakeasy, questions, asked, output } = harness({ daemon, answers: [new Cancelled()] });
+  assert.equal(await orangespeakeasy(), 0);
   assert.equal(questions.length, 1);
   assert.equal(asked.length, 0);
   assert.deepEqual(daemon.calls, ["start", "recheck"]);
@@ -589,12 +593,12 @@ test("选哪家时按了 Ctrl-C：不问 key，照默认的启动，面板里说
 test("已经有 key（存着的，或者环境变量给的）时直接启动，不问", async () => {
   haveStoredKey();
   const stored = harness();
-  assert.equal(await stored.speakmore(), 0);
+  assert.equal(await stored.orangespeakeasy(), 0);
   assert.equal(stored.asked.length, 0);
   rmSync(keyFile(paths, "gemini"));
 
   const fromEnv = harness({ env: { GEMINI_API_KEY: "AIza-env" } });
-  assert.equal(await fromEnv.speakmore(), 0);
+  assert.equal(await fromEnv.orangespeakeasy(), 0);
   assert.equal(fromEnv.asked.length, 0);
 });
 
@@ -607,8 +611,8 @@ test("问到的 key 样子不对（带换行、空格）：当场说、当场再
       return { ok: true };
     },
   });
-  const { speakmore, output, asked } = harness({ daemon, secrets: ["two\nlines-SECRET", "AIza-good"] });
-  assert.equal(await speakmore(), 0);
+  const { orangespeakeasy, output, asked } = harness({ daemon, secrets: ["two\nlines-SECRET", "AIza-good"] });
+  assert.equal(await orangespeakeasy(), 0);
   assert.equal(asked.length, 2);
   assert.deepEqual(saved, ["AIza-good"]);
   assert.match(output.err, /这把 key 里有空格或换行/);
@@ -618,8 +622,8 @@ test("问到的 key 样子不对（带换行、空格）：当场说、当场再
 test("存着的 key 启动后发现已经不能用了：这时再问一把", async () => {
   haveStoredKey();
   const daemon = fakeDaemon({ afterStart: REVOKED_KEY });
-  const { speakmore, asked, output } = harness({ daemon, secrets: ["AIza-new"] });
-  assert.equal(await speakmore(), 0);
+  const { orangespeakeasy, asked, output } = harness({ daemon, secrets: ["AIza-new"] });
+  assert.equal(await orangespeakeasy(), 0);
   assert.deepEqual(daemon.calls, ["start", "set-key", "recheck"]);
   assert.equal(asked.length, 1);
   assert.match(output.out, /运行中/);
@@ -628,14 +632,14 @@ test("存着的 key 启动后发现已经不能用了：这时再问一把", asy
 test("不是 key 的问题时不问 key：模型名写错、环境变量里的 key 不对，都只在面板里说", async () => {
   haveStoredKey();
   const wrongModel = harness({ daemon: fakeDaemon({ afterStart: WRONG_MODEL }) });
-  assert.equal(await wrongModel.speakmore(), 0);
+  assert.equal(await wrongModel.orangespeakeasy(), 0);
   assert.equal(wrongModel.asked.length, 0);
   assert.match(wrongModel.output.out, /gemini-nope is not found/);
-  assert.match(wrongModel.output.out, /speakmore config/);
+  assert.match(wrongModel.output.out, /orangespeakeasy config/);
 
   const badEnv = { ...REVOKED_KEY, key: { ...REVOKED_KEY.key, source: "env" } };
   const fromEnv = harness({ daemon: fakeDaemon({ afterStart: badEnv }), env: { GEMINI_API_KEY: "AIza-env" } });
-  assert.equal(await fromEnv.speakmore(), 0);
+  assert.equal(await fromEnv.orangespeakeasy(), 0);
   assert.equal(fromEnv.asked.length, 0);
   assert.match(fromEnv.output.out, /环境变量 GEMINI_API_KEY/);
 });
@@ -643,8 +647,8 @@ test("不是 key 的问题时不问 key：模型名写错、环境变量里的 k
 test("key 不对时说明原因再问一次", async () => {
   const answers = [{ ok: false, problem: "这把 key 无效，检查有没有复制完整" }, { ok: true }];
   const daemon = fakeDaemon({ afterStart: NO_KEY, saveKey: () => answers.shift() });
-  const { speakmore, output, asked } = harness({ daemon, secrets: ["wrong", "right"] });
-  assert.equal(await speakmore(), 0);
+  const { orangespeakeasy, output, asked } = harness({ daemon, secrets: ["wrong", "right"] });
+  assert.equal(await orangespeakeasy(), 0);
   assert.equal(asked.length, 2);
   assert.match(output.err, /这把 key 无效/);
   assert.match(output.out, /运行中/);
@@ -653,20 +657,20 @@ test("key 不对时说明原因再问一次", async () => {
 test("问 key 时什么都没填或者按了 Ctrl-C：不纠缠，面板里说还差 key", async () => {
   for (const secret of ["", new Cancelled()]) {
     const daemon = fakeDaemon({ afterStart: NO_KEY });
-    const { speakmore, output, asked } = harness({ daemon, secrets: [secret] });
-    assert.equal(await speakmore(), 0);
+    const { orangespeakeasy, output, asked } = harness({ daemon, secrets: [secret] });
+    assert.equal(await orangespeakeasy(), 0);
     // 启动前问过一次、他没填，启动后就不再问第二遍
     assert.equal(asked.length, 1);
     assert.ok(!daemon.calls.includes("set-key"));
     assert.match(output.out, /还差 1 样/);
-    assert.match(output.out, /speakmore key/);
+    assert.match(output.out, /orangespeakeasy key/);
   }
 });
 
 test("不是在终端里运行（脚本、管道）时不问 key，也不弹窗口", async () => {
   const daemon = fakeDaemon({ afterStart: { ...NO_KEY, ...{ permissions: NO_PERMISSIONS.permissions } } });
-  const { speakmore, asked, questions } = harness({ daemon, interactive: false });
-  assert.equal(await speakmore(), 0);
+  const { orangespeakeasy, asked, questions } = harness({ daemon, interactive: false });
+  assert.equal(await orangespeakeasy(), 0);
   assert.equal(asked.length, 0);
   assert.equal(questions.length, 0);
   assert.ok(!daemon.calls.includes("show-settings"));
@@ -674,8 +678,8 @@ test("不是在终端里运行（脚本、管道）时不问 key，也不弹窗�
 
 test("第一次用、缺系统权限：打开首次引导，并在面板里说明", async () => {
   const daemon = fakeDaemon({ afterStart: NO_PERMISSIONS });
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore(), 0);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy(), 0);
   // 请求名沿用 show-settings：老版本的后台不认识 onboarding 这个参数，照样打开设置
   assert.deepEqual(
     daemon.requests.find(({ cmd }) => cmd === "show-settings"),
@@ -688,8 +692,8 @@ test("第一次用、缺系统权限：打开首次引导，并在面板里说�
 test("用过的人缺了系统权限：只打开设置", async () => {
   haveStoredKey();
   const daemon = fakeDaemon({ afterStart: NO_PERMISSIONS });
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore(), 0);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy(), 0);
   const request = daemon.requests.find(({ cmd }) => cmd === "show-settings");
   assert.ok(request);
   assert.notEqual(request.params?.onboarding, true);
@@ -697,9 +701,9 @@ test("用过的人缺了系统权限：只打开设置", async () => {
 });
 
 test("启动不起来时把原因说出来，以非零退出", async () => {
-  const daemon = fakeDaemon({ afterStart: new Error("SpeakMore 没能启动（退出码 2）") });
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore(), 1);
+  const daemon = fakeDaemon({ afterStart: new Error("OrangeSpeakEasy 没能启动（退出码 2）") });
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy(), 1);
   assert.match(output.err, /没能启动（退出码 2）/);
 });
 
@@ -707,27 +711,27 @@ test("启动不起来时把原因说出来，以非零退出", async () => {
 
 test("stop：在运行就停掉，没在运行就照实说，是强行结束的也照实说", async () => {
   const running = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await running.speakmore("stop"), 0);
+  assert.equal(await running.orangespeakeasy("stop"), 0);
   assert.match(running.output.out, /已经停掉/);
   const idle = harness();
-  assert.equal(await idle.speakmore("stop"), 0);
+  assert.equal(await idle.orangespeakeasy("stop"), 0);
   assert.match(idle.output.out, /没有在运行/);
   const stuck = harness({ daemon: fakeDaemon({ hung: true, stopped: "killed" }) });
-  assert.equal(await stuck.speakmore("stop"), 0);
+  assert.equal(await stuck.orangespeakeasy("stop"), 0);
   assert.match(stuck.output.out, /强行结束/);
 });
 
 test("restart：先停再起", async () => {
-  const { speakmore, daemon, output } = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await speakmore("restart"), 0);
+  const { orangespeakeasy, daemon, output } = harness({ daemon: fakeDaemon({ running: READY }) });
+  assert.equal(await orangespeakeasy("restart"), 0);
   assert.deepEqual(daemon.calls.slice(0, 2), ["stop", "start"]);
   assert.match(output.out, /运行中/);
 });
 
 test("restart：它卡住不答话时照样能重启", async () => {
   haveStoredKey();
-  const { speakmore, daemon, output } = harness({ daemon: fakeDaemon({ hung: true, stopped: "killed" }) });
-  assert.equal(await speakmore("restart"), 0);
+  const { orangespeakeasy, daemon, output } = harness({ daemon: fakeDaemon({ hung: true, stopped: "killed" }) });
+  assert.equal(await orangespeakeasy("restart"), 0);
   assert.deepEqual(daemon.calls.slice(0, 2), ["stop", "start"]);
   assert.match(output.out, /运行中/);
 });
@@ -735,25 +739,25 @@ test("restart：它卡住不答话时照样能重启", async () => {
 test("正在运行的是装成应用的那一个：不代它重启（会被换成终端启动的，权限和 key 是另一套），说怎么办", async () => {
   const packaged = { ...READY, packaged: true };
   const restarting = harness({ daemon: fakeDaemon({ running: packaged }) });
-  assert.equal(await restarting.speakmore("restart"), 1);
+  assert.equal(await restarting.orangespeakeasy("restart"), 1);
   assert.deepEqual(restarting.daemon.calls, []);
-  assert.match(restarting.output.err, /SpeakMore\.app/);
+  assert.match(restarting.output.err, /OrangeSpeakEasy\.app/);
   assert.match(restarting.output.err, /退出/);
 
   const configuring = harness({ daemon: fakeDaemon({ running: packaged }) });
-  assert.equal(await configuring.speakmore("config", "set", "thinking", "low"), 0);
+  assert.equal(await configuring.orangespeakeasy("config", "set", "thinking", "low"), 0);
   assert.deepEqual(JSON.parse(readFileSync(paths.settingsFile, "utf8")), { thinking: "LOW" });
   assert.deepEqual(configuring.daemon.calls, []);
-  assert.match(configuring.output.out, /SpeakMore\.app/);
+  assert.match(configuring.output.out, /OrangeSpeakEasy\.app/);
   assert.doesNotMatch(configuring.output.out, /已经生效/);
 });
 
 test("它卡住不答话时，别的命令说清楚是卡住了、怎么停，不甩一屏调用栈", async () => {
   for (const argv of [[], ["status"], ["settings"]]) {
-    const { speakmore, output } = harness({ daemon: fakeDaemon({ hung: true }) });
-    assert.equal(await speakmore(...argv), 1);
+    const { orangespeakeasy, output } = harness({ daemon: fakeDaemon({ hung: true }) });
+    assert.equal(await orangespeakeasy(...argv), 1);
     assert.match(output.err, /没有在 5 秒内回话/);
-    assert.match(output.err, /speakmore stop/);
+    assert.match(output.err, /orangespeakeasy stop/);
   }
 });
 
@@ -762,29 +766,29 @@ test("命令做到一半它没了：照实说没有在运行", async () => {
   daemon.request = async () => {
     throw new NotRunningError();
   };
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore("settings"), 1);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy("settings"), 1);
   assert.match(output.err, /没有在运行/);
 });
 
 test("status：只看不动；能用是 0，没在运行或还差东西是 1", async () => {
   const idle = harness();
-  assert.equal(await idle.speakmore("status"), 1);
+  assert.equal(await idle.orangespeakeasy("status"), 1);
   // 只会让它重新查一遍系统权限，不会把它启动起来
   assert.deepEqual(idle.daemon.calls, ["recheck"]);
   assert.match(idle.output.out, /没有运行/);
 
   const ready = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await ready.speakmore("status"), 0);
+  assert.equal(await ready.orangespeakeasy("status"), 0);
   assert.ok(!ready.daemon.calls.includes("show-settings"));
 
   const incomplete = harness({ daemon: fakeDaemon({ running: NO_KEY }) });
-  assert.equal(await incomplete.speakmore("status"), 1);
+  assert.equal(await incomplete.orangespeakeasy("status"), 1);
 });
 
 test("status --json：给程序读的，一行 JSON，带运行状态、设置和统计", async () => {
-  const { speakmore, output } = harness({ daemon: fakeDaemon({ running: READY }) });
-  await speakmore("status", "--json");
+  const { orangespeakeasy, output } = harness({ daemon: fakeDaemon({ running: READY }) });
+  await orangespeakeasy("status", "--json");
   const parsed = JSON.parse(output.out);
   assert.equal(parsed.running, true);
   assert.equal(parsed.status.pid, 4321);
@@ -793,8 +797,8 @@ test("status --json：给程序读的，一行 JSON，带运行状态、设置�
 });
 
 test("status --json：0.13 以前的旧字段 settings.hotkey 留过一个版本（D13），0.15 起没有了，快捷键只看 hotkey.<动作>", async () => {
-  const { speakmore, output } = harness({ daemon: fakeDaemon({ running: READY }) });
-  await speakmore("status", "--json");
+  const { orangespeakeasy, output } = harness({ daemon: fakeDaemon({ running: READY }) });
+  await orangespeakeasy("status", "--json");
   const { settings } = JSON.parse(output.out);
   assert.equal(Object.hasOwn(settings, "hotkey"), false);
   assert.deepEqual(settings["hotkey.dictate"], { value: DEFAULT_HOTKEY, source: "default" });
@@ -807,48 +811,52 @@ const installed = () => mkdirSync(paths.appDir, { recursive: true });
 
 test("update：下载地址上有更新的版本，就让安装脚本装上它（装哪个版本说定了，不会装到半路又出来的更新的）", async () => {
   installed();
-  const { speakmore, output, updates } = harness({ latest: "v0.2.0" });
-  assert.equal(await speakmore("update"), 0);
+  const { orangespeakeasy, output, updates } = harness({ latest: "v0.2.0" });
+  assert.equal(await orangespeakeasy("update"), 0);
   assert.deepEqual(updates.installs, ["v0.2.0"]);
-  assert.match(output.out, /更新 SpeakMore：0\.1\.0 → 0\.2\.0/);
+  assert.match(output.out, /更新 OrangeSpeakEasy：0\.1\.0 → 0\.2\.0/);
 
   // 安装脚本没装成：它说的原因已经在终端上了，这边说一句没装成、原来的版本不变，退出码 1
   const failing = harness({ latest: "v0.2.0", installerExit: 1 });
-  assert.equal(await failing.speakmore("update"), 1);
+  assert.equal(await failing.orangespeakeasy("update"), 1);
   assert.match(failing.output.err, /安装未完成（安装脚本的退出码是 1）/);
 });
 
-const APP = "/Applications/SpeakMore.app";
+const APP = "/Applications/OrangeSpeakEasy.app";
 /** 正在运行的是装在"应用程序"里的那个 */
 const APP_RUNNING = { ...READY, packaged: true, pid: 4242 };
 
 test("update：原来没在运行的，换完不替它启动，提醒一句怎么启动", async () => {
   installed();
-  const { speakmore, output, updates, daemon } = harness({ latest: "v0.2.0" });
-  assert.equal(await speakmore("update"), 0);
+  const { orangespeakeasy, output, updates, daemon } = harness({ latest: "v0.2.0" });
+  assert.equal(await orangespeakeasy("update"), 0);
   assert.deepEqual(updates.starts, []);
   assert.deepEqual(updates.lookedFor, [null]);
   assert.deepEqual(updates.apps, []);
   assert.deepEqual(daemon.calls, []);
-  assert.match(output.out, /已经更新到 0\.2\.0。运行 speakmore 启动/);
+  assert.match(output.out, /已经更新到 0\.2\.0。运行 orangespeakeasy 启动/);
 });
 
 test("update：正在跑的是命令行起的这一份：先下好，再停掉它、换上、重新启动", async () => {
   installed();
   const daemon = fakeDaemon({ running: READY });
-  const { speakmore, output, updates } = harness({ daemon, latest: "v0.2.0" });
-  assert.equal(await speakmore("update"), 0);
+  const { orangespeakeasy, output, updates } = harness({ daemon, latest: "v0.2.0" });
+  assert.equal(await orangespeakeasy("update"), 0);
   assert.deepEqual(daemon.calls, ["stop"]);
   assert.deepEqual(updates.installs, ["v0.2.0"]);
   assert.deepEqual(updates.starts, [true]);
-  assert.doesNotMatch(output.out, /运行 speakmore 启动/);
+  assert.doesNotMatch(output.out, /运行 orangespeakeasy 启动/);
 });
 
 test("update：正在跑的是 App：先把新的下好（这时它还在跑），再停掉它换上，两份都换，最后重新打开 App", async () => {
   installed();
   const daemon = fakeDaemon({ running: APP_RUNNING });
-  const { speakmore, output, updates } = harness({ daemon, latest: "v0.2.0", app: { path: APP, version: "0.1.0" } });
-  assert.equal(await speakmore("update"), 0);
+  const { orangespeakeasy, output, updates } = harness({
+    daemon,
+    latest: "v0.2.0",
+    app: { path: APP, version: "0.1.0" },
+  });
+  assert.equal(await orangespeakeasy("update"), 0);
   // 按正在跑的那个进程去找：用户可能没放在"应用程序"里。下好以后、停之前再按它找一次（下载期间可能换了一个在跑）
   assert.deepEqual(updates.lookedFor, [4242, 4242]);
   assert.deepEqual(updates.staged, [{ version: "0.2.0", path: APP, stillRunning: true }]);
@@ -857,27 +865,27 @@ test("update：正在跑的是 App：先把新的下好（这时它还在跑）�
   // 家目录那一份没在跑，不替它启动；停掉的是 App，重新打开 App
   assert.deepEqual(updates.starts, []);
   assert.deepEqual(updates.opened, [APP]);
-  assert.match(output.out, /更新 SpeakMore\.app：0\.1\.0 → 0\.2\.0/);
-  assert.match(output.out, /更新 SpeakMore：0\.1\.0 → 0\.2\.0/);
-  assert.match(output.out, /已重新打开 SpeakMore\.app/);
+  assert.match(output.out, /更新 OrangeSpeakEasy\.app：0\.1\.0 → 0\.2\.0/);
+  assert.match(output.out, /更新 OrangeSpeakEasy：0\.1\.0 → 0\.2\.0/);
+  assert.match(output.out, /已重新打开 OrangeSpeakEasy\.app/);
 });
 
 test("update：只有 App 旧：只换 App；它没在跑就不打开", async () => {
   installed();
-  const { speakmore, output, updates } = harness({ latest: "v0.1.0", app: { path: APP, version: "0.0.9" } });
-  assert.equal(await speakmore("update"), 0);
+  const { orangespeakeasy, output, updates } = harness({ latest: "v0.1.0", app: { path: APP, version: "0.0.9" } });
+  assert.equal(await orangespeakeasy("update"), 0);
   assert.deepEqual(updates.apps, [{ version: "v0.1.0", path: APP, stillRunning: false }]);
   assert.deepEqual(updates.installs, []);
   assert.deepEqual(updates.opened, []);
-  assert.match(output.out, /更新 SpeakMore\.app：0\.0\.9 → 0\.1\.0/);
+  assert.match(output.out, /更新 OrangeSpeakEasy\.app：0\.0\.9 → 0\.1\.0/);
   assert.doesNotMatch(output.out, /已经是最新的/);
 });
 
 test("update：只有 App 旧、正在跑的是命令行那一份：换的是另一个程序，不碍事，不停它", async () => {
   installed();
   const daemon = fakeDaemon({ running: READY });
-  const { speakmore, updates } = harness({ daemon, latest: "v0.1.0", app: { path: APP, version: "0.0.9" } });
-  assert.equal(await speakmore("update"), 0);
+  const { orangespeakeasy, updates } = harness({ daemon, latest: "v0.1.0", app: { path: APP, version: "0.0.9" } });
+  assert.equal(await orangespeakeasy("update"), 0);
   assert.deepEqual(daemon.calls, []);
   assert.deepEqual(updates.apps, [{ version: "v0.1.0", path: APP, stillRunning: true }]);
   assert.deepEqual(updates.starts, []);
@@ -886,8 +894,8 @@ test("update：只有 App 旧、正在跑的是命令行那一份：换的是另
 test("update：装着 App、正在跑的是命令行那一份：两份都换，停掉的命令行那一份重新启动，App 不打开", async () => {
   installed();
   const daemon = fakeDaemon({ running: READY });
-  const { speakmore, updates } = harness({ daemon, latest: "v0.2.0", app: { path: APP, version: "0.1.0" } });
-  assert.equal(await speakmore("update"), 0);
+  const { orangespeakeasy, updates } = harness({ daemon, latest: "v0.2.0", app: { path: APP, version: "0.1.0" } });
+  assert.equal(await orangespeakeasy("update"), 0);
   assert.equal(updates.apps.length, 1);
   assert.deepEqual(updates.installs, ["v0.2.0"]);
   assert.deepEqual(updates.starts, [true]);
@@ -896,8 +904,8 @@ test("update：装着 App、正在跑的是命令行那一份：两份都换，�
 
 test("update：装着 App、什么都没在跑：两个都换成新的，谁都不启动", async () => {
   installed();
-  const { speakmore, updates } = harness({ latest: "v0.2.0", app: { path: APP, version: "0.1.0" } });
-  assert.equal(await speakmore("update"), 0);
+  const { orangespeakeasy, updates } = harness({ latest: "v0.2.0", app: { path: APP, version: "0.1.0" } });
+  assert.equal(await orangespeakeasy("update"), 0);
   assert.equal(updates.apps.length, 1);
   assert.deepEqual(updates.starts, []);
   assert.deepEqual(updates.opened, []);
@@ -905,8 +913,8 @@ test("update：装着 App、什么都没在跑：两个都换成新的，谁都�
 
 test("update：App 和命令行那一份都是最新的：什么都不做", async () => {
   installed();
-  const { speakmore, output, updates } = harness({ latest: "v0.1.0", app: { path: APP, version: "0.1.0" } });
-  assert.equal(await speakmore("update"), 0);
+  const { orangespeakeasy, output, updates } = harness({ latest: "v0.1.0", app: { path: APP, version: "0.1.0" } });
+  assert.equal(await orangespeakeasy("update"), 0);
   assert.deepEqual(updates.staged, []);
   assert.deepEqual(updates.installs, []);
   assert.match(output.out, /已经是最新的（0\.1\.0）/);
@@ -915,7 +923,7 @@ test("update：App 和命令行那一份都是最新的：什么都不做", asyn
 test("update：App 下到的更新数据没核对过：什么都不停、不换，照实说", async () => {
   installed();
   const daemon = fakeDaemon({ running: APP_RUNNING });
-  const { speakmore, output, updates } = harness({
+  const { orangespeakeasy, output, updates } = harness({
     daemon,
     latest: "v0.2.0",
     app: { path: APP, version: "0.1.0" },
@@ -923,7 +931,7 @@ test("update：App 下到的更新数据没核对过：什么都不停、不换�
       throw new LocalizedError(msg("update.checksum", { object: "0123456789ab" }));
     },
   });
-  assert.equal(await speakmore("update"), 1);
+  assert.equal(await orangespeakeasy("update"), 1);
   assert.match(output.err, /下载的更新数据（0123456789ab）与发布的不符/);
   assert.deepEqual(daemon.calls, [], "下载、核对都在停之前：没核对过就什么都不停");
   assert.deepEqual(updates.installs, []);
@@ -933,7 +941,7 @@ test("update：App 下到的更新数据没核对过：什么都不停、不换�
 test("update：App 没换成：命令行那一份也不动，停掉的 App 重新打开（原来那个还在）", async () => {
   installed();
   const daemon = fakeDaemon({ running: APP_RUNNING });
-  const { speakmore, output, updates } = harness({
+  const { orangespeakeasy, output, updates } = harness({
     daemon,
     latest: "v0.2.0",
     app: { path: APP, version: "0.1.0" },
@@ -941,8 +949,8 @@ test("update：App 没换成：命令行那一份也不动，停掉的 App 重�
       throw new LocalizedError(msg("update.appReplace", { path: APP, reason: "EACCES", url: "https://x/y.dmg" }));
     },
   });
-  assert.equal(await speakmore("update"), 1);
-  assert.match(output.err, /无法替换 \/Applications\/SpeakMore\.app：EACCES/);
+  assert.equal(await orangespeakeasy("update"), 1);
+  assert.match(output.err, /无法替换 \/Applications\/OrangeSpeakEasy\.app：EACCES/);
   assert.deepEqual(updates.installs, []);
   assert.deepEqual(updates.opened, [APP]);
 });
@@ -950,20 +958,24 @@ test("update：App 没换成：命令行那一份也不动，停掉的 App 重�
 test("update：后台卡住不答话时不知道跑的是哪个：停掉它，App 按装着的位置找，换完不知道打开谁", async () => {
   installed();
   const daemon = fakeDaemon({ hung: true });
-  const { speakmore, output, updates } = harness({ daemon, latest: "v0.2.0", app: { path: APP, version: "0.1.0" } });
-  assert.equal(await speakmore("update"), 0);
+  const { orangespeakeasy, output, updates } = harness({
+    daemon,
+    latest: "v0.2.0",
+    app: { path: APP, version: "0.1.0" },
+  });
+  assert.equal(await orangespeakeasy("update"), 0);
   assert.deepEqual(daemon.calls, ["stop"]);
   assert.deepEqual(updates.lookedFor, [null]);
   assert.deepEqual(updates.opened, []);
   assert.deepEqual(updates.starts, []);
-  assert.match(output.out, /运行 speakmore 启动/);
+  assert.match(output.out, /运行 orangespeakeasy 启动/);
 });
 
 test("update：已经是最新的（或者比下载地址上的还新）就什么都不做", async () => {
   installed();
   for (const latest of ["v0.1.0", "0.1.0", "v0.0.9", "v0.1.0-rc.1"]) {
-    const { speakmore, output, updates } = harness({ latest });
-    assert.equal(await speakmore("update"), 0, latest);
+    const { orangespeakeasy, output, updates } = harness({ latest });
+    assert.equal(await orangespeakeasy("update"), 0, latest);
     assert.deepEqual(updates.installs, [], latest);
     assert.match(output.out, /已经是最新的（0\.1\.0）/, latest);
   }
@@ -974,15 +986,15 @@ test("update：家目录经过符号链接（比如 /tmp 其实是 /private/tmp�
   outside = mkdtempSync(join(tmpdir(), "sm-link-"));
   const link = join(outside, "home");
   symlinkSync(dir, link);
-  const { speakmore, updates } = harness({ latest: "v0.2.0", packageDir: join(link, "app") });
-  assert.equal(await speakmore("update"), 0);
+  const { orangespeakeasy, updates } = harness({ latest: "v0.2.0", packageDir: join(link, "app") });
+  assert.equal(await orangespeakeasy("update"), 0);
   assert.deepEqual(updates.installs, ["v0.2.0"]);
 });
 
 test("update：从源码跑的这一份不归更新管，说用 git pull，不去问下载地址", async () => {
   outside = mkdtempSync(join(tmpdir(), "sm-src-"));
-  const { speakmore, output, updates } = harness({ latest: "v0.2.0", packageDir: outside });
-  assert.equal(await speakmore("update"), 1);
+  const { orangespeakeasy, output, updates } = harness({ latest: "v0.2.0", packageDir: outside });
+  assert.equal(await orangespeakeasy("update"), 1);
   assert.deepEqual([updates.checks, updates.installs, updates.apps], [[], [], []]);
   assert.match(output.err, /git pull/);
   assert.ok(output.err.includes(outside));
@@ -992,12 +1004,12 @@ test("update（Windows）：程序在家目录 versions 下某个版本里的才
   const version = join(paths.versionsDir, "0.1.0-1a2b3c4d", "app");
   mkdirSync(version, { recursive: true });
   const current = harness({ latest: "v0.2.0", platform: "win32", packageDir: version });
-  assert.equal(await current.speakmore("update"), 0);
+  assert.equal(await current.orangespeakeasy("update"), 0);
   assert.deepEqual(current.updates.installs, ["v0.2.0"]);
 
   installed();
   const legacy = harness({ latest: "v0.2.0", platform: "win32", packageDir: paths.appDir });
-  assert.equal(await legacy.speakmore("update"), 1);
+  assert.equal(await legacy.orangespeakeasy("update"), 1);
   assert.deepEqual(legacy.updates.installs, []);
 });
 
@@ -1006,39 +1018,42 @@ test("update：问不到最新版本、问到的不像版本号，都照实说�
   const offline = harness({
     latest: new LocalizedError(msg("update.unreachable", { url: "https://x/latest", reason: "curl: (6) 解析不了" })),
   });
-  assert.equal(await offline.speakmore("update"), 1);
+  assert.equal(await offline.orangespeakeasy("update"), 1);
   assert.match(offline.output.err, /https:\/\/x\/latest/);
   assert.match(offline.output.err, /curl: \(6\)/);
   assert.deepEqual(offline.updates.installs, []);
 
   const garbled = harness({ latest: "<html>出错了</html>" });
-  assert.equal(await garbled.speakmore("update"), 1);
+  assert.equal(await garbled.orangespeakeasy("update"), 1);
   assert.match(garbled.output.err, /<html>/);
   assert.deepEqual(garbled.updates.installs, []);
 
-  assert.equal(await harness().speakmore("update", "now"), 2);
+  assert.equal(await harness().orangespeakeasy("update", "now"), 2);
 });
 
 test("update：App 那边正在更新（锁被一个还在的进程拿着）：不跟着换，说清楚", async () => {
   installed();
   mkdirSync(paths.runDir, { recursive: true });
   writeFileSync(paths.updateLock, String(process.pid));
-  const { speakmore, output, updates } = harness({ latest: "v0.2.0" });
-  assert.equal(await speakmore("update"), 1);
+  const { orangespeakeasy, output, updates } = harness({ latest: "v0.2.0" });
+  assert.equal(await orangespeakeasy("update"), 1);
   assert.match(output.err, /另一个更新正在进行（进程 \d+）/);
   assert.deepEqual(updates.checks, []);
 });
 
 test("status：有新版本时提醒一句；一天只问一次下载地址", async () => {
   installed();
-  const { io, speakmore, output, updates } = harness({ daemon: fakeDaemon({ running: READY }), latest: "v0.2.0" });
-  await speakmore("status");
-  assert.match(output.out, /有新版本 0\.2\.0（现在是 0\.1\.0）：运行 speakmore update/);
-  await speakmore("status");
+  const { io, orangespeakeasy, output, updates } = harness({
+    daemon: fakeDaemon({ running: READY }),
+    latest: "v0.2.0",
+  });
+  await orangespeakeasy("status");
+  assert.match(output.out, /有新版本 0\.2\.0（现在是 0\.1\.0）：运行 orangespeakeasy update/);
+  await orangespeakeasy("status");
   assert.equal(updates.checks.length, 1, "问过的一天之内不再问");
   // 过了一天再问
   io.now = () => new Date("2026-10-14T07:00:01.000Z");
-  await speakmore("status");
+  await orangespeakeasy("status");
   assert.equal(updates.checks.length, 2);
   // status 不能为这个等太久
   assert.ok(updates.checks.every((seconds) => seconds <= 3));
@@ -1050,32 +1065,32 @@ const forgetUpdateCheck = () => rmSync(paths.updateCheckFile, { force: true });
 test("status：没有新版本、问不到、从源码跑的，都不提，也不影响退出码", async () => {
   installed();
   const same = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await same.speakmore("status"), 0);
+  assert.equal(await same.orangespeakeasy("status"), 0);
   assert.doesNotMatch(same.output.out, /新版本/);
 
   forgetUpdateCheck();
   const offline = harness({ daemon: fakeDaemon({ running: READY }), latest: new Error("没网") });
-  assert.equal(await offline.speakmore("status"), 0);
+  assert.equal(await offline.orangespeakeasy("status"), 0);
   assert.doesNotMatch(offline.output.out + offline.output.err, /新版本|没网/);
   // 没问到也记下：一天之内不再每看一次状态都等它
-  await offline.speakmore("status");
+  await offline.orangespeakeasy("status");
   assert.equal(offline.updates.checks.length, 1);
 
   forgetUpdateCheck();
   outside = mkdtempSync(join(tmpdir(), "sm-src-"));
   const source = harness({ daemon: fakeDaemon({ running: READY }), latest: "v0.2.0", packageDir: outside });
-  await source.speakmore("status");
+  await source.orangespeakeasy("status");
   assert.deepEqual(source.updates.checks, []);
 });
 
 test("status --json：带上有没有新版本（newVersion，没有是 null）", async () => {
   installed();
   const newer = harness({ daemon: fakeDaemon({ running: READY }), latest: "v0.2.0" });
-  await newer.speakmore("status", "--json");
+  await newer.orangespeakeasy("status", "--json");
   assert.equal(JSON.parse(newer.output.out).newVersion, "0.2.0");
   forgetUpdateCheck();
   const same = harness({ daemon: fakeDaemon({ running: READY }) });
-  await same.speakmore("status", "--json");
+  await same.orangespeakeasy("status", "--json");
   assert.equal(JSON.parse(same.output.out).newVersion, null);
 });
 
@@ -1085,7 +1100,7 @@ test("status：和 App 看的是同一份记录。App 问过的一天之内不�
   mkdirSync(paths.runDir, { recursive: true });
   writeFileSync(paths.updateCheckFile, JSON.stringify({ checkedAt: "2026-10-13T06:00:00.000Z", latest: "0.2.0" }));
   const seen = harness({ daemon: fakeDaemon({ running: READY }), latest: "v9.9.9" });
-  await seen.speakmore("status");
+  await seen.orangespeakeasy("status");
   assert.deepEqual(seen.updates.checks, []);
   assert.match(seen.output.out, /有新版本 0\.2\.0（现在是 0\.1\.0）/);
 
@@ -1102,7 +1117,7 @@ test("status：和 App 看的是同一份记录。App 问过的一天之内不�
     }),
   );
   const busy = harness({ daemon: fakeDaemon({ running: READY }) });
-  await busy.speakmore("status");
+  await busy.orangespeakeasy("status");
   assert.match(busy.output.out, /正在更新到 0\.2\.0…/);
   assert.doesNotMatch(busy.output.out, /有新版本/);
 
@@ -1118,19 +1133,19 @@ test("status：和 App 看的是同一份记录。App 问过的一天之内不�
     }),
   );
   const failed = harness({ daemon: fakeDaemon({ running: READY }) });
-  await failed.speakmore("status");
+  await failed.orangespeakeasy("status");
   assert.match(failed.output.out, /上一次更新没有完成：下载的更新数据（0123456789ab）与发布的不符/);
 });
 
 test("status：命令行这一份是新的、只有 App 还是旧的：说是 App 旧了", async () => {
   installed();
-  const { speakmore, output } = harness({
+  const { orangespeakeasy, output } = harness({
     daemon: fakeDaemon({ running: READY }),
     latest: "v0.1.0",
     app: { path: APP, version: "0.0.9" },
   });
-  await speakmore("status");
-  assert.match(output.out, /SpeakMore\.app 还是 0\.0\.9，有新版本 0\.1\.0：运行 speakmore update/);
+  await orangespeakeasy("status");
+  assert.match(output.out, /OrangeSpeakEasy\.app 还是 0\.0\.9，有新版本 0\.1\.0：运行 orangespeakeasy update/);
 });
 
 // ---------- key ----------
@@ -1144,8 +1159,8 @@ test("key：没在运行就先启动，问一把，存好", async () => {
       return { ok: true };
     },
   });
-  const { speakmore, output } = harness({ daemon, secrets: ["AIza-new"] });
-  assert.equal(await speakmore("key"), 0);
+  const { orangespeakeasy, output } = harness({ daemon, secrets: ["AIza-new"] });
+  assert.equal(await orangespeakeasy("key"), 0);
   assert.deepEqual(daemon.calls.slice(0, 2), ["start", "set-key"]);
   assert.deepEqual(saved, ["AIza-new"]);
   assert.match(output.out, /已保存，验证通过/);
@@ -1156,31 +1171,31 @@ test("key：验证不过时说明原因，以非零退出，不反复问", async
     running: READY,
     saveKey: () => ({ ok: false, problem: "连不上 Gemini，检查网络后再试" }),
   });
-  const { speakmore, output, asked } = harness({ daemon, secrets: ["AIza-new"] });
-  assert.equal(await speakmore("key"), 1);
+  const { orangespeakeasy, output, asked } = harness({ daemon, secrets: ["AIza-new"] });
+  assert.equal(await orangespeakeasy("key"), 1);
   assert.equal(asked.length, 1);
   assert.match(output.err, /连不上 Gemini/);
 });
 
 test("key：什么都没读到时不去打扰后台应用", async () => {
   const daemon = fakeDaemon({ running: READY });
-  const { speakmore, output } = harness({ daemon, secrets: [""] });
-  assert.equal(await speakmore("key"), 1);
+  const { orangespeakeasy, output } = harness({ daemon, secrets: [""] });
+  assert.equal(await orangespeakeasy("key"), 1);
   assert.deepEqual(daemon.calls, []);
   assert.match(output.err, /没有读到 key/);
 });
 
 test("key：从管道喂进来的内容样子不对（比如多行）：不启动、不发给后台，内容不出现在输出里", async () => {
-  const { speakmore, output, daemon } = harness({ secrets: ["line-one-SECRET\nline-two-SECRET"] });
-  assert.equal(await speakmore("key"), 1);
+  const { orangespeakeasy, output, daemon } = harness({ secrets: ["line-one-SECRET\nline-two-SECRET"] });
+  assert.equal(await orangespeakeasy("key"), 1);
   assert.deepEqual(daemon.calls, []);
   assert.match(output.err, /这把 key 里有空格或换行/);
   assert.doesNotMatch(output.out + output.err, /SECRET/);
 });
 
 test("key 后面直接跟着一把 key：不照做，也不把它再打一遍，提醒这样写会进 shell 历史", async () => {
-  const { speakmore, output, daemon, asked } = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await speakmore("key", "AIza-typed-SECRET"), 2);
+  const { orangespeakeasy, output, daemon, asked } = harness({ daemon: fakeDaemon({ running: READY }) });
+  assert.equal(await orangespeakeasy("key", "AIza-typed-SECRET"), 2);
   assert.deepEqual(daemon.calls, []);
   assert.equal(asked.length, 0);
   assert.match(output.err, /历史/);
@@ -1194,13 +1209,13 @@ test("key --forget：共用的那份和 0.7.0 及以前 App 另存的那份都�
   };
   seed();
   const running = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await running.speakmore("key", "--forget"), 0);
+  assert.equal(await running.orangespeakeasy("key", "--forget"), 0);
   assert.deepEqual(running.daemon.calls, ["forget-key"]);
   assert.deepEqual([existsSync(keyFile(paths, "gemini")), existsSync(oldAppKeyFile(paths, "gemini"))], [false, false]);
 
   seed();
   const idle = harness();
-  assert.equal(await idle.speakmore("key", "--forget"), 0);
+  assert.equal(await idle.orangespeakeasy("key", "--forget"), 0);
   assert.deepEqual([existsSync(keyFile(paths, "gemini")), existsSync(oldAppKeyFile(paths, "gemini"))], [false, false]);
   assert.deepEqual(idle.daemon.calls, []);
   assert.match(idle.output.out, /已经删掉/);
@@ -1209,8 +1224,8 @@ test("key --forget：共用的那份和 0.7.0 及以前 App 另存的那份都�
 // ---------- 设置 ----------
 
 test("config：列出每一项和文件位置", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("config"), 0);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("config"), 0);
   assert.match(output.out, new RegExp(`hotkey\\.dictate\\s+\\["AltRight"\\]\\s+${zhKeycap} · 默认`));
   assert.match(output.out, /hotkey\.cancel\s+\["Escape"\]\s+esc · 默认/);
   assert.match(output.out, /「语音输入」的快捷键：两键以内的任意组合，写法见 README/);
@@ -1218,66 +1233,66 @@ test("config：列出每一项和文件位置", async () => {
 });
 
 test("config set：存进文件；在运行的话重启让它生效", async () => {
-  const { speakmore, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await speakmore("config", "set", "thinking", "low"), 0);
+  const { orangespeakeasy, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
+  assert.equal(await orangespeakeasy("config", "set", "thinking", "low"), 0);
   assert.deepEqual(JSON.parse(readFileSync(paths.settingsFile, "utf8")), { thinking: "LOW" });
   assert.deepEqual(daemon.calls.slice(0, 2), ["stop", "start"]);
   assert.match(output.out, /thinking 改成了 LOW/);
   assert.match(output.out, /已经生效/);
 
   const idle = harness();
-  assert.equal(await idle.speakmore("config", "set", "thinking", "low"), 0);
+  assert.equal(await idle.orangespeakeasy("config", "set", "thinking", "low"), 0);
   assert.deepEqual(idle.daemon.calls, []);
   assert.match(idle.output.out, /下次启动生效/);
 });
 
 test("config set：重启之后 Gemini 不认这个值（比如模型名写错）：不说“已经生效”，说原因和怎么撤回", async () => {
   const daemon = fakeDaemon({ running: READY, afterStart: WRONG_MODEL });
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore("config", "set", "model", "gemini-nope"), 1);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy("config", "set", "model", "gemini-nope"), 1);
   assert.doesNotMatch(output.out, /已经生效/);
   assert.match(output.err, /gemini-nope is not found/);
-  assert.match(output.err, /speakmore config unset model/);
+  assert.match(output.err, /orangespeakeasy config unset model/);
 });
 
 test("config set：重启时没连上 Gemini，新设置对不对还不知道：不说“已经生效”", async () => {
   const unverified = { ...READY, key: { ...READY.key, verified: false } };
-  const { speakmore, output } = harness({ daemon: fakeDaemon({ running: READY, afterStart: unverified }) });
-  assert.equal(await speakmore("config", "set", "model", "gemini-next"), 0);
+  const { orangespeakeasy, output } = harness({ daemon: fakeDaemon({ running: READY, afterStart: unverified }) });
+  assert.equal(await orangespeakeasy("config", "set", "model", "gemini-next"), 0);
   assert.doesNotMatch(output.out, /已经生效/);
-  assert.match(output.out, /还没验证.*speakmore status/);
+  assert.match(output.out, /还没验证.*orangespeakeasy status/);
 });
 
 test("config set：还没启动过就先改设置时，建出来的目录同样只有自己进得去", async () => {
   rmSync(dir, { recursive: true });
-  const { speakmore } = harness();
-  assert.equal(await speakmore("config", "set", "hotkey", OTHER_HOTKEY), 0);
+  const { orangespeakeasy } = harness();
+  assert.equal(await orangespeakeasy("config", "set", "hotkey", OTHER_HOTKEY), 0);
   assertOwnerOnlyDir(paths.home);
 });
 
 test("config set：填错时说哪里不对，不动文件，以 2 退出", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("config", "set", "hotkey", "caps_lock"), 2);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("config", "set", "hotkey", "caps_lock"), 2);
   assert.match(output.err, /hotkey\.dictate 写的是 "caps_lock"，不认识的键 "caps_lock"/);
   assert.equal(existsSync(paths.settingsFile), false);
   // 写法对、这个系统上不让绑的（check）：同样不存
-  assert.equal(await speakmore("config", "set", "hotkey.dictate", "ControlRight+KeyC"), 2);
+  assert.equal(await orangespeakeasy("config", "set", "hotkey.dictate", "ControlRight+KeyC"), 2);
   // Mac 上写"右⌃ C"，Windows 上写"右 Ctrl+C"
   assert.match(output.err, /右(⌃ | Ctrl\+)C：(⌃|Ctrl) 加打字的键/);
   assert.equal(existsSync(paths.settingsFile), false);
-  assert.equal(await speakmore("config", "set", "hotkey"), 2);
-  assert.equal(await speakmore("config", "dance"), 2);
+  assert.equal(await orangespeakeasy("config", "set", "hotkey"), 2);
+  assert.equal(await orangespeakeasy("config", "dance"), 2);
 });
 
 test("config set：这一项正被环境变量盖着时提醒一句（改名前的环境变量也算）", async () => {
-  const { speakmore, output } = harness({ env: { SPEAKMORE_HOTKEY: "right_option" } });
-  assert.equal(await speakmore("config", "set", "hotkey", OTHER_HOTKEY), 0);
-  assert.match(output.out, /环境变量 SPEAKMORE_HOTKEY 现在设着/);
+  const { orangespeakeasy, output } = harness({ env: { ORANGESPEAKEASY_HOTKEY: "right_option" } });
+  assert.equal(await orangespeakeasy("config", "set", "hotkey", OTHER_HOTKEY), 0);
+  assert.match(output.out, /环境变量 ORANGESPEAKEASY_HOTKEY 现在设着/);
 });
 
 test("热键：config set hotkey.<动作> 存成列表，后台当场换（reload-hotkeys），不重启", macOnly, async () => {
-  const { speakmore, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await speakmore("config", "set", "hotkey.dictate", '["Fn","ControlRight+F13"]'), 0);
+  const { orangespeakeasy, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
+  assert.equal(await orangespeakeasy("config", "set", "hotkey.dictate", '["Fn","ControlRight+F13"]'), 0);
   assert.deepEqual(JSON.parse(readFileSync(paths.settingsFile, "utf8")), {
     "hotkey.dictate": ["Fn", "ControlRight+F13"],
   });
@@ -1286,25 +1301,25 @@ test("热键：config set hotkey.<动作> 存成列表，后台当场换（reloa
   assert.match(output.out, /已经生效，不用重启/);
   // 能存但要提醒的照存，把提醒说出来
   assert.match(output.out, /注意：fn：地球仪键在系统设置里/);
-  assert.equal(await speakmore("config", "set", "hotkey.cancel", "F14"), 0);
+  assert.equal(await orangespeakeasy("config", "set", "hotkey.cancel", "F14"), 0);
   assert.deepEqual(JSON.parse(readFileSync(paths.settingsFile, "utf8"))["hotkey.cancel"], ["F14"]);
 });
 
 test("按动作目录逐个动作：config set hotkey.<动作> 都是当场换（LIVE 表里有它），不重启", async () => {
   for (const action of ACTIONS) {
     const name = settingNameOf(action);
-    const { speakmore, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
-    assert.equal(await speakmore("config", "set", name, SETTINGS[name].default), 0, name);
+    const { orangespeakeasy, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
+    assert.equal(await orangespeakeasy("config", "set", name, SETTINGS[name].default), 0, name);
     assert.deepEqual(daemon.calls, ["reload-hotkeys"], name);
   }
 });
 
 test("热键：旧名字 hotkey 和旧 id 照样认（0.13 以前的写法），回话里写的是新名字和新写法", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("config", "set", "hotkey", "right_control"), 0);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("config", "set", "hotkey", "right_control"), 0);
   assert.deepEqual(JSON.parse(readFileSync(paths.settingsFile, "utf8")), { "hotkey.dictate": ["ControlRight"] });
   assert.match(output.out, /hotkey\.dictate 改成了 \["ControlRight"\]/);
-  assert.equal(await speakmore("config", "unset", "hotkey"), 0);
+  assert.equal(await orangespeakeasy("config", "unset", "hotkey"), 0);
   assert.match(output.out, /hotkey\.dictate 回到了默认值 \["AltRight"\]/);
   assert.deepEqual(JSON.parse(readFileSync(paths.settingsFile, "utf8")), {});
 });
@@ -1313,13 +1328,13 @@ test("热键当场换的时候：后台被环境变量盖着就说清楚；旧�
   const overridden = harness({
     daemon: fakeDaemon({
       running: READY,
-      reloadHotkeys: () => ({ "hotkey.dictate": DEFAULT_HOTKEY, env: { "hotkey.dictate": "SPEAKMORE_HOTKEY" } }),
+      reloadHotkeys: () => ({ "hotkey.dictate": DEFAULT_HOTKEY, env: { "hotkey.dictate": "ORANGESPEAKEASY_HOTKEY" } }),
     }),
   });
-  assert.equal(await overridden.speakmore("config", "set", "hotkey.dictate", "ControlRight"), 0);
+  assert.equal(await overridden.orangespeakeasy("config", "set", "hotkey.dictate", "ControlRight"), 0);
   assert.match(
     overridden.output.out,
-    new RegExp(`正在运行的 SpeakMore 用的还是${zhKeycap}：启动它的环境里设着 SPEAKMORE_HOTKEY`),
+    new RegExp(`正在运行的 OrangeSpeakEasy 用的还是${zhKeycap}：启动它的环境里设着 ORANGESPEAKEASY_HOTKEY`),
   );
 
   const old = harness({
@@ -1330,45 +1345,47 @@ test("热键当场换的时候：后台被环境变量盖着就说清楚；旧�
       },
     }),
   });
-  assert.equal(await old.speakmore("config", "set", "hotkey.dictate", "ControlRight"), 0);
-  assert.match(old.output.out, /旧版本，不会当场换：运行 speakmore restart/);
+  assert.equal(await old.orangespeakeasy("config", "set", "hotkey.dictate", "ControlRight"), 0);
+  assert.match(old.output.out, /旧版本，不会当场换：运行 orangespeakeasy restart/);
 });
 
 test("config set 是不检查的后门：模式那一层管的几项照写，说平时用哪个命令换；不在那种模式里的说切过去才用上", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("config", "set", "transcriber", "sensevoice-small-q8"), 0);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("config", "set", "transcriber", "sensevoice-small-q8"), 0);
   assert.equal(saved("transcriber"), "sensevoice-small-q8");
-  assert.match(output.out, /平时用 speakmore transcriber 换.*config set 不检查/);
+  assert.match(output.out, /平时用 orangespeakeasy transcriber 换.*config set 不检查/);
   assert.match(output.out, /现在是 native 模式，这一项切到 local 模式时才用上/);
 
   const native = harness();
-  assert.equal(await native.speakmore("config", "set", "model", "openai"), 0);
-  assert.match(native.output.out, /平时用 speakmore model 换/);
+  assert.equal(await native.orangespeakeasy("config", "set", "model", "openai"), 0);
+  assert.match(native.output.out, /平时用 orangespeakeasy model 换/);
   assert.doesNotMatch(native.output.out, /才用上/);
 
   // 只有 config set 能改的几项不提别的命令
   const plain = harness();
-  assert.equal(await plain.speakmore("config", "set", "thinking", "low"), 0);
+  assert.equal(await plain.orangespeakeasy("config", "set", "thinking", "low"), 0);
   assert.doesNotMatch(plain.output.out, /平时用|才用上/);
-  assert.equal(await plain.speakmore("config", "set", "hotkey", OTHER_HOTKEY), 0);
+  assert.equal(await plain.orangespeakeasy("config", "set", "hotkey", OTHER_HOTKEY), 0);
   assert.doesNotMatch(plain.output.out, /平时用|才用上/);
 });
 
 test("config set 把 local 的第一跳改成没下载的：重启后说还没下载、怎么下，不替用户下", async () => {
   const missing = { ...LOCAL_READY, localModel: { state: "missing", model: "qwen3-asr-0.6b-q8" } };
-  const { speakmore, output, daemon } = harness({ daemon: fakeDaemon({ running: LOCAL_READY, afterStart: missing }) });
-  assert.equal(await speakmore("config", "set", "transcriber", "qwen3-asr-0.6b-q8"), 0);
+  const { orangespeakeasy, output, daemon } = harness({
+    daemon: fakeDaemon({ running: LOCAL_READY, afterStart: missing }),
+  });
+  assert.equal(await orangespeakeasy("config", "set", "transcriber", "qwen3-asr-0.6b-q8"), 0);
   assert.match(
     output.out,
-    /Qwen3-ASR 0\.6B \(Q8_0\) 还没下载：先运行 speakmore transcriber download qwen3-asr-0\.6b-q8/,
+    /Qwen3-ASR 0\.6B \(Q8_0\) 还没下载：先运行 orangespeakeasy transcriber download qwen3-asr-0\.6b-q8/,
   );
   assert.ok(!daemon.calls.includes("download-model"));
 });
 
 test("config unset：回到默认值", async () => {
-  const { speakmore, output } = harness();
-  await speakmore("config", "set", "thinking", "low");
-  assert.equal(await speakmore("config", "unset", "thinking"), 0);
+  const { orangespeakeasy, output } = harness();
+  await orangespeakeasy("config", "set", "thinking", "low");
+  assert.equal(await orangespeakeasy("config", "unset", "thinking"), 0);
   assert.deepEqual(JSON.parse(readFileSync(paths.settingsFile, "utf8")), {});
   assert.match(output.out, /thinking 回到了默认值 MINIMAL/);
 });
@@ -1376,50 +1393,50 @@ test("config unset：回到默认值", async () => {
 // ---------- 主题 ----------
 
 test("theme：列出有哪几套，标出现在用的是哪套、怎么换", async () => {
-  const { speakmore, output, daemon } = harness();
-  assert.equal(await speakmore("theme"), 0);
+  const { orangespeakeasy, output, daemon } = harness();
+  assert.equal(await orangespeakeasy("theme"), 0);
   assert.match(output.out, /● ink\s+墨/);
   assert.match(output.out, / {4}cinnabar\s+朱砂/);
   assert.match(output.out, / {4}indigo\s+靛青/);
   assert.match(output.out, /现在用的是墨（ink）.*默认/);
-  assert.match(output.out, /speakmore theme cinnabar/);
+  assert.match(output.out, /orangespeakeasy theme cinnabar/);
   assert.deepEqual(daemon.calls, []);
 });
 
 test("theme <名字>：存进设置；在运行的话让它当场换，不重启；写 id 或写中文名都行", async () => {
-  const { speakmore, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await speakmore("theme", "朱砂"), 0);
+  const { orangespeakeasy, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
+  assert.equal(await orangespeakeasy("theme", "朱砂"), 0);
   assert.deepEqual(JSON.parse(readFileSync(paths.settingsFile, "utf8")), { theme: "cinnabar" });
   assert.deepEqual(daemon.calls, ["reload-theme"]);
   assert.match(output.out, /主题换成了朱砂（cinnabar）/);
   assert.match(output.out, /已经生效/);
 
-  assert.equal(await speakmore("theme"), 0);
+  assert.equal(await orangespeakeasy("theme"), 0);
   assert.match(output.out, /● cinnabar\s+朱砂/);
   assert.match(output.out, /现在用的是朱砂（cinnabar）.*存在设置文件里/);
 
   const idle = harness();
-  assert.equal(await idle.speakmore("theme", "indigo"), 0);
+  assert.equal(await idle.orangespeakeasy("theme", "indigo"), 0);
   assert.deepEqual(idle.daemon.calls, []);
   assert.match(idle.output.out, /下次启动生效/);
 });
 
 test("theme：没有的那一套不存，说有哪几套，以 2 退出；多写了参数也是", async () => {
-  const { speakmore, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await speakmore("theme", "neon"), 2);
+  const { orangespeakeasy, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
+  assert.equal(await orangespeakeasy("theme", "neon"), 2);
   assert.match(output.err, /ink \/ cinnabar \/ indigo/);
   assert.equal(existsSync(paths.settingsFile), false);
-  assert.equal(await speakmore("theme", "ink", "cinnabar"), 2);
+  assert.equal(await orangespeakeasy("theme", "ink", "cinnabar"), 2);
   assert.deepEqual(daemon.calls, []);
 });
 
 test("theme：环境变量盖着时提醒；正在运行的那个带着环境变量启动的话，照实说它用的还是哪套", async () => {
   const daemon = fakeDaemon({ running: READY, reloadTheme: () => ({ theme: "indigo" }) });
-  const { speakmore, output } = harness({ daemon, env: { SPEAKMORE_THEME: "indigo" } });
-  assert.equal(await speakmore("theme", "cinnabar"), 0);
-  assert.match(output.out, /环境变量 SPEAKMORE_THEME 现在设着/);
+  const { orangespeakeasy, output } = harness({ daemon, env: { ORANGESPEAKEASY_THEME: "indigo" } });
+  assert.equal(await orangespeakeasy("theme", "cinnabar"), 0);
+  assert.match(output.out, /环境变量 ORANGESPEAKEASY_THEME 现在设着/);
   assert.doesNotMatch(output.out, /已经生效/);
-  assert.match(output.out, /用的还是靛青（indigo）.*SPEAKMORE_THEME/);
+  assert.match(output.out, /用的还是靛青（indigo）.*ORANGESPEAKEASY_THEME/);
 });
 
 test("theme：正在运行的是不认识这条命令的旧版本：设置照存，说重启之后才换", async () => {
@@ -1429,20 +1446,20 @@ test("theme：正在运行的是不认识这条命令的旧版本：设置照存
       throw new Error('不认识的命令："reload-theme"');
     },
   });
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore("theme", "cinnabar"), 0);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy("theme", "cinnabar"), 0);
   assert.deepEqual(JSON.parse(readFileSync(paths.settingsFile, "utf8")), { theme: "cinnabar" });
   assert.doesNotMatch(output.out, /已经生效/);
-  assert.match(output.out, /旧版本.*speakmore restart/);
+  assert.match(output.out, /旧版本.*orangespeakeasy restart/);
 });
 
 test("config set theme / config unset theme：和 theme 命令一样当场换，不重启", async () => {
-  const { speakmore, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await speakmore("config", "set", "theme", "indigo"), 0);
+  const { orangespeakeasy, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
+  assert.equal(await orangespeakeasy("config", "set", "theme", "indigo"), 0);
   assert.deepEqual(daemon.calls, ["reload-theme"]);
   assert.match(output.out, /theme 改成了 indigo/);
   assert.match(output.out, /已经生效/);
-  assert.equal(await speakmore("config", "unset", "theme"), 0);
+  assert.equal(await orangespeakeasy("config", "unset", "theme"), 0);
   assert.deepEqual(daemon.calls, ["reload-theme", "reload-theme"]);
   assert.match(output.out, /theme 回到了默认值 ink/);
 });
@@ -1450,30 +1467,37 @@ test("config set theme / config unset theme：和 theme 命令一样当场换，
 // ---------- 界面语言 ----------
 
 test("英文：帮助、面板、用错了时的说法都是英文的", async () => {
-  const { speakmore, output } = harness({ daemon: fakeDaemon({ running: READY }), locale: "en" });
-  assert.equal(await speakmore("help"), 0);
-  assert.match(output.out, /^SpeakMore: press a hotkey, speak/);
-  assert.match(output.out, /speakmore theme <name> +Switch theme \(ink Ink \/ cinnabar Cinnabar \/ indigo Indigo\)/);
+  const { orangespeakeasy, output } = harness({ daemon: fakeDaemon({ running: READY }), locale: "en" });
+  assert.equal(await orangespeakeasy("help"), 0);
+  assert.match(output.out, /^OrangeSpeakEasy: press a hotkey, speak/);
+  assert.match(
+    output.out,
+    /orangespeakeasy theme <name> +Switch theme \(ink Ink \/ cinnabar Cinnabar \/ indigo Indigo\)/,
+  );
   assert.match(output.out, /latest 20 by default/);
 
-  assert.equal(await speakmore("status"), 0);
-  assert.match(output.out, /SpeakMore 0\.1\.0 · running/);
+  assert.equal(await orangespeakeasy("status"), 0);
+  assert.match(output.out, /OrangeSpeakEasy 0\.1\.0 · running/);
   assert.match(output.out, new RegExp(`press ${enHotkey} to start talking`));
   assert.match(output.out, /Permissions +Microphone ✓ {3}Input Monitoring ✓ {3}Accessibility ✓/);
   assert.match(output.out, /Model +Gemini gemini-3\.6-flash \(MINIMAL\)/);
 
-  assert.equal(await speakmore("frobnicate"), 2);
-  assert.match(output.err, /There's no command called frobnicate\.\nRun speakmore help to see all commands\./);
+  assert.equal(await orangespeakeasy("frobnicate"), 2);
+  assert.match(output.err, /There's no command called frobnicate\.\nRun orangespeakeasy help to see all commands\./);
   assert.doesNotMatch(output.out + output.err, /[\u4e00-\u9fff]/);
 });
 
 test("英文：有新版本的提醒、update 说的话", async () => {
   installed();
-  const { speakmore, output } = harness({ daemon: fakeDaemon({ running: READY }), locale: "en", latest: "v0.2.0" });
-  assert.equal(await speakmore("status"), 0);
-  assert.match(output.out, /SpeakMore 0\.2\.0 is out \(you have 0\.1\.0\): run speakmore update\./);
-  assert.equal(await speakmore("update"), 0);
-  assert.match(output.out, /Updating SpeakMore 0\.1\.0 → 0\.2\.0/);
+  const { orangespeakeasy, output } = harness({
+    daemon: fakeDaemon({ running: READY }),
+    locale: "en",
+    latest: "v0.2.0",
+  });
+  assert.equal(await orangespeakeasy("status"), 0);
+  assert.match(output.out, /OrangeSpeakEasy 0\.2\.0 is out \(you have 0\.1\.0\): run orangespeakeasy update\./);
+  assert.equal(await orangespeakeasy("update"), 0);
+  assert.match(output.out, /Updating OrangeSpeakEasy 0\.1\.0 → 0\.2\.0/);
 
   const withApp = harness({
     daemon: fakeDaemon({ running: APP_RUNNING }),
@@ -1481,9 +1505,9 @@ test("英文：有新版本的提醒、update 说的话", async () => {
     latest: "v0.2.0",
     app: { path: APP, version: "0.1.0" },
   });
-  assert.equal(await withApp.speakmore("update"), 0);
-  assert.match(withApp.output.out, /Updating SpeakMore\.app 0\.1\.0 → 0\.2\.0/);
-  assert.match(withApp.output.out, /Reopened SpeakMore\.app/);
+  assert.equal(await withApp.orangespeakeasy("update"), 0);
+  assert.match(withApp.output.out, /Updating OrangeSpeakEasy\.app 0\.1\.0 → 0\.2\.0/);
+  assert.match(withApp.output.out, /Reopened OrangeSpeakEasy\.app/);
   output.out += withApp.output.out;
   output.err += withApp.output.err;
   assert.doesNotMatch(output.out + output.err, /[\u4e00-\u9fff]/);
@@ -1501,41 +1525,41 @@ test("英文：后台报上来的原因（msg）按命令行的语言翻；0.5 �
       degraded: null,
     },
   };
-  const { speakmore, output } = harness({ daemon: fakeDaemon({ running: fresh }), locale: "en" });
-  assert.equal(await speakmore("status"), 1);
+  const { orangespeakeasy, output } = harness({ daemon: fakeDaemon({ running: fresh }), locale: "en" });
+  assert.equal(await orangespeakeasy("status"), 1);
   assert.match(output.out, /Missing: Gemini check\./);
   assert.match(output.out, /Check failed: Gemini rejected the request: models\/gemini-nope is not found\./);
 
   const old = harness({ daemon: fakeDaemon({ running: WRONG_MODEL }), locale: "en" });
-  assert.equal(await old.speakmore("status"), 1);
+  assert.equal(await old.orangespeakeasy("status"), 1);
   assert.match(old.output.out, /Missing: Gemini 验证\./);
 });
 
 test("config set language：存进设置；在运行的话让它当场换，不重启；没在运行就下次启动生效", async () => {
-  const { speakmore, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await speakmore("config", "set", "language", "zh_cn"), 0);
+  const { orangespeakeasy, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
+  assert.equal(await orangespeakeasy("config", "set", "language", "zh_cn"), 0);
   assert.deepEqual(JSON.parse(readFileSync(paths.settingsFile, "utf8")), { language: "zh-CN" });
   assert.deepEqual(daemon.calls, ["reload-language"]);
   assert.match(output.out, /language 改成了 zh-CN。\n已经生效，不用重启/);
-  assert.equal(await speakmore("config", "unset", "language"), 0);
+  assert.equal(await orangespeakeasy("config", "unset", "language"), 0);
   assert.deepEqual(daemon.calls, ["reload-language", "reload-language"]);
   assert.match(output.out, /language 回到了默认值 system/);
 
   const idle = harness();
-  assert.equal(await idle.speakmore("config", "set", "language", "en"), 0);
+  assert.equal(await idle.orangespeakeasy("config", "set", "language", "en"), 0);
   assert.deepEqual(idle.daemon.calls, []);
   assert.match(idle.output.out, /下次启动生效/);
 
-  assert.equal(await idle.speakmore("config", "set", "language", "fr"), 2);
+  assert.equal(await idle.orangespeakeasy("config", "set", "language", "fr"), 2);
   assert.match(idle.output.err, /system \/ en \/ zh-CN/);
 });
 
 test("config set language：环境变量盖着时照实说它用的还是哪种；旧版本的后台说要重启", async () => {
   const pinned = fakeDaemon({ running: READY, reloadLanguage: () => ({ language: "en" }) });
-  const { speakmore, output } = harness({ daemon: pinned, env: { SPEAKMORE_LANGUAGE: "en" } });
-  assert.equal(await speakmore("config", "set", "language", "zh-CN"), 0);
-  assert.match(output.out, /环境变量 SPEAKMORE_LANGUAGE 现在设着/);
-  assert.match(output.out, /用的还是English：.*SPEAKMORE_LANGUAGE/);
+  const { orangespeakeasy, output } = harness({ daemon: pinned, env: { ORANGESPEAKEASY_LANGUAGE: "en" } });
+  assert.equal(await orangespeakeasy("config", "set", "language", "zh-CN"), 0);
+  assert.match(output.out, /环境变量 ORANGESPEAKEASY_LANGUAGE 现在设着/);
+  assert.match(output.out, /用的还是English：.*ORANGESPEAKEASY_LANGUAGE/);
 
   const legacy = fakeDaemon({
     running: READY,
@@ -1544,34 +1568,34 @@ test("config set language：环境变量盖着时照实说它用的还是哪种�
     },
   });
   const old = harness({ daemon: legacy });
-  assert.equal(await old.speakmore("config", "set", "language", "en"), 0);
-  assert.match(old.output.out, /旧版本.*speakmore restart/);
+  assert.equal(await old.orangespeakeasy("config", "set", "language", "en"), 0);
+  assert.match(old.output.out, /旧版本.*orangespeakeasy restart/);
 });
 
 test("面板里写着界面语言：跟随系统时带上实际用的那种", async () => {
   const running = { ...READY, language: "system", locale: "en" };
-  const { speakmore, output } = harness({ daemon: fakeDaemon({ running }) });
-  assert.equal(await speakmore("status"), 0);
+  const { orangespeakeasy, output } = harness({ daemon: fakeDaemon({ running }) });
+  assert.equal(await orangespeakeasy("status"), 0);
   assert.match(output.out, /语言 +跟随系统 · English/);
   const english = harness({
     daemon: fakeDaemon({ running: { ...READY, language: "zh-CN", locale: "zh-CN" } }),
     locale: "en",
   });
-  assert.equal(await english.speakmore("status"), 0);
+  assert.equal(await english.orangespeakeasy("status"), 0);
   assert.match(english.output.out, /Language +简体中文/);
 });
 
 test("面板里写着正在用的主题", async () => {
-  const { speakmore, output } = harness({ daemon: fakeDaemon({ running: { ...READY, theme: "cinnabar" } }) });
-  assert.equal(await speakmore("status"), 0);
+  const { orangespeakeasy, output } = harness({ daemon: fakeDaemon({ running: { ...READY, theme: "cinnabar" } }) });
+  assert.equal(await orangespeakeasy("status"), 0);
   assert.match(output.out, /主题\s+朱砂（cinnabar）/);
 });
 
 test("设置文件被改坏时，任何命令都先把这件事说清楚", async () => {
   mkdirSync(dir, { recursive: true });
   writeFileSync(paths.settingsFile, "{ 坏了");
-  const { speakmore, output, daemon } = harness();
-  assert.equal(await speakmore(), 2);
+  const { orangespeakeasy, output, daemon } = harness();
+  assert.equal(await orangespeakeasy(), 2);
   assert.match(output.err, /settings\.json/);
   assert.deepEqual(daemon.calls, []);
 });
@@ -1595,8 +1619,8 @@ function seedHistory() {
 }
 
 test("history：一次都没用过时说一句，不凭空建库", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("history"), 0);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("history"), 0);
   assert.match(output.out, /还没有听写记录/);
   assert.equal(existsSync(paths.historyDb), false);
 });
@@ -1604,20 +1628,20 @@ test("history：一次都没用过时说一句，不凭空建库", async () => {
 test("history：按天分组列出来；-n 限制条数；后台应用在不在运行都能看", async () => {
   seedHistory();
   const all = harness();
-  assert.equal(await all.speakmore("history"), 0);
+  assert.equal(await all.orangespeakeasy("history"), 0);
   assert.match(all.output.out, /今天 · 10月13日\n {2}14:32 {2}今天说的\n\n昨天 · 10月12日\n {2}09:05 {2}昨天说的/);
   assert.deepEqual(all.daemon.calls, []);
 
   const one = harness();
-  assert.equal(await one.speakmore("history", "-n", "1"), 0);
+  assert.equal(await one.orangespeakeasy("history", "-n", "1"), 0);
   assert.doesNotMatch(one.output.out, /昨天说的/);
   assert.match(one.output.out, /显示最近 1 条，共 2 条/);
 });
 
 test("history --json：原样给出记录", async () => {
   seedHistory();
-  const { speakmore, output } = harness();
-  await speakmore("history", "--json");
+  const { orangespeakeasy, output } = harness();
+  await orangespeakeasy("history", "--json");
   assert.deepEqual(
     JSON.parse(output.out).map((entry) => entry.refinedText),
     ["今天说的", "昨天说的"],
@@ -1636,30 +1660,30 @@ test("history --json：录音给完整路径，按现在的家目录拼（历史
     createdAt: "2026-10-13T06:32:00.000Z",
   });
   history.close();
-  const { speakmore, output } = harness();
-  await speakmore("history", "--json");
+  const { orangespeakeasy, output } = harness();
+  await orangespeakeasy("history", "--json");
   const [row] = JSON.parse(output.out);
   assert.equal(row.audioLocalPath, join(paths.recordingsDir, "a.webm"));
   assert.equal("audioFile" in row, false);
 });
 
 test("history -n 要是正整数", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("history", "-n", "abc"), 2);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("history", "-n", "abc"), 2);
   assert.match(output.err, /-n/);
 });
 
 test("有历史时面板里带上今天和累计的数；记过账的话带上花了多少钱", async () => {
   seedHistory();
   const before = harness({ daemon: fakeDaemon({ running: READY }) });
-  await before.speakmore("status");
+  await before.orangespeakeasy("status");
   assert.match(before.output.out, /累计\s+2 次 · 8 字 · 8 秒\n/);
 
   seedCall();
   const after = harness({ daemon: fakeDaemon({ running: READY }) });
-  await after.speakmore("status");
+  await after.orangespeakeasy("status");
   assert.match(after.output.out, /累计\s+2 次 · 8 字 · 8 秒 · \$0\.0011\n/);
-  assert.match(after.output.out, /speakmore usage/);
+  assert.match(after.output.out, /orangespeakeasy usage/);
 });
 
 // ---------- 用量 ----------
@@ -1685,8 +1709,8 @@ function seedCall() {
 }
 
 test("usage：一次都没用过时说一句，不凭空建库", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("usage"), 0);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("usage"), 0);
   assert.match(output.out, /还没有用量记录/);
   assert.equal(existsSync(paths.historyDb), false);
 });
@@ -1694,8 +1718,8 @@ test("usage：一次都没用过时说一句，不凭空建库", async () => {
 test("usage：列出花了多少钱、多少 token、模型多久回话；后台应用不在运行也能看", async () => {
   seedHistory();
   seedCall();
-  const { speakmore, output, daemon } = harness();
-  assert.equal(await speakmore("usage"), 0);
+  const { orangespeakeasy, output, daemon } = harness();
+  assert.equal(await orangespeakeasy("usage"), 0);
   assert.match(output.out, /累计\s+\$0\.0011\s+1\.39K\s+1\s+一般 1\.7 秒，慢时 1\.7 秒/);
   assert.match(output.out, /Gemini gemini-3\.6-flash/);
   assert.deepEqual(daemon.calls, []);
@@ -1703,13 +1727,13 @@ test("usage：列出花了多少钱、多少 token、模型多久回话；后台
 
 test("usage --json：原样给出报表；还没有历史库时是 null", async () => {
   const empty = harness();
-  await empty.speakmore("usage", "--json");
+  await empty.orangespeakeasy("usage", "--json");
   assert.equal(JSON.parse(empty.output.out), null);
 
   seedHistory();
   seedCall();
-  const { speakmore, output } = harness();
-  await speakmore("usage", "--json");
+  const { orangespeakeasy, output } = harness();
+  await orangespeakeasy("usage", "--json");
   const report = JSON.parse(output.out);
   assert.equal(report.total.costUsd, 0.0011);
   assert.equal(report.total.tokens, 1394);
@@ -1718,9 +1742,9 @@ test("usage --json：原样给出报表；还没有历史库时是 null", async 
 });
 
 test("usage 不收别的参数", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("usage", "today"), 2);
-  assert.match(output.err, /speakmore usage/);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("usage", "today"), 2);
+  assert.match(output.err, /orangespeakeasy usage/);
 });
 
 // ---------- 搬家 ----------
@@ -1729,69 +1753,69 @@ test("usage 不收别的参数", async () => {
 const posixOnly = { skip: process.platform === "win32" && "按 macOS 的路径写" };
 
 test("move：不写文件夹就说现在在哪、怎么搬", posixOnly, async () => {
-  const { speakmore, output, io } = harness();
-  assert.equal(await speakmore("move"), 0);
-  assert.match(output.out, new RegExp(`SpeakMore 现在在 ${paths.home}`));
-  assert.match(output.out, /speakmore move ~/);
+  const { orangespeakeasy, output, io } = harness();
+  assert.equal(await orangespeakeasy("move"), 0);
+  assert.match(output.out, new RegExp(`OrangeSpeakEasy 现在在 ${paths.home}`));
+  assert.match(output.out, /orangespeakeasy move ~/);
   assert.deepEqual(io.mover().calls, []);
 });
 
 test("move：先说清楚搬到哪、拷多少、旧目录里别人的东西不动，再问一句；不答应就什么都不动", posixOnly, async () => {
   const mover = fakeMover({ unknown: ["notes.txt", "Backups"] });
   const declined = harness({ mover, confirms: [false] });
-  assert.equal(await declined.speakmore("move", "/Volumes/T7"), 1);
-  assert.match(declined.output.out, /从 .* 搬到 \/Volumes\/T7\/\.speakmore：拷 1\.2 GB（1,234 个文件）/);
+  assert.equal(await declined.orangespeakeasy("move", "/Volumes/T7"), 1);
+  assert.match(declined.output.out, /从 .* 搬到 \/Volumes\/T7\/\.orangespeakeasy：拷 1\.2 GB（1,234 个文件）/);
   assert.match(declined.output.out, /不搬，也不删：notes\.txt、Backups/);
   assert.match(declined.output.out, /没有动/);
   assert.deepEqual(mover.calls, [["plan", "/Volumes/T7"]]);
 
   const agreed = harness({ mover: fakeMover(), confirms: [true], interactive: true });
-  assert.equal(await agreed.speakmore("move", "/Volumes/T7"), 0);
+  assert.equal(await agreed.orangespeakeasy("move", "/Volumes/T7"), 0);
   assert.deepEqual(agreed.io.mover().calls, [
     ["plan", "/Volumes/T7"],
     ["run", "/Volumes/T7", "cli"],
   ]);
-  assert.match(agreed.output.out, /正在拷到 \/Volumes\/T7\/\.speakmore…/);
-  assert.match(agreed.output.out, /已经搬到 \/Volumes\/T7\/\.speakmore（1,234 个文件，1\.2 GB）/);
+  assert.match(agreed.output.out, /正在拷到 \/Volumes\/T7\/\.orangespeakeasy…/);
+  assert.match(agreed.output.out, /已经搬到 \/Volumes\/T7\/\.orangespeakeasy（1,234 个文件，1\.2 GB）/);
   assert.match(agreed.output.out, /旧目录 .* 已经删掉/);
 });
 
 test("move：相对路径按当前目录，~ 是用户目录", posixOnly, async () => {
   const { homedir } = await import("node:os");
   const relative = harness({ confirms: [true] });
-  await relative.speakmore("move", "disk", "--yes");
+  await relative.orangespeakeasy("move", "disk", "--yes");
   assert.deepEqual(relative.io.mover().calls[0], ["plan", "/work/disk"]);
   const home = harness();
-  await home.speakmore("move", "~", "--yes");
+  await home.orangespeakeasy("move", "~", "--yes");
   assert.deepEqual(home.io.mover().calls[0], ["plan", homedir()]);
 });
 
 test("move：拷的时候每过两成说一次；Windows 上旧目录等退出后再删、留着的别人的东西说出来", async () => {
   const mover = fakeMover({ progress: [100_000_000, 300_000_000, 500_000_000, 750_000_000, 1_200_000_000] });
-  const { speakmore, output } = harness({ mover });
-  assert.equal(await speakmore("move", "/d", "--yes"), 0);
+  const { orangespeakeasy, output } = harness({ mover });
+  assert.equal(await orangespeakeasy("move", "/d", "--yes"), 0);
   assert.deepEqual(output.out.match(/已拷 \d+%/g), ["已拷 20%", "已拷 40%", "已拷 60%", "已拷 100%"]);
 
   const later = harness({ mover: fakeMover({ result: { later: true } }) });
-  await later.speakmore("move", "/d", "--yes");
+  await later.orangespeakeasy("move", "/d", "--yes");
   assert.match(later.output.out, /等它退出后几秒内删掉/);
   const left = harness({ mover: fakeMover({ result: { left: ["notes.txt"] } }) });
-  await left.speakmore("move", "/d", "--yes");
-  assert.match(left.output.out, /还留着不是 SpeakMore 的东西，没有动：notes\.txt/);
+  await left.orangespeakeasy("move", "/d", "--yes");
+  assert.match(left.output.out, /还留着不是 OrangeSpeakEasy 的东西，没有动：notes\.txt/);
 });
 
 test("move：不在终端里又没给 --yes 时不动手；去不了的在问之前就说，搬不成照实说、退出码 1", async () => {
   const quiet = harness({ interactive: false });
-  assert.equal(await quiet.speakmore("move", "/d"), 2);
+  assert.equal(await quiet.orangespeakeasy("move", "/d"), 2);
   assert.match(quiet.output.err, /--yes/);
 
-  const refused = harness({ mover: fakeMover({ problem: msg("move.notEmpty", { home: "/d/.speakmore" }) }) });
-  assert.equal(await refused.speakmore("move", "/d"), 1);
-  assert.match(refused.output.err, /\/d\/\.speakmore 里已经有东西了/);
+  const refused = harness({ mover: fakeMover({ problem: msg("move.notEmpty", { home: "/d/.orangespeakeasy" }) }) });
+  assert.equal(await refused.orangespeakeasy("move", "/d"), 1);
+  assert.match(refused.output.err, /\/d\/\.orangespeakeasy 里已经有东西了/);
   assert.deepEqual(refused.confirmed, []);
 
   const failed = harness({ mover: fakeMover({ failure: msg("move.rehomeFailed", { code: 3 }) }) });
-  assert.equal(await failed.speakmore("move", "/d", "--yes"), 1);
+  assert.equal(await failed.orangespeakeasy("move", "/d", "--yes"), 1);
   assert.match(failed.output.err, /安装脚本退出码 3/);
   assert.doesNotMatch(failed.output.out, /已经搬到/);
 });
@@ -1801,7 +1825,7 @@ test("move：不在终端里又没给 --yes 时不动手；去不了的在问之
 /** 摆出装好并用过之后的样子，外加家目录以外的一个命令链接 */
 function seedInstalled() {
   for (const file of [
-    join(paths.binDir, "speakmore"),
+    join(paths.binDir, "orangespeakeasy"),
     join(paths.appDir, "package.json"),
     join(paths.runtimeDir, "Electron.app", "Info.plist"),
     paths.settingsFile,
@@ -1816,8 +1840,8 @@ function seedInstalled() {
   }
   // 家目录以外的一处（比如 ~/.local/bin）
   outside = mkdtempSync(join(tmpdir(), "sm-bin-"));
-  const link = join(outside, "speakmore");
-  symlinkSync(join(paths.binDir, "speakmore"), link);
+  const link = join(outside, "orangespeakeasy");
+  symlinkSync(join(paths.binDir, "orangespeakeasy"), link);
   // 同一个位置上不是我们的东西：别人的同名文件
   const foreign = join(outside, "not-ours");
   writeFileSync(foreign, "别人的");
@@ -1828,14 +1852,14 @@ function seedInstalled() {
 test("uninstall --yes：停掉后台，整个目录、家目录以外的命令链接、钥匙串里的条目，一次删干净", async () => {
   const { link, foreign } = seedInstalled();
   const removedFromKeychain = [];
-  const { speakmore, output, daemon } = harness({
+  const { orangespeakeasy, output, daemon } = harness({
     daemon: fakeDaemon({ running: READY }),
     keychain: () => {
       removedFromKeychain.push(true);
       return true;
     },
   });
-  assert.equal(await speakmore("uninstall", "--yes"), 0);
+  assert.equal(await orangespeakeasy("uninstall", "--yes"), 0);
   assert.deepEqual(daemon.calls, ["stop"]);
   assert.equal(existsSync(paths.home), false);
   assert.equal(existsSync(link), false);
@@ -1854,11 +1878,11 @@ test("uninstall：装在默认位置以外的，定位文件一起删；--keep-d
   seedInstalled();
   writeLocation(paths.locationFile, { home: paths.home });
   const kept = harness({ daemon: fakeDaemon({ running: null }) });
-  assert.equal(await kept.speakmore("uninstall", "--keep-data", "--yes"), 0);
+  assert.equal(await kept.orangespeakeasy("uninstall", "--keep-data", "--yes"), 0);
   assert.equal(existsSync(paths.locationFile), true);
 
   const all = harness({ daemon: fakeDaemon({ running: null }) });
-  assert.equal(await all.speakmore("uninstall", "--yes"), 0);
+  assert.equal(await all.orangespeakeasy("uninstall", "--yes"), 0);
   assert.equal(existsSync(paths.locationFile), false);
   assert.match(all.output.out, /定位文件/);
 });
@@ -1868,23 +1892,23 @@ test("正在搬家时不改家目录里的东西（写进旧目录的会跟着�
   writeMoveRecord(paths, {
     state: "running",
     pid: 4242,
-    to: "/Volumes/T7/.speakmore",
+    to: "/Volumes/T7/.orangespeakeasy",
     startedAt: new Date().toISOString(),
   });
   const moving = harness({ moverAlive: () => true });
-  assert.equal(await moving.speakmore("dict", "add", "GitHub"), 1);
-  assert.match(moving.output.err, /正在从 .* 搬到 \/Volumes\/T7\/\.speakmore/);
-  assert.equal(await moving.speakmore("config", "set", "hotkey", "fn"), 1);
+  assert.equal(await moving.orangespeakeasy("dict", "add", "GitHub"), 1);
+  assert.match(moving.output.err, /正在从 .* 搬到 \/Volumes\/T7\/\.orangespeakeasy/);
+  assert.equal(await moving.orangespeakeasy("config", "set", "hotkey", "fn"), 1);
   // 搬家的进程没了（断了）：不挡
-  assert.equal(await harness({ moverAlive: () => false }).speakmore("dict", "add", "GitHub"), 0);
+  assert.equal(await harness({ moverAlive: () => false }).orangespeakeasy("dict", "add", "GitHub"), 0);
 });
 
 test("uninstall：定位文件坏了也照常卸完，说一声它没删", posixOnly, async () => {
   seedInstalled();
   mkdirSync(dirname(paths.locationFile), { recursive: true });
   writeFileSync(paths.locationFile, "{ 坏了");
-  const { speakmore, output } = harness({ daemon: fakeDaemon({ running: null }) });
-  assert.equal(await speakmore("uninstall", "--yes"), 0);
+  const { orangespeakeasy, output } = harness({ daemon: fakeDaemon({ running: null }) });
+  assert.equal(await orangespeakeasy("uninstall", "--yes"), 0);
   assert.equal(existsSync(paths.home), false);
   assert.match(output.out, /定位文件 .* 读不出来/);
 });
@@ -1892,14 +1916,14 @@ test("uninstall：定位文件坏了也照常卸完，说一声它没删", posix
 test("uninstall：上次搬到一半断了，拷过去的那一份一起删（只认这次搬家的记号）", posixOnly, async () => {
   const { writeLocation } = await import("../../src/storage/location.mjs");
   seedInstalled();
-  const half = join(userDir, "disk", ".speakmore");
+  const half = join(userDir, "disk", ".orangespeakeasy");
   const startedAt = new Date().toISOString();
   mkdirSync(join(half, "run"), { recursive: true });
   writeFileSync(join(half, "settings.json"), "{}");
   writeFileSync(join(half, "run", "move.json"), JSON.stringify({ state: "running", startedAt, from: paths.home }));
   writeLocation(paths.locationFile, { home: paths.home, moving: { to: half, pid: 2 ** 30, startedAt } });
-  const { speakmore, output } = harness({ daemon: fakeDaemon({ running: null }) });
-  assert.equal(await speakmore("uninstall", "--yes"), 0);
+  const { orangespeakeasy, output } = harness({ daemon: fakeDaemon({ running: null }) });
+  assert.equal(await orangespeakeasy("uninstall", "--yes"), 0);
   assert.equal(existsSync(half), false);
   assert.equal(existsSync(paths.locationFile), false);
   assert.match(output.out, /没搬完/);
@@ -1909,28 +1933,28 @@ test("uninstall（Windows）：用户 Path 里的那一项、开始菜单的快�
   mkdirSync(paths.binDir, { recursive: true });
   // 家目录以外的东西放在另一个临时目录（afterEach 会删）
   outside = mkdtempSync(join(tmpdir(), "sm-link-"));
-  const ours = join(outside, "SpeakMore.lnk");
+  const ours = join(outside, "OrangeSpeakEasy.lnk");
   const theirs = join(outside, "Other.lnk");
   writeFileSync(ours, "快捷方式");
   writeFileSync(theirs, "别人的快捷方式");
   // 照 install.ps1 真写出来的样子：Windows PowerShell 5.1 的 Add-Content -Encoding UTF8 开头带 BOM、按 CRLF 换行
   writeFileSync(
     paths.linksFile,
-    `\uFEFFpath %USERPROFILE%\\.speakmore\\bin\r\nshortcut ${ours}\r\nshortcut ${theirs}\r\n`,
+    `\uFEFFpath %USERPROFILE%\\.orangespeakeasy\\bin\r\nshortcut ${ours}\r\nshortcut ${theirs}\r\n`,
   );
-  const { speakmore, output, windows } = harness({
+  const { orangespeakeasy, output, windows } = harness({
     platform: "win32",
     keychain: () => false,
     system: { ourShortcut: (file) => file === ours, loginItem: true },
   });
-  assert.equal(await speakmore("uninstall", "--yes"), 0);
-  assert.deepEqual(windows.pathEntries, ["%USERPROFILE%\\.speakmore\\bin"]);
+  assert.equal(await orangespeakeasy("uninstall", "--yes"), 0);
+  assert.deepEqual(windows.pathEntries, ["%USERPROFILE%\\.orangespeakeasy\\bin"]);
   assert.equal(existsSync(ours), false);
   assert.equal(readFileSync(theirs, "utf8"), "别人的快捷方式");
   assert.match(output.out, /用户 Path 里的 %USERPROFILE%/);
   assert.match(output.out, /开机启动/);
   assert.doesNotMatch(output.out, /权限/);
-  // bin 里的 speakmore.cmd 正在跑这条命令：cmd 等它退出后还要回头读这个文件，所以 bin 留到退出后连同家目录一起删
+  // bin 里的 orangespeakeasy.cmd 正在跑这条命令：cmd 等它退出后还要回头读这个文件，所以 bin 留到退出后连同家目录一起删
   assert.deepEqual(readdirSync(paths.home), ["bin"]);
   assert.deepEqual(windows.later, [paths.home]);
   assert.match(output.out, /等它退出后/);
@@ -1938,11 +1962,11 @@ test("uninstall（Windows）：用户 Path 里的那一项、开始菜单的快�
 
 test("uninstall --keep-data（Windows）：bin 也留到退出后再删，你的东西不动", async () => {
   mkdirSync(paths.binDir, { recursive: true });
-  writeFileSync(join(paths.binDir, "speakmore.cmd"), "@echo off");
+  writeFileSync(join(paths.binDir, "orangespeakeasy.cmd"), "@echo off");
   writeFileSync(paths.settingsFile, "{}");
-  const { speakmore, windows } = harness({ platform: "win32", keychain: () => assert.fail("不该动 key") });
-  assert.equal(await speakmore("uninstall", "--keep-data", "--yes"), 0);
-  assert.equal(existsSync(join(paths.binDir, "speakmore.cmd")), true);
+  const { orangespeakeasy, windows } = harness({ platform: "win32", keychain: () => assert.fail("不该动 key") });
+  assert.equal(await orangespeakeasy("uninstall", "--keep-data", "--yes"), 0);
+  assert.equal(existsSync(join(paths.binDir, "orangespeakeasy.cmd")), true);
   assert.equal(existsSync(paths.settingsFile), true);
   assert.deepEqual(windows.later, [paths.binDir]);
 });
@@ -1953,8 +1977,8 @@ test("uninstall --keep-data（Windows）：每个版本的程序和 current 都�
   mkdirSync(paths.appDir, { recursive: true });
   mkdirSync(paths.runtimeDir, { recursive: true });
   writeFileSync(paths.settingsFile, "{}");
-  const { speakmore } = harness({ platform: "win32", keychain: () => assert.fail("不该动 key") });
-  assert.equal(await speakmore("uninstall", "--keep-data", "--yes"), 0);
+  const { orangespeakeasy } = harness({ platform: "win32", keychain: () => assert.fail("不该动 key") });
+  assert.equal(await orangespeakeasy("uninstall", "--keep-data", "--yes"), 0);
   for (const gone of [paths.versionsDir, paths.currentFile, paths.appDir, paths.runtimeDir]) {
     assert.equal(existsSync(gone), false, gone);
   }
@@ -1965,18 +1989,18 @@ test("uninstall --keep-data（Windows）：缓存里的 Local State 留着，别
   mkdirSync(join(paths.cacheDir, "GPUCache"), { recursive: true });
   writeFileSync(join(paths.cacheDir, "Local State"), "{}");
   writeFileSync(join(paths.cacheDir, "Preferences"), "{}");
-  const { speakmore } = harness({ platform: "win32", keychain: () => assert.fail("不该动 key") });
-  assert.equal(await speakmore("uninstall", "--keep-data", "--yes"), 0);
+  const { orangespeakeasy } = harness({ platform: "win32", keychain: () => assert.fail("不该动 key") });
+  assert.equal(await orangespeakeasy("uninstall", "--keep-data", "--yes"), 0);
   assert.deepEqual(readdirSync(paths.cacheDir), ["Local State"]);
 });
 
 test("uninstall：运行环境在别处留的那个共用的偏好文件，有的话提一句，不删", async () => {
   seedInstalled();
-  const { speakmore, output, io } = harness();
+  const { orangespeakeasy, output, io } = harness();
   // 测试里家目录就是临时目录本身，所以这个文件放在别处
   io.sharedPreferencesFile = join(outside, "com.github.Electron.plist");
   writeFileSync(io.sharedPreferencesFile, "plist");
-  assert.equal(await speakmore("uninstall", "--yes"), 0);
+  assert.equal(await orangespeakeasy("uninstall", "--yes"), 0);
   assert.match(output.out, /com\.github\.Electron\.plist 没有动/);
   assert.equal(existsSync(io.sharedPreferencesFile), true);
 });
@@ -1986,8 +2010,8 @@ test("uninstall --keep-data：只删程序，设置、key、历史和录音留�
   // 更新拼了一半的、安装脚本被打断留下的，也是程序
   const leftovers = [".update-0.2.0-abcd1234", ".install.Ab12Cd", "app.old"].map((name) => join(paths.home, name));
   for (const dir of leftovers) mkdirSync(join(dir, "x"), { recursive: true });
-  const { speakmore, output } = harness({ keychain: () => assert.fail("不该动钥匙串") });
-  assert.equal(await speakmore("uninstall", "--keep-data", "--yes"), 0);
+  const { orangespeakeasy, output } = harness({ keychain: () => assert.fail("不该动钥匙串") });
+  assert.equal(await orangespeakeasy("uninstall", "--keep-data", "--yes"), 0);
   for (const kept of [
     paths.settingsFile,
     keyFile(paths, "gemini"),
@@ -2013,21 +2037,21 @@ test("uninstall --keep-data：只删程序，设置、key、历史和录音留�
 test("uninstall：先说清楚要删什么再问一句；不答应就什么都不动", async () => {
   seedInstalled();
   const declined = harness({ daemon: fakeDaemon({ running: READY }), confirms: [false] });
-  assert.equal(await declined.speakmore("uninstall"), 1);
+  assert.equal(await declined.orangespeakeasy("uninstall"), 1);
   assert.equal(declined.confirmed.length, 1);
   assert.match(declined.output.out, /历史和录音/);
   assert.deepEqual(declined.daemon.calls, []);
   assert.equal(existsSync(paths.historyDb), true);
 
   const agreed = harness({ confirms: [true] });
-  assert.equal(await agreed.speakmore("uninstall"), 0);
+  assert.equal(await agreed.orangespeakeasy("uninstall"), 0);
   assert.equal(existsSync(paths.home), false);
 });
 
 test("uninstall：不在终端里运行又没给 --yes 时不动手", async () => {
   seedInstalled();
-  const { speakmore, output, confirmed } = harness({ interactive: false });
-  assert.equal(await speakmore("uninstall"), 2);
+  const { orangespeakeasy, output, confirmed } = harness({ interactive: false });
+  assert.equal(await orangespeakeasy("uninstall"), 2);
   assert.equal(confirmed.length, 0);
   assert.match(output.err, /--yes/);
   assert.equal(existsSync(paths.historyDb), true);
@@ -2037,22 +2061,22 @@ test("uninstall：后台停不掉时不往下删（它还开着那些文件）",
   seedInstalled();
   const daemon = fakeDaemon({ running: READY });
   daemon.stop = async () => {
-    throw new Error("SpeakMore 停不掉（进程号 4321）");
+    throw new Error("OrangeSpeakEasy 停不掉（进程号 4321）");
   };
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore("uninstall", "--yes"), 1);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy("uninstall", "--yes"), 1);
   assert.match(output.err, /停不掉/);
   assert.equal(existsSync(paths.appDir), true);
 });
 
 test("uninstall：钥匙串里的条目删不掉时照样把别的删完，并说清楚剩了什么", async () => {
   seedInstalled();
-  const { speakmore, output } = harness({
+  const { orangespeakeasy, output } = harness({
     keychain: () => {
       throw new Error("钥匙串锁着");
     },
   });
-  assert.equal(await speakmore("uninstall", "--yes"), 0);
+  assert.equal(await orangespeakeasy("uninstall", "--yes"), 0);
   assert.equal(existsSync(paths.home), false);
   assert.match(output.out, /钥匙串锁着/);
   assert.match(output.out, /钥匙串访问/);
@@ -2062,14 +2086,14 @@ test("uninstall：钥匙串里的条目删不掉时照样把别的删完，并�
 
 test("logs：把日志文件的最后几行打出来，-f 一直跟着；还没有日志时照实说", async () => {
   const empty = harness();
-  assert.equal(await empty.speakmore("logs"), 0);
+  assert.equal(await empty.orangespeakeasy("logs"), 0);
   assert.match(empty.output.out, /还没有日志/);
 
   mkdirSync(join(dir, "logs"), { recursive: true });
   writeFileSync(paths.logFile, "{}\n");
-  const { speakmore, tails } = harness();
-  await speakmore("logs");
-  await speakmore("logs", "-n", "5", "-f");
+  const { orangespeakeasy, tails } = harness();
+  await orangespeakeasy("logs");
+  await orangespeakeasy("logs", "-n", "5", "-f");
   assert.deepEqual(tails, [
     { file: paths.logFile, lines: 40, follow: false },
     { file: paths.logFile, lines: 5, follow: true },
@@ -2078,17 +2102,17 @@ test("logs：把日志文件的最后几行打出来，-f 一直跟着；还没�
 
 test("settings：在运行时打开设置；没在运行时说先启动", async () => {
   const running = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await running.speakmore("settings"), 0);
+  assert.equal(await running.orangespeakeasy("settings"), 0);
   assert.deepEqual(running.daemon.calls, ["show-settings"]);
   const idle = harness();
-  assert.equal(await idle.speakmore("settings"), 1);
-  assert.match(idle.output.err, /speakmore/);
+  assert.equal(await idle.orangespeakeasy("settings"), 1);
+  assert.match(idle.output.err, /orangespeakeasy/);
 });
 
 test("help 和 --help 列出全部命令；--version 给版本号", async () => {
   for (const argv of [["help"], ["--help"], ["-h"]]) {
-    const { speakmore, output } = harness();
-    assert.equal(await speakmore(...argv), 0);
+    const { orangespeakeasy, output } = harness();
+    assert.equal(await orangespeakeasy(...argv), 0);
     for (const command of [
       "start",
       "stop",
@@ -2103,20 +2127,20 @@ test("help 和 --help 列出全部命令；--version 给版本号", async () => 
       "theme",
       "uninstall",
     ]) {
-      assert.match(output.out, new RegExp(`speakmore ${command}`));
+      assert.match(output.out, new RegExp(`orangespeakeasy ${command}`));
     }
   }
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("--version"), 0);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("--version"), 0);
   assert.equal(output.out.trim(), "0.1.0");
 });
 
 test("不认识的命令和不认识的选项：说一声并指向 help，以 2 退出", async () => {
-  const { speakmore, output, daemon } = harness();
-  assert.equal(await speakmore("dance"), 2);
+  const { orangespeakeasy, output, daemon } = harness();
+  assert.equal(await orangespeakeasy("dance"), 2);
   assert.match(output.err, /dance/);
-  assert.match(output.err, /speakmore help/);
-  assert.equal(await speakmore("status", "--loud"), 2);
+  assert.match(output.err, /orangespeakeasy help/);
+  assert.equal(await orangespeakeasy("status", "--loud"), 2);
   assert.deepEqual(daemon.calls, []);
 });
 
@@ -2128,23 +2152,23 @@ const savedModel = () => resolveSettings({ file: paths.settingsFile, env: {} }).
 
 test("model：列出有哪几家、各用哪个模型、key 有没有、现在用的哪个", async () => {
   haveStoredKey();
-  const { speakmore, output } = harness({ env: { OPENAI_API_KEY: "sk-env" } });
-  assert.equal(await speakmore("model"), 0);
+  const { orangespeakeasy, output } = harness({ env: { OPENAI_API_KEY: "sk-env" } });
+  assert.equal(await orangespeakeasy("model"), 0);
   assert.match(output.out, /● gemini\s+Gemini\s+gemini-3\.6-flash\s+key 存着/);
   assert.match(output.out, /openai\s+OpenAI\s+gpt-audio-mini（默认）\s+key 来自环境变量 OPENAI_API_KEY/);
 });
 
 test("model <厂商>：有它的 key 就直接换；在运行的话让它当场换，不重启", async () => {
   haveOpenAIKey();
-  const { speakmore, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await speakmore("model", "openai"), 0);
+  const { orangespeakeasy, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
+  assert.equal(await orangespeakeasy("model", "openai"), 0);
   assert.deepEqual(daemon.requests.at(-1), { cmd: "set-model", params: { model: "openai/gpt-audio-mini" } });
   assert.match(output.out, /换成了 OpenAI 的 gpt-audio-mini/);
   assert.ok(!daemon.calls.includes("stop"));
   assert.match(output.out, /已经换上，不用重启/);
 
   const notRunning = harness();
-  assert.equal(await notRunning.speakmore("model", "openai/gpt-audio-1.5"), 0);
+  assert.equal(await notRunning.orangespeakeasy("model", "openai/gpt-audio-1.5"), 0);
   assert.equal(savedModel(), "openai/gpt-audio-1.5");
   assert.match(notRunning.output.out, /下次启动生效/);
 });
@@ -2159,8 +2183,8 @@ test("model <厂商/模型>：内核换上了，但那家没通过（比如模�
       return { ok: true };
     },
   });
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore("model", "gemini/gemini-typo"), 1);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy("model", "gemini/gemini-typo"), 1);
   assert.match(output.out, /已经换上/);
   assert.match(output.err, /还不能用：Gemini 拒绝了请求：models\/gemini-typo is not found/);
 });
@@ -2174,8 +2198,8 @@ test("model <厂商>：还没有它的 key 时先问；问到的交给后台验�
       return { ok: true };
     },
   });
-  const { speakmore, output, asked } = harness({ daemon, secrets: ["sk-my-secret"] });
-  assert.equal(await speakmore("model", "openai"), 0);
+  const { orangespeakeasy, output, asked } = harness({ daemon, secrets: ["sk-my-secret"] });
+  assert.equal(await orangespeakeasy("model", "openai"), 0);
   assert.deepEqual(saved, [{ key: "sk-my-secret", provider: "openai" }]);
   // 说的是 OpenAI 的 key、去哪申请
   assert.match(asked[0], /OpenAI API key/);
@@ -2186,12 +2210,12 @@ test("model <厂商>：还没有它的 key 时先问；问到的交给后台验�
 
 test("model <厂商>：没有它的 key 又没法问（不在终端里）、或者问了没给：不换，说清先做什么", async () => {
   const quiet = harness({ interactive: false });
-  assert.equal(await quiet.speakmore("model", "openai"), 1);
-  assert.match(quiet.output.err, /还没有 OpenAI 的 key.*speakmore key openai/);
+  assert.equal(await quiet.orangespeakeasy("model", "openai"), 1);
+  assert.match(quiet.output.err, /还没有 OpenAI 的 key.*orangespeakeasy key openai/);
   assert.equal(savedModel(), "gemini/gemini-3.6-flash");
 
   const declined = harness({ daemon: fakeDaemon({ running: READY }), secrets: [""] });
-  assert.equal(await declined.speakmore("model", "openai"), 1);
+  assert.equal(await declined.orangespeakeasy("model", "openai"), 1);
   assert.match(declined.output.err, /没有换/);
   assert.equal(savedModel(), "gemini/gemini-3.6-flash");
 
@@ -2199,25 +2223,25 @@ test("model <厂商>：没有它的 key 又没法问（不在终端里）、或�
     daemon: fakeDaemon({ running: READY, saveKey: () => ({ ok: false, problem: "这把 key 无效" }) }),
     secrets: ["sk-bad", "", ""],
   });
-  assert.equal(await rejected.speakmore("model", "openai"), 1);
+  assert.equal(await rejected.orangespeakeasy("model", "openai"), 1);
   assert.match(rejected.output.err, /这把 key 没有通过：这把 key 无效/);
   assert.equal(savedModel(), "gemini/gemini-3.6-flash");
 });
 
 test("model：不认识的厂商、写错的模型名，以 2 退出并说能填什么；写的是润色的那家时指到 local 模式", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("model", "nope"), 2);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("model", "nope"), 2);
   assert.match(output.err, /gemini \/ openai/);
-  assert.equal(await speakmore("model", "deepseek"), 2);
-  assert.match(output.err, /DeepSeek.*local.*speakmore polish deepseek/);
-  assert.equal(await speakmore("model", "openai/gpt audio"), 2);
-  assert.equal(await speakmore("model", "openai", "extra"), 2);
+  assert.equal(await orangespeakeasy("model", "deepseek"), 2);
+  assert.match(output.err, /DeepSeek.*local.*orangespeakeasy polish deepseek/);
+  assert.equal(await orangespeakeasy("model", "openai/gpt audio"), 2);
+  assert.equal(await orangespeakeasy("model", "openai", "extra"), 2);
 });
 
 test("model check：查现在用的那个，说能不能用、key 从哪来、来回多久", async () => {
   haveStoredKey();
-  const { speakmore, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await speakmore("model", "check"), 0);
+  const { orangespeakeasy, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
+  assert.equal(await orangespeakeasy("model", "check"), 0);
   assert.deepEqual(daemon.requests.at(-1), { cmd: "check-model", params: { model: "gemini/gemini-3.6-flash" } });
   assert.match(output.out, /能用：Gemini 的 gemini-3\.6-flash.*0\.8 秒/);
 });
@@ -2226,10 +2250,14 @@ test("model check <模型>：查别的；不能用时说原因和下一步，以
   const missing = harness({
     daemon: fakeDaemon({
       running: READY,
-      checkModel: () => ({ ok: false, cause: "missing", problem: "还没有 OpenAI 的 key：运行 speakmore key openai" }),
+      checkModel: () => ({
+        ok: false,
+        cause: "missing",
+        problem: "还没有 OpenAI 的 key：运行 orangespeakeasy key openai",
+      }),
     }),
   });
-  assert.equal(await missing.speakmore("model", "check", "openai"), 1);
+  assert.equal(await missing.orangespeakeasy("model", "check", "openai"), 1);
   assert.deepEqual(missing.daemon.requests.at(-1).params, { model: "openai/gpt-audio-mini" });
   assert.match(missing.output.err, /不能用：还没有 OpenAI 的 key/);
 
@@ -2239,13 +2267,13 @@ test("model check <模型>：查别的；不能用时说原因和下一步，以
       checkModel: () => ({ ok: false, cause: "other", problem: "OpenAI 没有这个模型，或者这把 key 用不了它：…" }),
     }),
   });
-  assert.equal(await wrong.speakmore("model", "check", "openai/gpt-audio-9"), 1);
+  assert.equal(await wrong.orangespeakeasy("model", "check", "openai/gpt-audio-9"), 1);
   assert.match(wrong.output.err, /不能用：OpenAI 没有这个模型/);
 });
 
 test("model check：没在运行就先启动；正在运行的是旧版本、不认识这条命令时说要重启", async () => {
   const fresh = harness();
-  assert.equal(await fresh.speakmore("model", "check"), 0);
+  assert.equal(await fresh.orangespeakeasy("model", "check"), 0);
   assert.deepEqual(fresh.daemon.calls, ["start", "check-model"]);
 
   const old = fakeDaemon({ running: READY });
@@ -2253,8 +2281,8 @@ test("model check：没在运行就先启动；正在运行的是旧版本、不
     throw new Error(`不认识的命令：${cmd}`);
   };
   const outdated = harness({ daemon: old });
-  assert.equal(await outdated.speakmore("model", "check"), 1);
-  assert.match(outdated.output.err, /旧版本.*speakmore restart/);
+  assert.equal(await outdated.orangespeakeasy("model", "check"), 1);
+  assert.match(outdated.output.err, /旧版本.*orangespeakeasy restart/);
 });
 
 // ---------- 每家一把 key ----------
@@ -2268,29 +2296,29 @@ test("key <厂商>：问的是那一家的 key，存进它那一份；不是正�
       return { ok: true };
     },
   });
-  const { speakmore, output, asked } = harness({ daemon, secrets: ["sk-new"] });
-  assert.equal(await speakmore("key", "openai"), 0);
+  const { orangespeakeasy, output, asked } = harness({ daemon, secrets: ["sk-new"] });
+  assert.equal(await orangespeakeasy("key", "openai"), 0);
   assert.deepEqual(saved, [{ key: "sk-new", provider: "openai" }]);
   assert.match(asked[0], /OpenAI API key/);
-  assert.match(output.out, /要换成用它：speakmore model openai/);
+  assert.match(output.out, /要换成用它：orangespeakeasy model openai/);
 
   const deepseek = harness({ daemon: fakeDaemon({ running: READY }), secrets: ["sk-ds"] });
-  assert.equal(await deepseek.speakmore("key", "deepseek"), 0);
+  assert.equal(await deepseek.orangespeakeasy("key", "deepseek"), 0);
   assert.match(deepseek.asked[0], /DeepSeek API key/);
   // 录音不发给它，只发转出来的文字
   assert.match(deepseek.asked[0], /本机/);
   assert.match(deepseek.asked[0], /platform\.deepseek\.com/);
   // 现在是 native 模式：polish 只在 local 里能用，提示连模式一起切
-  assert.match(deepseek.output.out, /要换成用它：speakmore mode local --polish deepseek/);
+  assert.match(deepseek.output.out, /要换成用它：orangespeakeasy mode local --polish deepseek/);
 
   const fromLocal = harness({ daemon: fakeDaemon({ running: LOCAL_READY }), secrets: ["sk-ds", "sk-oa"] });
-  assert.equal(await fromLocal.speakmore("key", "openai"), 0);
-  assert.match(fromLocal.output.out, /要换成用它：speakmore mode native --model openai/);
+  assert.equal(await fromLocal.orangespeakeasy("key", "openai"), 0);
+  assert.match(fromLocal.output.out, /要换成用它：orangespeakeasy mode native --model openai/);
 });
 
 test("key 后面写的不是厂商名：多半是把 key 本身写在了命令里，不照做也不把它打出来", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("key", "sk-proj-SECRET"), 2);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("key", "sk-proj-SECRET"), 2);
   assert.doesNotMatch(output.out + output.err, /SECRET/);
   assert.match(output.err, /shell 的历史记录/);
 });
@@ -2299,8 +2327,8 @@ test("key --forget <厂商>：只删那一家的；不写就删正在用的那�
   haveStoredKey();
   haveOpenAIKey();
   writeFileSync(oldAppKeyFile(paths, "openai"), "密文");
-  const { speakmore, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await speakmore("key", "--forget", "openai"), 0);
+  const { orangespeakeasy, output, daemon } = harness({ daemon: fakeDaemon({ running: READY }) });
+  assert.equal(await orangespeakeasy("key", "--forget", "openai"), 0);
   assert.deepEqual(daemon.requests.at(-1), { cmd: "forget-key", params: { provider: "openai" } });
   assert.equal(existsSync(keyFile(paths, "openai")), false);
   assert.equal(existsSync(oldAppKeyFile(paths, "openai")), false);
@@ -2311,8 +2339,8 @@ test("key --forget <厂商>：只删那一家的；不写就删正在用的那�
 test("正在用 OpenAI 时第一次启动：问的是 OpenAI 的 key", async () => {
   writeFileSync(paths.settingsFile, JSON.stringify({ model: "openai/gpt-audio-mini" }));
   const daemon = fakeDaemon({ afterStart: { ...NO_KEY, provider: "openai", model: "openai/gpt-audio-mini" } });
-  const { speakmore, asked } = harness({ daemon, secrets: ["sk-first"] });
-  assert.equal(await speakmore(), 0);
+  const { orangespeakeasy, asked } = harness({ daemon, secrets: ["sk-first"] });
+  assert.equal(await orangespeakeasy(), 0);
   assert.match(asked[0], /OpenAI API key/);
   assert.deepEqual(daemon.requests.find(({ cmd }) => cmd === "set-key").params, {
     key: "sk-first",
@@ -2325,23 +2353,23 @@ test("改了模型、重启之后发现那家没有 key：说清还差它，不�
     running: READY,
     afterStart: { ...NO_KEY, provider: "openai", model: "openai/gpt-audio-mini" },
   });
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore("config", "set", "model", "openai"), 1);
-  assert.match(output.err, /还没有 OpenAI 的 key.*speakmore key openai/);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy("config", "set", "model", "openai"), 1);
+  assert.match(output.err, /还没有 OpenAI 的 key.*orangespeakeasy key openai/);
   assert.doesNotMatch(output.out, /已经生效/);
 });
 
 test("改模型时 GEMINI_MODEL（旧名字）设着：提醒它盖着新值", async () => {
   haveOpenAIKey();
-  const { speakmore, output } = harness({ env: { GEMINI_MODEL: "gemini-3.5-flash" } });
-  assert.equal(await speakmore("model", "openai"), 0);
+  const { orangespeakeasy, output } = harness({ env: { GEMINI_MODEL: "gemini-3.5-flash" } });
+  assert.equal(await orangespeakeasy("model", "openai"), 0);
   assert.match(output.out, /环境变量 GEMINI_MODEL 现在设着/);
 });
 
 test("model：key 是启动后台时从环境变量给的（命令行这边没有）也照实写，不说成还没有", async () => {
   const fromEnv = { ...READY, key: { state: "ready", source: "env", problem: null, verified: true } };
-  const { speakmore, output } = harness({ daemon: fakeDaemon({ running: fromEnv }) });
-  assert.equal(await speakmore("model"), 0);
+  const { orangespeakeasy, output } = harness({ daemon: fakeDaemon({ running: fromEnv }) });
+  assert.equal(await orangespeakeasy("model"), 0);
   assert.match(output.out, /● gemini\s+Gemini\s+gemini-3\.6-flash\s+key 来自环境变量 GEMINI_API_KEY/);
   assert.match(output.out, /openai\s+OpenAI\s+gpt-audio-mini（默认）\s+还没有 key/);
 });
@@ -2358,19 +2386,19 @@ test("后台是 0.3 的：给别家存 key、删别家的 key 都先拦下，说
   haveStoredKey();
   haveOpenAIKey();
   const forget = harness({ daemon: fakeDaemon({ running: LEGACY_DAEMON }) });
-  assert.equal(await forget.speakmore("key", "--forget", "openai"), 1);
-  assert.match(forget.output.err, /旧版本.*speakmore restart/);
+  assert.equal(await forget.orangespeakeasy("key", "--forget", "openai"), 1);
+  assert.match(forget.output.err, /旧版本.*orangespeakeasy restart/);
   assert.ok(!forget.daemon.calls.includes("forget-key"));
   assert.ok(existsSync(keyFile(paths, "openai")) && existsSync(keyFile(paths, "gemini")));
 
   const save = harness({ daemon: fakeDaemon({ running: LEGACY_DAEMON }), secrets: ["sk-new"] });
-  assert.equal(await save.speakmore("key", "openai"), 1);
+  assert.equal(await save.orangespeakeasy("key", "openai"), 1);
   assert.ok(!save.daemon.calls.includes("set-key"));
   assert.equal(save.asked.length, 0);
 
   // Gemini 的 key 旧后台本来就会存
   const gemini = harness({ daemon: fakeDaemon({ running: LEGACY_DAEMON }), secrets: ["AIza-new"] });
-  assert.equal(await gemini.speakmore("key", "gemini"), 0);
+  assert.equal(await gemini.orangespeakeasy("key", "gemini"), 0);
 });
 
 /** 0.6 及以前的后台应用：状态里没有 mode，只认 Gemini 和 OpenAI 的 key */
@@ -2382,16 +2410,16 @@ const BEFORE_MODES_DAEMON = (() => {
 test("后台是 0.6 的：切 local 要给 DeepSeek 存 key 时先拦下，说要重启；不发请求、不切；OpenAI 的 key 照常存", async () => {
   haveModel();
   const daemon = fakeDaemon({ running: BEFORE_MODES_DAEMON });
-  const { speakmore, output, asked } = harness({ daemon, secrets: ["sk-ds"] });
-  assert.equal(await speakmore("mode", "local"), 1);
-  assert.match(output.err, /旧版本.*DeepSeek.*speakmore restart/);
+  const { orangespeakeasy, output, asked } = harness({ daemon, secrets: ["sk-ds"] });
+  assert.equal(await orangespeakeasy("mode", "local"), 1);
+  assert.match(output.err, /旧版本.*DeepSeek.*orangespeakeasy restart/);
   assert.ok(!daemon.calls.includes("set-key") && !daemon.calls.includes("set-mode"));
   assert.equal(saved("mode"), "native");
   // 先拦再问：不让人粘贴了 key 才听说存不了
   assert.equal(asked.length, 0);
 
   const openai = harness({ daemon: fakeDaemon({ running: BEFORE_MODES_DAEMON }), secrets: ["sk-openai"] });
-  assert.equal(await openai.speakmore("key", "openai"), 0);
+  assert.equal(await openai.orangespeakeasy("key", "openai"), 0);
   assert.ok(openai.daemon.calls.includes("set-key"));
 });
 
@@ -2401,8 +2429,8 @@ test("换模型时那家的 key 被拒：不换，说原因，设置不动，以
     running: READY,
     changeRoute: () => ({ ok: false, problem: "这把 key 无效，检查有没有复制完整" }),
   });
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore("model", "openai"), 1);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy("model", "openai"), 1);
   assert.match(output.err, /没有换：这把 key 无效/);
   assert.equal(savedModel(), "gemini/gemini-3.6-flash");
   assert.doesNotMatch(output.out, /已经换上/);
@@ -2416,8 +2444,8 @@ test("换模型时正在运行的是旧版本、不认识当场换：存进设�
     if (cmd === "set-model") throw new Error(`不认识的命令：${cmd}`);
     return request(cmd, params);
   };
-  const { speakmore, output } = harness({ daemon: old });
-  assert.equal(await speakmore("model", "openai"), 0);
+  const { orangespeakeasy, output } = harness({ daemon: old });
+  assert.equal(await orangespeakeasy("model", "openai"), 0);
   assert.equal(savedModel(), "openai/gpt-audio-mini");
   assert.deepEqual(old.calls.slice(-2), ["stop", "start"]);
   assert.match(output.out, /已经生效/);
@@ -2425,11 +2453,11 @@ test("换模型时正在运行的是旧版本、不认识当场换：存进设�
 
 test("装成应用的在运行：它的 key 存在它自己那一份里，看 key 有没有以它报的为准", async () => {
   const app = { ...READY, packaged: true, keys: { gemini: "stored", openai: "stored" } };
-  const { speakmore, output, asked } = harness({ daemon: fakeDaemon({ running: app }) });
-  assert.equal(await speakmore("model"), 0);
+  const { orangespeakeasy, output, asked } = harness({ daemon: fakeDaemon({ running: app }) });
+  assert.equal(await orangespeakeasy("model"), 0);
   assert.match(output.out, /openai\s+OpenAI\s+gpt-audio-mini（默认）\s+key 存着/);
   // 不再问一遍 key；装成应用的也能当场换，不用退出重开
-  assert.equal(await speakmore("model", "openai"), 0);
+  assert.equal(await orangespeakeasy("model", "openai"), 0);
   assert.equal(asked.length, 0);
   assert.match(output.out, /已经换上，不用重启/);
 });
@@ -2511,8 +2539,8 @@ test("英文时每个命令的输出里都没有漏翻的中文（用户自己�
     [["history", "extra"], null],
   ];
   for (const [argv, running] of commands) {
-    const { speakmore, output } = harness({ daemon: fakeDaemon({ running }), locale: "en", interactive: false });
-    await speakmore(...argv);
+    const { orangespeakeasy, output } = harness({ daemon: fakeDaemon({ running }), locale: "en", interactive: false });
+    await orangespeakeasy(...argv);
     assert.doesNotMatch(output.out + output.err, /[一-鿿]/, argv.join(" "));
   }
 });
@@ -2543,38 +2571,38 @@ const PRIVATE_READY = {
   key: { state: "ready", source: "none", problem: null },
 };
 
-test("speakmore mode private：不问 key，本机模型下好了就切；状态面板写不用 key、只用本机模型", async () => {
+test("orangespeakeasy mode private：不问 key，本机模型下好了就切；状态面板写不用 key、只用本机模型", async () => {
   haveModel();
-  const { speakmore, output, daemon, asked } = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await speakmore("mode", "private"), 0);
+  const { orangespeakeasy, output, daemon, asked } = harness({ daemon: fakeDaemon({ running: READY }) });
+  assert.equal(await orangespeakeasy("mode", "private"), 0);
   assert.deepEqual(asked, []);
   assert.deepEqual(daemon.requests.find(({ cmd }) => cmd === "set-mode").params, { mode: "private", changes: {} });
   assert.match(output.out, /本机的 qwen3-asr-0\.6b-q8，不整理、不上传/);
 
   const panel = harness({ daemon: fakeDaemon({ running: PRIVATE_READY }) });
-  assert.equal(await panel.speakmore("status"), 0);
+  assert.equal(await panel.orangespeakeasy("status"), 0);
   assert.match(panel.output.out, /不用 key（离线模式）/);
   assert.match(panel.output.out, /离线：只用本机模型，什么都不上传/);
 });
 
-test("数据隐私模式里 speakmore transcriber 换的是它自己的那一项，local 的第一跳不动；云端的不收；key 要写明哪一家", async () => {
+test("数据隐私模式里 orangespeakeasy transcriber 换的是它自己的那一项，local 的第一跳不动；云端的不收；key 要写明哪一家", async () => {
   writeFileSync(paths.settingsFile, JSON.stringify({ mode: "private" }));
   haveModel("sensevoice-small-q8");
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("transcriber", "sensevoice-small-q8"), 0);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("transcriber", "sensevoice-small-q8"), 0);
   const settings = resolveSettings({ file: paths.settingsFile, env: {} });
   assert.equal(settings.privateTranscriber.value, "sensevoice-small-q8");
   assert.equal(settings.transcriber.value, "qwen3-asr-0.6b-q8");
 
-  assert.equal(await speakmore("transcriber", "bailian/qwen3-asr-flash"), 1);
+  assert.equal(await orangespeakeasy("transcriber", "bailian/qwen3-asr-flash"), 1);
   assert.match(output.err, /离线方式只用本机模型/);
-  assert.equal(await speakmore("key"), 2);
+  assert.equal(await orangespeakeasy("key"), 2);
   assert.match(output.err, /离线模式不用 key/);
 });
 
 test("第一跳交给云端（审查 4 号）：换成云端、检查、下载、切进 local、第一次启动，都照常说话，不崩", async () => {
   const cloud = harness({ daemon: fakeDaemon({ running: LOCAL_READY }), secrets: ["sk-ws-bailian"] });
-  assert.equal(await cloud.speakmore("transcriber", "bailian/qwen3-asr-flash"), 0);
+  assert.equal(await cloud.orangespeakeasy("transcriber", "bailian/qwen3-asr-flash"), 0);
   assert.deepEqual(cloud.daemon.requests.find(({ cmd }) => cmd === "set-key").params, {
     key: "sk-ws-bailian",
     provider: "bailian",
@@ -2582,58 +2610,58 @@ test("第一跳交给云端（审查 4 号）：换成云端、检查、下载�
   });
   assert.ok(cloud.daemon.calls.includes("set-transcriber"));
 
-  assert.equal(await cloud.speakmore("transcriber", "check", "bailian/qwen3-asr-flash"), 0);
+  assert.equal(await cloud.orangespeakeasy("transcriber", "check", "bailian/qwen3-asr-flash"), 0);
   assert.deepEqual(cloud.daemon.requests.find(({ cmd }) => cmd === "check-mode").params, {
     mode: "local",
     changes: { transcriber: "bailian/qwen3-asr-flash" },
   });
-  assert.equal(await cloud.speakmore("transcriber", "download", "bailian/qwen3-asr-flash"), 2);
+  assert.equal(await cloud.orangespeakeasy("transcriber", "download", "bailian/qwen3-asr-flash"), 2);
   assert.match(cloud.output.err, /云端模型，不用下载/);
 
   // 设置里第一跳已经是云端的：切进 local 时两家的 key 都问
   writeFileSync(paths.settingsFile, JSON.stringify({ transcriber: "bailian/qwen3-asr-flash" }));
   const switching = harness({ daemon: fakeDaemon({ running: READY }), secrets: ["sk-ws-bailian", "sk-deepseek"] });
-  assert.equal(await switching.speakmore("mode", "local"), 0);
+  assert.equal(await switching.orangespeakeasy("mode", "local"), 0);
   assert.deepEqual(
     switching.daemon.requests.filter(({ cmd }) => cmd === "set-key").map(({ params }) => params.provider),
     ["bailian", "deepseek"],
   );
 
   const first = harness({ daemon: fakeDaemon({ afterStart: NO_KEY }), answers: ["1"], secrets: ["k"] });
-  assert.equal(await first.speakmore(), 0);
+  assert.equal(await first.orangespeakeasy(), 0);
 });
 
 test("第一次启动的选项里有数据隐私模式：选它不问 key，设置里记成 private", async () => {
-  const { speakmore, questions, asked } = harness({
+  const { orangespeakeasy, questions, asked } = harness({
     daemon: fakeDaemon({ afterStart: PRIVATE_READY }),
     answers: ["private"],
   });
-  assert.equal(await speakmore(), 0);
+  assert.equal(await orangespeakeasy(), 0);
   assert.match(questions.join("\n"), /private（离线）模式：只用本机模型转文字/);
   assert.deepEqual(asked, []);
   assert.equal(resolveSettings({ file: paths.settingsFile, env: {} }).mode.value, "private");
 });
 
 test("mode：列出两种模式、各自用的模型，现在用的打一个点，说怎么切、两种模式里各自怎么换模型", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("mode"), 0);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("mode"), 0);
   assert.match(output.out, /● native\s+直出：录音直接交给模型\s+Gemini 的 gemini-3\.6-flash/);
   assert.match(
     output.out,
     /\n {4}local\s+混合：先转文字，再交给模型整理\s+qwen3-asr-0\.6b-q8 → DeepSeek 的 deepseek-flash/,
   );
-  assert.match(output.out, /speakmore mode local/);
-  assert.match(output.out, /speakmore model\b/);
-  assert.match(output.out, /speakmore transcriber/);
-  assert.match(output.out, /speakmore polish/);
+  assert.match(output.out, /orangespeakeasy mode local/);
+  assert.match(output.out, /orangespeakeasy model\b/);
+  assert.match(output.out, /orangespeakeasy transcriber/);
+  assert.match(output.out, /orangespeakeasy polish/);
 });
 
 test("mode <模式>：有那种模式要的 key 就让在运行的那个当场切，不重启", async () => {
   haveModel();
   haveDeepSeekKey();
   const daemon = fakeDaemon({ running: READY });
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore("mode", "local"), 0);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy("mode", "local"), 0);
   assert.deepEqual(daemon.requests.at(-1), { cmd: "set-mode", params: { mode: "local", changes: {} } });
   assert.ok(!daemon.calls.includes("stop"));
   assert.match(output.out, /切到了 local 模式：qwen3-asr-0\.6b-q8 → DeepSeek 的 deepseek-flash/);
@@ -2656,9 +2684,9 @@ test("mode local：0.7.0 的后台切过去后自己下载模型，照它报的�
       return result;
     }
   )(daemon);
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore("mode", "local"), 0);
-  assert.match(output.out, /本地模型在后台下载（50%）.*speakmore status/);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy("mode", "local"), 0);
+  assert.match(output.out, /本地模型在后台下载（50%）.*orangespeakeasy status/);
 });
 
 test("mode <模式>：还没有那种模式要的 key 时先问，拿要切过去的设置验证过存好，再切", async () => {
@@ -2671,8 +2699,8 @@ test("mode <模式>：还没有那种模式要的 key 时先问，拿要切过�
       return { ok: true };
     },
   });
-  const { speakmore, asked, output } = harness({ daemon, secrets: ["sk-ds"] });
-  assert.equal(await speakmore("mode", "local"), 0);
+  const { orangespeakeasy, asked, output } = harness({ daemon, secrets: ["sk-ds"] });
+  assert.equal(await orangespeakeasy("mode", "local"), 0);
   assert.deepEqual(saved, [{ key: "sk-ds", provider: "deepseek" }]);
   assert.deepEqual(daemon.requests.find(({ cmd }) => cmd === "set-key").params, {
     key: "sk-ds",
@@ -2687,13 +2715,13 @@ test("mode <模式>：还没有那种模式要的 key 时先问，拿要切过�
 test("mode <模式>：没有 key 又没法问时不切，说先做什么；没在运行时存进设置、下次启动生效", async () => {
   haveModel();
   const quiet = harness({ interactive: false });
-  assert.equal(await quiet.speakmore("mode", "local"), 1);
-  assert.match(quiet.output.err, /还没有 DeepSeek 的 key.*speakmore key deepseek/);
+  assert.equal(await quiet.orangespeakeasy("mode", "local"), 1);
+  assert.match(quiet.output.err, /还没有 DeepSeek 的 key.*orangespeakeasy key deepseek/);
   assert.equal(saved("mode"), "native");
 
   haveDeepSeekKey();
   const notRunning = harness();
-  assert.equal(await notRunning.speakmore("mode", "local"), 0);
+  assert.equal(await notRunning.orangespeakeasy("mode", "local"), 0);
   assert.equal(saved("mode"), "local");
   assert.match(notRunning.output.out, /下次启动生效/);
   assert.deepEqual(notRunning.daemon.calls, []);
@@ -2701,23 +2729,23 @@ test("mode <模式>：没有 key 又没法问时不切，说先做什么；没�
 
 test("mode：写错的模式以 2 退出并说能填什么；切没通过以 1 退出说原因", async () => {
   haveModel();
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("mode", "cloud"), 2);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("mode", "cloud"), 2);
   assert.match(output.err, /native \/ local/);
 
   haveDeepSeekKey();
   const refused = harness({
     daemon: fakeDaemon({ running: READY, changeRoute: () => ({ ok: false, problem: "DeepSeek 余额不足" }) }),
   });
-  assert.equal(await refused.speakmore("mode", "local"), 1);
+  assert.equal(await refused.orangespeakeasy("mode", "local"), 1);
   assert.match(refused.output.err, /没有换：DeepSeek 余额不足/);
 });
 
 test("在 local 模式时换 native 的模型：不能换，说先切回 native；不问 key、不发请求、不改设置", async () => {
   const daemon = fakeDaemon({ running: LOCAL_READY });
-  const { speakmore, output, asked } = harness({ daemon, secrets: ["sk-x"] });
-  assert.equal(await speakmore("model", "openai"), 1);
-  assert.match(output.err, /现在是 local 模式.*收音频的模型.*native 模式.*speakmore mode native/);
+  const { orangespeakeasy, output, asked } = harness({ daemon, secrets: ["sk-x"] });
+  assert.equal(await orangespeakeasy("model", "openai"), 1);
+  assert.match(output.err, /现在是 local 模式.*收音频的模型.*native 模式.*orangespeakeasy mode native/);
   assert.equal(asked.length, 0);
   assert.ok(!daemon.calls.includes("set-model"));
   assert.equal(savedModel(), "gemini/gemini-3.6-flash");
@@ -2725,30 +2753,30 @@ test("在 local 模式时换 native 的模型：不能换，说先切回 native�
   // 没在运行时看设置里的模式
   writeFileSync(paths.settingsFile, JSON.stringify({ mode: "local" }));
   const offline = harness();
-  assert.equal(await offline.speakmore("model", "openai"), 1);
+  assert.equal(await offline.orangespeakeasy("model", "openai"), 1);
   assert.match(offline.output.err, /现在是 local 模式/);
 });
 
 test("在 native 模式时换 local 的两跳：不能换，说先切到 local；列出来看可以，但标明现在用不上", async () => {
   const daemon = fakeDaemon({ running: READY });
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore("transcriber", "sensevoice-small-q8"), 1);
-  assert.match(output.err, /现在是 native 模式.*转文字的模型.*local 模式.*speakmore mode local/);
-  assert.equal(await speakmore("polish", "deepseek/deepseek-v4-pro"), 1);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy("transcriber", "sensevoice-small-q8"), 1);
+  assert.match(output.err, /现在是 native 模式.*转文字的模型.*local 模式.*orangespeakeasy mode local/);
+  assert.equal(await orangespeakeasy("polish", "deepseek/deepseek-v4-pro"), 1);
   assert.match(output.err, /整理的模型要在 local 模式里才能换/);
   assert.ok(!daemon.calls.some((call) => call.startsWith("set-")));
 
   const list = harness({ daemon: fakeDaemon({ running: READY }) });
-  assert.equal(await list.speakmore("transcriber"), 0);
-  assert.match(list.output.out, /现在是 native 模式，用不上.*speakmore mode local/);
+  assert.equal(await list.orangespeakeasy("transcriber"), 0);
+  assert.match(list.output.out, /现在是 native 模式，用不上.*orangespeakeasy mode local/);
 });
 
 test("mode local 连带第二跳：没有 DeepSeek 的 key 也能直接用自定义服务进 local", async () => {
   haveModel();
   const daemon = fakeDaemon({ running: READY });
-  const { speakmore, asked } = harness({ daemon, secrets: ["sk-custom"] });
+  const { orangespeakeasy, asked } = harness({ daemon, secrets: ["sk-custom"] });
   assert.equal(
-    await speakmore("mode", "local", "--polish", "custom/qwen3:8b", "--url", "http://127.0.0.1:11434/v1"),
+    await orangespeakeasy("mode", "local", "--polish", "custom/qwen3:8b", "--url", "http://127.0.0.1:11434/v1"),
     0,
   );
   assert.match(asked[0], /Custom|自定义服务/);
@@ -2766,32 +2794,35 @@ test("mode local 连带第二跳：没有 DeepSeek 的 key 也能直接用自定
 test("mode local 连带额外参数：和地址、模型一起验证、一起换", async () => {
   haveModel();
   const daemon = fakeDaemon({ running: READY });
-  const { speakmore } = harness({ daemon, secrets: ["sk-custom"] });
+  const { orangespeakeasy } = harness({ daemon, secrets: ["sk-custom"] });
   const flags = ["--polish", "custom/gpt-5-mini", "--url", "https://router.example/v1", "--params", '{"n": 1}'];
-  assert.equal(await speakmore("mode", "local", ...flags), 0);
+  assert.equal(await orangespeakeasy("mode", "local", ...flags), 0);
   const changes = { polish: "custom/gpt-5-mini", customUrl: "https://router.example/v1", customParams: '{"n":1}' };
   assert.deepEqual(daemon.requests.find(({ cmd }) => cmd === "set-key").params.changes, { mode: "local", ...changes });
   assert.deepEqual(daemon.requests.at(-1), { cmd: "set-mode", params: { mode: "local", changes } });
 });
 
 test("mode 连带的设置不是那种模式的：以 2 退出说能带什么", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("mode", "native", "--polish", "deepseek"), 2);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("mode", "native", "--polish", "deepseek"), 2);
   assert.match(output.err, /--model/);
-  assert.equal(await speakmore("mode", "local", "--model", "openai"), 2);
+  assert.equal(await orangespeakeasy("mode", "local", "--model", "openai"), 2);
   assert.match(output.err, /--transcriber.*--polish.*--url.*--params/);
 });
 
 test("transcriber：列出本机转写模型（第一跳），大小、下载过没有、在下的进度，现在用的打一个点；最后说本机下了几个、怎么下载删除", async () => {
   haveModel("sensevoice-small-q8");
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("transcriber"), 0);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("transcriber"), 0);
   assert.match(output.out, /local 的第一步、private 的模型/);
   assert.match(output.out, /● qwen3-asr-0\.6b-q8\s+Qwen3-ASR 0\.6B \(Q8_0\)\s+850 MB\s+还没下载/);
   assert.match(output.out, /sensevoice-small-q8\s+SenseVoice Small \(Q8_0\)\s+253 MB\s+已下载/);
   assert.match(output.out, /本机已下载 1 \/ 4 个，共 253 MB · 磁盘剩余 /);
-  assert.match(output.out, /换一个：speakmore transcriber sensevoice-small-q8/);
-  assert.match(output.out, /下载：speakmore transcriber download qwen3-asr-0\.6b-q8 · 停下：cancel · 删除：delete/);
+  assert.match(output.out, /换一个：orangespeakeasy transcriber sensevoice-small-q8/);
+  assert.match(
+    output.out,
+    /下载：orangespeakeasy transcriber download qwen3-asr-0\.6b-q8 · 停下：cancel · 删除：delete/,
+  );
 
   // 后台在运行：以它报的为准（正在下的进度、上次没下下来的）
   const total = downloadSize(findModel("qwen3-asr-0.6b-q8"));
@@ -2815,7 +2846,7 @@ test("transcriber：列出本机转写模型（第一跳），大小、下载过
     ],
   };
   const busy = harness({ daemon: fakeDaemon({ running }) });
-  assert.equal(await busy.speakmore("transcriber"), 0);
+  assert.equal(await busy.orangespeakeasy("transcriber"), 0);
   assert.match(busy.output.out, /qwen3-asr-0\.6b-q8.*下载中 25%/);
   assert.match(busy.output.out, /sensevoice-small-q8.*没下下来\n(.*\n){2}.*断网了/);
 });
@@ -2823,14 +2854,14 @@ test("transcriber：列出本机转写模型（第一跳），大小、下载过
 test("transcriber <模型>：不用 key，让在运行的那个当场换；写错了以 2 退出说能填什么", async () => {
   haveModel("sensevoice-small-q8");
   const daemon = fakeDaemon({ running: LOCAL_READY });
-  const { speakmore, output, asked } = harness({ daemon });
-  assert.equal(await speakmore("transcriber", "sensevoice-small-q8"), 0);
+  const { orangespeakeasy, output, asked } = harness({ daemon });
+  assert.equal(await orangespeakeasy("transcriber", "sensevoice-small-q8"), 0);
   assert.deepEqual(daemon.requests.at(-1), { cmd: "set-transcriber", params: { transcriber: "sensevoice-small-q8" } });
   assert.equal(asked.length, 0);
   assert.match(output.out, /转文字的模型换成了 sensevoice-small-q8/);
 
   const wrong = harness();
-  assert.equal(await wrong.speakmore("transcriber", "gemini"), 2);
+  assert.equal(await wrong.orangespeakeasy("transcriber", "gemini"), 2);
   assert.match(wrong.output.err, /qwen3-asr-0\.6b-q8/);
 });
 
@@ -2903,8 +2934,8 @@ function modelDaemon({ running = LOCAL_READY, outcome = "finish" } = {}) {
 
 test("transcriber <模型>：要换的还没下载时先问；答是就交给后台下完再换，进度一截一截说", async () => {
   const daemon = modelDaemon();
-  const { speakmore, output, confirmed } = harness({ daemon, confirms: [true] });
-  assert.equal(await speakmore("transcriber", "sensevoice-small-q8"), 0);
+  const { orangespeakeasy, output, confirmed } = harness({ daemon, confirms: [true] });
+  assert.equal(await orangespeakeasy("transcriber", "sensevoice-small-q8"), 0);
   assert.match(confirmed[0], /SenseVoice Small \(Q8_0\) 还没下载（253 MB，从魔搭下）。现在下载吗/);
   assert.match(output.out, /交给后台下了：按 Ctrl-C 只是不看进度/);
   assert.match(output.out, /下载中 50%/);
@@ -2914,23 +2945,23 @@ test("transcriber <模型>：要换的还没下载时先问；答是就交给后
 
 test("transcriber <模型>：不想下就不下也不换；不能问时说先运行哪条命令；没下下来时不换", async () => {
   const declined = harness({ daemon: modelDaemon(), confirms: [false] });
-  assert.equal(await declined.speakmore("transcriber", "sensevoice-small-q8"), 1);
+  assert.equal(await declined.orangespeakeasy("transcriber", "sensevoice-small-q8"), 1);
   assert.match(declined.output.out, /没有下载，也没有换/);
   assert.ok(!declined.daemon.calls.includes("download-model") && !declined.daemon.calls.includes("set-transcriber"));
 
   const quiet = harness({ daemon: modelDaemon(), interactive: false });
-  assert.equal(await quiet.speakmore("transcriber", "sensevoice-small-q8"), 1);
-  assert.match(quiet.output.err, /还没下载：先运行 speakmore transcriber download sensevoice-small-q8/);
+  assert.equal(await quiet.orangespeakeasy("transcriber", "sensevoice-small-q8"), 1);
+  assert.match(quiet.output.err, /还没下载：先运行 orangespeakeasy transcriber download sensevoice-small-q8/);
 
   const failing = harness({ daemon: modelDaemon({ outcome: "断网了" }), confirms: [true] });
-  assert.equal(await failing.speakmore("transcriber", "sensevoice-small-q8"), 1);
+  assert.equal(await failing.orangespeakeasy("transcriber", "sensevoice-small-q8"), 1);
   assert.match(failing.output.err, /没下下来：断网了/);
   assert.ok(!failing.daemon.calls.includes("set-transcriber"));
 });
 
 test("transcriber download：用户自己点的，不再问；后台没在运行就在命令行这个进程里下；已经下好的直说", async () => {
   const idle = harness();
-  assert.equal(await idle.speakmore("transcriber", "download", "qwen3-asr-0.6b-q8"), 0);
+  assert.equal(await idle.orangespeakeasy("transcriber", "download", "qwen3-asr-0.6b-q8"), 0);
   assert.deepEqual(idle.local.downloads, ["qwen3-asr-0.6b-q8"]);
   assert.deepEqual(idle.local.sources, ["cn"]);
   assert.match(idle.output.out, /下载 Qwen3-ASR 0\.6B \(Q8_0\)（850 MB，从魔搭）/);
@@ -2938,17 +2969,17 @@ test("transcriber download：用户自己点的，不再问；后台没在运行
   assert.equal(idle.confirmed.length, 0);
 
   const again = harness();
-  assert.equal(await again.speakmore("transcriber", "download", "qwen3-asr-0.6b-q8"), 0);
+  assert.equal(await again.orangespeakeasy("transcriber", "download", "qwen3-asr-0.6b-q8"), 0);
   assert.match(again.output.out, /已经下载好了/);
   assert.deepEqual(again.local.downloads, []);
 
   const failing = harness({ modelDownload: "磁盘写不进去" });
-  assert.equal(await failing.speakmore("transcriber", "download", "sensevoice-small-q8"), 1);
+  assert.equal(await failing.orangespeakeasy("transcriber", "download", "sensevoice-small-q8"), 1);
   assert.match(failing.output.err, /没下下来：磁盘写不进去/);
 
   const wrong = harness();
-  assert.equal(await wrong.speakmore("transcriber", "download"), 2);
-  assert.equal(await wrong.speakmore("transcriber", "download", "gemini"), 2);
+  assert.equal(await wrong.orangespeakeasy("transcriber", "download"), 2);
+  assert.equal(await wrong.orangespeakeasy("transcriber", "download", "gemini"), 2);
 });
 
 test("transcriber check：交给后台念一句、转一次，说念的、转出来的和用了多久；不写就查现在选的", async () => {
@@ -2965,8 +2996,8 @@ test("transcriber check：交给后台念一句、转一次，说念的、转出
     const said = "今天下午三点开会，记得带上电脑。";
     return { ok: true, said, text: said, transcribeMs: 312, loadMs: 1840, backend: "metal" };
   };
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore("transcriber", "check"), 0);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy("transcriber", "check"), 0);
   assert.deepEqual(daemon.requests.at(-1), { cmd: "check-transcriber", params: { id: "qwen3-asr-0.6b-q8" } });
   assert.match(output.out, /正在检查 Qwen3-ASR 0\.6B \(Q8_0\)/);
   assert.match(
@@ -2977,103 +3008,106 @@ test("transcriber check：交给后台念一句、转一次，说念的、转出
 
   // 没下载的不去问后台，直接说怎么下
   const asked = daemon.calls.filter((cmd) => cmd === "check-transcriber").length;
-  assert.equal(await speakmore("transcriber", "check", "sensevoice-small-q8"), 1);
-  assert.match(output.err, /还没下载：先运行 speakmore transcriber download sensevoice-small-q8/);
+  assert.equal(await orangespeakeasy("transcriber", "check", "sensevoice-small-q8"), 1);
+  assert.match(output.err, /还没下载：先运行 orangespeakeasy transcriber download sensevoice-small-q8/);
   assert.equal(daemon.calls.filter((cmd) => cmd === "check-transcriber").length, asked);
-  assert.equal(await speakmore("transcriber", "check", "gemini"), 2);
-  assert.equal(await speakmore("transcriber", "check", "qwen3-asr-0.6b-q8", "extra"), 2);
+  assert.equal(await orangespeakeasy("transcriber", "check", "gemini"), 2);
+  assert.equal(await orangespeakeasy("transcriber", "check", "qwen3-asr-0.6b-q8", "extra"), 2);
 });
 
 test("transcriber cancel：后台正在下的停下；没在下的直说", async () => {
   const daemon = modelDaemon();
-  const { speakmore, output } = harness({ daemon });
+  const { orangespeakeasy, output } = harness({ daemon });
   await daemon.request("download-model", { id: "sensevoice-small-q8" });
-  assert.equal(await speakmore("transcriber", "cancel", "sensevoice-small-q8"), 0);
+  assert.equal(await orangespeakeasy("transcriber", "cancel", "sensevoice-small-q8"), 0);
   assert.ok(daemon.calls.includes("cancel-download"));
   assert.match(output.out, /停下了 SenseVoice Small \(Q8_0\) 的下载/);
-  assert.equal(await speakmore("transcriber", "cancel", "sensevoice-small-q8"), 0);
+  assert.equal(await orangespeakeasy("transcriber", "cancel", "sensevoice-small-q8"), 0);
   assert.match(output.out, /没有在下载/);
 });
 
 test("transcriber delete：先确认；--yes 不问；不能问又没 --yes 时以 2 退出；正在用的删不了；没下载的不用删", async () => {
   haveModel("sensevoice-small-q8");
   const asked = harness({ daemon: modelDaemon(), confirms: [false] });
-  assert.equal(await asked.speakmore("transcriber", "delete", "sensevoice-small-q8"), 1);
+  assert.equal(await asked.orangespeakeasy("transcriber", "delete", "sensevoice-small-q8"), 1);
   assert.match(asked.confirmed[0], /删掉 SenseVoice Small \(Q8_0\)（253 MB）/);
   assert.match(asked.output.out, /没有删/);
   assert.ok(existsSync(join(paths.modelsDir, "sensevoice-small-q8")));
 
   const quiet = harness({ daemon: modelDaemon(), interactive: false });
-  assert.equal(await quiet.speakmore("transcriber", "delete", "sensevoice-small-q8"), 2);
+  assert.equal(await quiet.orangespeakeasy("transcriber", "delete", "sensevoice-small-q8"), 2);
   assert.match(quiet.output.err, /--yes/);
 
   const sure = harness({ daemon: modelDaemon() });
-  assert.equal(await sure.speakmore("transcriber", "delete", "sensevoice-small-q8", "--yes"), 0);
+  assert.equal(await sure.orangespeakeasy("transcriber", "delete", "sensevoice-small-q8", "--yes"), 0);
   assert.match(sure.output.out, /删掉了 SenseVoice Small \(Q8_0\)，腾出 253 MB/);
   assert.equal(existsSync(join(paths.modelsDir, "sensevoice-small-q8")), false);
 
   haveModel("qwen3-asr-0.6b-q8");
   const inUse = harness({ daemon: modelDaemon() });
-  assert.equal(await inUse.speakmore("transcriber", "delete", "qwen3-asr-0.6b-q8", "--yes"), 1);
+  assert.equal(await inUse.orangespeakeasy("transcriber", "delete", "qwen3-asr-0.6b-q8", "--yes"), 1);
   assert.match(inUse.output.err, /正在用，删不了/);
 
   const nothing = harness();
-  assert.equal(await nothing.speakmore("transcriber", "delete", "sensevoice-small-q8", "--yes"), 0);
+  assert.equal(await nothing.orangespeakeasy("transcriber", "delete", "sensevoice-small-q8", "--yes"), 0);
   assert.match(nothing.output.out, /本来就没下载/);
 });
 
 test("transcriber delete：后台没在运行时自己删；设置里 local 模式用的就是它就不删", async () => {
   haveModel("sensevoice-small-q8");
   const idle = harness();
-  assert.equal(await idle.speakmore("transcriber", "delete", "sensevoice-small-q8", "--yes"), 0);
+  assert.equal(await idle.orangespeakeasy("transcriber", "delete", "sensevoice-small-q8", "--yes"), 0);
   assert.deepEqual(idle.local.removed, ["sensevoice-small-q8"]);
 
   haveModel("qwen3-asr-0.6b-q8");
   writeFileSync(paths.settingsFile, JSON.stringify({ mode: "local" }));
   const inUse = harness();
-  assert.equal(await inUse.speakmore("transcriber", "delete", "qwen3-asr-0.6b-q8", "--yes"), 1);
+  assert.equal(await inUse.orangespeakeasy("transcriber", "delete", "qwen3-asr-0.6b-q8", "--yes"), 1);
   assert.match(inUse.output.err, /正在用，删不了/);
   assert.deepEqual(inUse.local.removed, []);
 });
 
 test("mode local：要用的本机模型还没下载时先问；不下就不切，也不问 key", async () => {
   const daemon = modelDaemon({ running: READY });
-  const { speakmore, output, asked } = harness({ daemon, confirms: [false] });
-  assert.equal(await speakmore("mode", "local"), 1);
+  const { orangespeakeasy, output, asked } = harness({ daemon, confirms: [false] });
+  assert.equal(await orangespeakeasy("mode", "local"), 1);
   assert.match(output.out, /没有下载，也没有换/);
   assert.equal(asked.length, 0);
   assert.ok(!daemon.calls.includes("set-mode"));
 
   haveDeepSeekKey();
   const yes = harness({ daemon: modelDaemon({ running: READY }), confirms: [true] });
-  assert.equal(await yes.speakmore("mode", "local"), 0);
+  assert.equal(await yes.orangespeakeasy("mode", "local"), 0);
   assert.match(yes.output.out, /下好了[\s\S]*切到了 local 模式/);
 });
 
 test("polish：列出润色的那几家（第二跳），各家能挑的模型、key 有没有，自定义服务怎么填", async () => {
   haveDeepSeekKey();
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("polish"), 0);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("polish"), 0);
   assert.match(output.out, /local 模式的第二步/);
   assert.match(output.out, /● deepseek\s+DeepSeek\s+deepseek-flash\s+key 存着/);
   assert.match(output.out, /deepseek-v4-pro/);
   assert.match(output.out, /custom\s+自定义服务/);
-  assert.match(output.out, /speakmore polish custom\/<模型名> --url <地址>/);
+  assert.match(output.out, /orangespeakeasy polish custom\/<模型名> --url <地址>/);
 });
 
 test("polish <厂商>/<模型>：有 key 就让在运行的那个当场换", async () => {
   haveDeepSeekKey();
   const daemon = fakeDaemon({ running: LOCAL_READY });
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore("polish", "deepseek/deepseek-v4-pro"), 0);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy("polish", "deepseek/deepseek-v4-pro"), 0);
   assert.deepEqual(daemon.requests.at(-1), { cmd: "set-polish", params: { polish: "deepseek/deepseek-v4-pro" } });
   assert.match(output.out, /整理的模型换成了 DeepSeek 的 deepseek-v4-pro/);
 });
 
 test("polish custom/<模型> --url <地址>：先问自定义服务的 key，连模型和地址一起验证，再换", async () => {
   const daemon = fakeDaemon({ running: LOCAL_READY });
-  const { speakmore, asked } = harness({ daemon, secrets: ["sk-custom"] });
-  assert.equal(await speakmore("polish", "custom/qwen3:8b", "--url", "http://127.0.0.1:11434/v1/chat/completions"), 0);
+  const { orangespeakeasy, asked } = harness({ daemon, secrets: ["sk-custom"] });
+  assert.equal(
+    await orangespeakeasy("polish", "custom/qwen3:8b", "--url", "http://127.0.0.1:11434/v1/chat/completions"),
+    0,
+  );
   // 自定义服务没有申请 key 的页面
   assert.doesNotMatch(asked[0], /申请/);
   assert.deepEqual(daemon.requests.find(({ cmd }) => cmd === "set-key").params, {
@@ -3089,10 +3123,10 @@ test("polish custom/<模型> --url <地址>：先问自定义服务的 key，连
 
 test("polish custom/<模型> --url --params：额外参数规整后连模型和地址一起验证、一起换（issue #8）", async () => {
   const daemon = fakeDaemon({ running: LOCAL_READY });
-  const { speakmore, output } = harness({ daemon, secrets: ["sk-custom"] });
+  const { orangespeakeasy, output } = harness({ daemon, secrets: ["sk-custom"] });
   const params = '{ "max_completion_tokens": 1024 }';
   assert.equal(
-    await speakmore("polish", "custom/gpt-5-mini", "--url", "https://router.example/v1", "--params", params),
+    await orangespeakeasy("polish", "custom/gpt-5-mini", "--url", "https://router.example/v1", "--params", params),
     0,
   );
   const changes = {
@@ -3106,10 +3140,10 @@ test("polish custom/<模型> --url --params：额外参数规整后连模型和�
 });
 
 test("polish --params：写坏了、给的不是自定义服务，以 2 退出说清楚", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("polish", "custom/m", "--url", "https://x.example/v1", "--params", "{bad}"), 2);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("polish", "custom/m", "--url", "https://x.example/v1", "--params", "{bad}"), 2);
   assert.match(output.err, /JSON/);
-  assert.equal(await speakmore("polish", "deepseek", "--params", '{"temperature": 0.2}'), 2);
+  assert.equal(await orangespeakeasy("polish", "deepseek", "--params", '{"temperature": 0.2}'), 2);
   assert.match(output.err, /--params.*自定义服务/);
 });
 
@@ -3122,16 +3156,16 @@ test("polish：自定义服务带着额外参数时，列表里写出来", async
       customParams: '{"reasoning_effort":"minimal"}',
     }),
   );
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("polish"), 0);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("polish"), 0);
   assert.match(output.out, /额外参数：\{"reasoning_effort":"minimal"\}/);
 });
 
 test("polish：自定义服务没给地址、写的是收音频的那家，以 2 退出说清楚", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("polish", "custom/m"), 2);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("polish", "custom/m"), 2);
   assert.match(output.err, /--url/);
-  assert.equal(await speakmore("polish", "openai"), 2);
+  assert.equal(await orangespeakeasy("polish", "openai"), 2);
   // 说出能用的每一家
   assert.ok(output.err.includes(CHAT_VENDORS.map(({ id }) => id).join(" / ")), output.err);
 });
@@ -3139,17 +3173,17 @@ test("polish：自定义服务没给地址、写的是收音频的那家，以 2
 test("polish check：查第二跳现在用的那个能不能用", async () => {
   haveDeepSeekKey();
   const daemon = fakeDaemon({ running: LOCAL_READY });
-  const { speakmore, output } = harness({ daemon });
-  assert.equal(await speakmore("polish", "check"), 0);
+  const { orangespeakeasy, output } = harness({ daemon });
+  assert.equal(await orangespeakeasy("polish", "check"), 0);
   assert.deepEqual(daemon.requests.at(-1), { cmd: "check-polish", params: { polish: "deepseek/deepseek-flash" } });
   assert.match(output.out, /能用：DeepSeek 的 deepseek-flash/);
 });
 
 test("polish check custom/<模型> --url --params：按填的额外参数查，不换掉正在用的", async () => {
   const daemon = fakeDaemon({ running: LOCAL_READY });
-  const { speakmore } = harness({ daemon });
+  const { orangespeakeasy } = harness({ daemon });
   assert.equal(
-    await speakmore(
+    await orangespeakeasy(
       "polish",
       "check",
       "custom/gpt-5-mini",
@@ -3170,62 +3204,62 @@ test("polish check custom/<模型> --url --params：按填的额外参数查，�
   });
 });
 
-// ---------- speakmore dict：词典只是本机的一个文件，直接读写，不经过后台应用 ----------
+// ---------- orangespeakeasy dict：词典只是本机的一个文件，直接读写，不经过后台应用 ----------
 
 const storedTerms = () => JSON.parse(readFileSync(paths.vocabularyFile, "utf8")).terms;
 
 test("dict：空词典说一句怎么加；加几个词、新加的在前；不碰后台应用", async () => {
   const empty = harness();
-  assert.equal(await empty.speakmore("dict"), 0);
+  assert.equal(await empty.orangespeakeasy("dict"), 0);
   assert.match(empty.output.out, /词典是空的/);
 
   const add = harness();
-  assert.equal(await add.speakmore("dict", "add", "Runzo", "  Claude   Code "), 0);
+  assert.equal(await add.orangespeakeasy("dict", "add", "Runzo", "  Claude   Code "), 0);
   assert.match(add.output.out, /已添加：Runzo\n已添加：Claude Code/);
   assert.deepEqual(storedTerms(), ["Claude Code", "Runzo"]);
   assert.deepEqual(add.daemon.calls, []);
 
   const list = harness();
-  assert.equal(await list.speakmore("dict"), 0);
+  assert.equal(await list.orangespeakeasy("dict"), 0);
   assert.match(list.output.out, /2 个词/);
   assert.match(list.output.out, /Claude Code\n {2}Runzo/);
 
   const json = harness();
-  await json.speakmore("dict", "--json");
+  await json.orangespeakeasy("dict", "--json");
   assert.deepEqual(JSON.parse(json.output.out), ["Claude Code", "Runzo"]);
 });
 
 test("dict add：重复的说清楚、其余照加，有没加上的就以 1 退出；不给词是用法错", async () => {
-  await harness().speakmore("dict", "add", "GitHub");
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("dict", "add", "github", "埋点"), 1);
+  await harness().orangespeakeasy("dict", "add", "GitHub");
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("dict", "add", "github", "埋点"), 1);
   assert.match(output.err, /github.*“GitHub”已在词典中/);
   assert.deepEqual(storedTerms(), ["埋点", "GitHub"]);
-  assert.equal(await harness().speakmore("dict", "add"), 2);
+  assert.equal(await harness().orangespeakeasy("dict", "add"), 2);
 });
 
 test("dict remove：删几个词，说删了几个；有不在词典里的照实说、以 1 退出（同 add）", async () => {
-  await harness().speakmore("dict", "add", "a", "b", "c");
+  await harness().orangespeakeasy("dict", "add", "a", "b", "c");
   const removed = harness();
-  assert.equal(await removed.speakmore("dict", "remove", "A", "c", "zzz", "yyy"), 1);
+  assert.equal(await removed.orangespeakeasy("dict", "remove", "A", "c", "zzz", "yyy"), 1);
   assert.match(removed.output.out, /已删除 2 个词/);
   assert.match(removed.output.err, /词典中没有“zzz、yyy”/);
   assert.deepEqual(storedTerms(), ["b"]);
   const none = harness();
-  assert.equal(await none.speakmore("dict", "remove", "zzz"), 1);
+  assert.equal(await none.orangespeakeasy("dict", "remove", "zzz"), 1);
   assert.match(none.output.err, /词典中没有/);
 });
 
 test("dict import：一列的 CSV 或一行一个词，已有的、无效的跳过，说清各几个；文件读不出来照实说", async () => {
-  await harness().speakmore("dict", "add", "Runzo");
+  await harness().orangespeakeasy("dict", "add", "Runzo");
   const file = join(paths.home, "words.csv");
   writeFileSync(file, `Runzo\nmultica,备注\n"Hello, World"\n${"x".repeat(60)}\n`);
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("dict", "import", file), 0);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("dict", "import", file), 0);
   assert.match(output.out, /已导入 2 个词.*已在词典中 1 个.*文件内重复 0 个.*无效 1 个/);
   assert.deepEqual(storedTerms(), ["multica", "Hello, World", "Runzo"]);
   const missing = harness();
-  assert.equal(await missing.speakmore("dict", "import", join(paths.home, "nope.csv")), 1);
+  assert.equal(await missing.orangespeakeasy("dict", "import", join(paths.home, "nope.csv")), 1);
   assert.match(missing.output.err, /nope\.csv/);
 });
 
@@ -3233,23 +3267,23 @@ test("dict import：GBK 存的 CSV（中文 Windows 上 Excel 的默认）照样
   const gbk = join(paths.home, "gbk.csv");
   // "埋点,备注" 的 GBK
   writeFileSync(gbk, Buffer.from([0xc2, 0xf1, 0xb5, 0xe3, 0x2c, 0xb1, 0xb8, 0xd7, 0xa2]));
-  const { speakmore } = harness();
-  assert.equal(await speakmore("dict", "import", gbk), 0);
+  const { orangespeakeasy } = harness();
+  assert.equal(await orangespeakeasy("dict", "import", gbk), 0);
   assert.deepEqual(storedTerms(), ["埋点"]);
   const binary = join(paths.home, "bin.csv");
   writeFileSync(binary, Buffer.from([0x7f, 0x45, 0x4c, 0x46, 0, 1, 2]));
   const refused = harness();
-  assert.equal(await refused.speakmore("dict", "import", binary), 1);
+  assert.equal(await refused.orangespeakeasy("dict", "import", binary), 1);
   assert.match(refused.output.err, /不是文本文件/);
   assert.deepEqual(storedTerms(), ["埋点"]);
 });
 
 test("dict：--json 只给看词典用，加、删、导入带上它是用法错", async () => {
-  assert.equal(await harness().speakmore("dict", "add", "x", "--json"), 2);
+  assert.equal(await harness().orangespeakeasy("dict", "add", "x", "--json"), 2);
 });
 
 test("dict：不认识的子命令是用法错，说怎么用", async () => {
-  const { speakmore, output } = harness();
-  assert.equal(await speakmore("dict", "frobnicate"), 2);
-  assert.match(output.err, /speakmore dict/);
+  const { orangespeakeasy, output } = harness();
+  assert.equal(await orangespeakeasy("dict", "frobnicate"), 2);
+  assert.match(output.err, /orangespeakeasy dict/);
 });

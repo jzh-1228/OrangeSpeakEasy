@@ -1,6 +1,6 @@
 import { closeSync, openSync, readSync, statSync } from "node:fs";
 
-// speakmore logs 在没有 tail 的系统上（Windows）用的：先打最后几行，-f 时接着把新写进来的打出来，按 Ctrl-C 停。
+// orangespeakeasy logs 在没有 tail 的系统上（Windows）用的：先打最后几行，-f 时接着把新写进来的打出来，按 Ctrl-C 停。
 // macOS 上照旧用系统的 tail。
 
 /** 文件最后 lines 行（不到 lines 行就是全部） */

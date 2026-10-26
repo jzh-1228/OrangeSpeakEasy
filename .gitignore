@@ -39,7 +39,7 @@ node_modules
 
 # 打 Windows 安装程序时临时生成的资源文件（scripts/build/windows-setup.mjs 编完就删）
 native/windows-setup/*.syso
-# SpeakMore 本机编译出来的原生小程序和打出来的应用（只认仓库根下的这两个目录）
+# OrangeSpeakEasy 本机编译出来的原生小程序和打出来的应用（只认仓库根下的这两个目录）
 /build/
 /dist/
 # 官网构建出来的静态页

@@ -1,6 +1,6 @@
 import { INDENT, paint } from "./text.mjs";
 
-// 历史（speakmore history）：按天分组，新的在前。
+// 历史（orangespeakeasy history）：按天分组，新的在前。
 // 翻译的那几条正文是译文，下面淡色写功能、目标语言和原文（和主窗口的历史一样）。
 
 /** 按给定时区拆出年月日和"时:分"（日期怎么写、星期几由 dayHeading 按界面语言写） */
@@ -56,7 +56,7 @@ function sourceLines({ kind, outputLanguage, sourceText }, t) {
  */
 export function renderHistory({ rows, total }, { color, now, timeZone, t }) {
   const c = paint(color);
-  if (rows.length === 0) return `${t("cli.history.empty", { command: c.bold("speakmore") })}\n`;
+  if (rows.length === 0) return `${t("cli.history.empty", { command: c.bold("orangespeakeasy") })}\n`;
 
   // "  14:32  " 之后才是文字，续行缩进到同一列
   const continuation = " ".repeat(INDENT.length + 5 + 2);

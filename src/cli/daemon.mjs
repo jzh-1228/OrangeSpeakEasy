@@ -17,7 +17,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * 后台应用用哪个 Electron 来跑。
- * 装好的 SpeakMore 自带一份，这条命令本身就是拿它当 Node 跑起来的，所以正在跑我们的这个可执行文件就是它。
+ * 装好的 OrangeSpeakEasy 自带一份，这条命令本身就是拿它当 Node 跑起来的，所以正在跑我们的这个可执行文件就是它。
  * 从源码仓库跑（开发时）用的是系统的 Node，这时去依赖里找：electron 这个包导出的就是可执行文件的路径，
  * 没下载过的话它会在这一步自己去下载。
  */
@@ -117,7 +117,7 @@ export function createDaemon({
         cwd: paths.home,
         windowsHide: true,
         stdio: ["ignore", logFd, logFd],
-        env: { ...childEnv, SPEAKMORE_CLI: "1" },
+        env: { ...childEnv, ORANGESPEAKEASY_CLI: "1" },
       });
       child.on("exit", (code, signal) => {
         ended = { code, reason: signal ? msg("cli.daemon.signal", { signal }) : msg("cli.daemon.exitCode", { code }) };
@@ -128,7 +128,7 @@ export function createDaemon({
       child.unref();
       closeSync(logFd);
 
-      // 另一条 speakmore 命令抢先启动了一个，我们这个发现后自己退出：不算失败，接着等抢先的那个
+      // 另一条 orangespeakeasy 命令抢先启动了一个，我们这个发现后自己退出：不算失败，接着等抢先的那个
       const lostRace = () => ended?.code === ALREADY_RUNNING_EXIT_CODE;
       const failed = () =>
         new LocalizedError(

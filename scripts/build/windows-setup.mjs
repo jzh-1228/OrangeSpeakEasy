@@ -1,7 +1,7 @@
-// 打 Windows 直接下载的安装程序 SpeakMore-Setup-x64.exe：native/windows-setup 编出来的那段程序，后面接
+// 打 Windows 直接下载的安装程序 OrangeSpeakEasy-Setup-x64.exe：native/windows-setup 编出来的那段程序，后面接
 // 整棵程序（app\ 和 runtime\）打成的 tar、再用 zstd 压过，最后 16 个字节是记号和压过的那段的长度。
 // 格式和 native/windows-setup/payload.go 读的一致。
-// 双击后它把树解到临时目录，让树里自带的 install.ps1 从那里装（SPEAKMORE_INSTALL_FROM）：怎么装还是只有 install.ps1 一份。
+// 双击后它把树解到临时目录，让树里自带的 install.ps1 从那里装（ORANGESPEAKEASY_INSTALL_FROM）：怎么装还是只有 install.ps1 一份。
 // 由 scripts/release/release.mjs 在摆好 Windows 的树之后调用。
 import { execFileSync, spawn } from "node:child_process";
 import {
@@ -59,7 +59,7 @@ function packTree(tree, out) {
 export async function buildWindowsSetup({ packageDir, version, tree, out, run = execFileSync }) {
   const source = join(packageDir, "native", "windows-setup");
   const go = goCommand(packageDir, process.platform);
-  const work = mkdtempSync(join(tmpdir(), "speakmore-setup-"));
+  const work = mkdtempSync(join(tmpdir(), "orangespeakeasy-setup-"));
   try {
     const program = join(work, "setup.exe");
     try {
@@ -79,13 +79,13 @@ export async function buildWindowsSetup({ packageDir, version, tree, out, run = 
           "--icon",
           join(packageDir, "assets", "icon.ico"),
           "--product-name",
-          "SpeakMore",
+          "OrangeSpeakEasy",
           "--product-version",
           version,
           "--file-version",
           fileVersion(version),
           "--file-description",
-          "SpeakMore Setup",
+          "OrangeSpeakEasy Setup",
           "--original-filename",
           basename(out),
           "--copyright",

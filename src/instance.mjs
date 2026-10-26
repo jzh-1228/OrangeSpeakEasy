@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { NotRunningError, requestControl, TimeoutError } from "./control.mjs";
 import { LocalizedError, msg } from "./i18n/index.mjs";
 
-// 这个家目录里正在运行的那个 SpeakMore（App 或者命令行起的后台）：问它的状态、请它退出。
+// 这个家目录里正在运行的那个 OrangeSpeakEasy（App 或者命令行起的后台）：问它的状态、请它退出。
 // 命令行（start、stop、update）和更新（src/update）都用这一份。它的停法只有这里一处：先请它自己退出，不退再结束进程。
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -30,7 +30,7 @@ export function commandOfProcess(pid) {
 }
 
 /** 后台应用的主进程跑的是哪个可执行文件（见 recordedPid） */
-const OUR_EXECUTABLE = /\/MacOS\/(Electron|SpeakMore)( |$)|\\electron\.exe$/i;
+const OUR_EXECUTABLE = /\/MacOS\/(Electron|OrangeSpeakEasy)( |$)|\\electron\.exe$/i;
 
 /**
  * @param {object} options
@@ -99,7 +99,7 @@ export function createInstance({
     const pid = Number(text.trim());
     if (!Number.isInteger(pid) || pid <= 1) return null;
     // 进程号会被系统分给别的程序，所以还要看它跑的是不是我们：命令启动的主进程是 …/MacOS/Electron，
-    // 装成应用的是 …/MacOS/SpeakMore，Windows 上是 …\\electron.exe。只看有没有 "Electron" 字样不够，别的应用的辅助进程路径里也有
+    // 装成应用的是 …/MacOS/OrangeSpeakEasy，Windows 上是 …\\electron.exe。只看有没有 "Electron" 字样不够，别的应用的辅助进程路径里也有
     return OUR_EXECUTABLE.test(commandOf(pid) ?? "") ? pid : null;
   }
 

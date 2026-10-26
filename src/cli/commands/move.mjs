@@ -4,8 +4,8 @@ import { msg } from "../../i18n/index.mjs";
 import { sizeText } from "../../models/describe.mjs";
 import { parse, UsageError } from "../common.mjs";
 
-// speakmore move <文件夹>：把 SpeakMore 整个目录（程序、本机模型、录音、设置）搬进那个文件夹里的 .speakmore；
-// speakmore move ~ 搬回默认位置。不写文件夹就说现在在哪。
+// orangespeakeasy move <文件夹>：把 OrangeSpeakEasy 整个目录（程序、本机模型、录音、设置）搬进那个文件夹里的 .orangespeakeasy；
+// orangespeakeasy move ~ 搬回默认位置。不写文件夹就说现在在哪。
 // 怎么搬在内核里（src/move），App 设置里的"存储位置"走的是同一套；这里只管问一句、报进度、说结果。
 
 /** 敲进来的文件夹：~ 换成用户目录（PowerShell 不替外部命令展开它），相对路径按当前目录 */

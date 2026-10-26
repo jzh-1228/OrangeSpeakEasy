@@ -91,7 +91,7 @@ test("额外参数：一段 JSON 对象；空的、{} 都是没填；不是对�
   says(() => parseCustomParams("[1, 2]"), /对象/);
   says(() => parseCustomParams("1024"), /对象/);
   says(() => parseCustomParams("null"), /对象/);
-  // 模型名、提示词、整段回话的读法由 SpeakMore 管，改了会把成品弄乱
+  // 模型名、提示词、整段回话的读法由 OrangeSpeakEasy 管，改了会把成品弄乱
   says(() => parseCustomParams('{"model": "x"}'), /model/);
   says(() => parseCustomParams('{"messages": []}'), /messages/);
   says(() => parseCustomParams('{"stream": true}'), /stream/);

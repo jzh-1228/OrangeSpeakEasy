@@ -17,7 +17,7 @@
 set -eu
 cd "$(dirname "$0")/../.."
 
-DOWNLOAD_URL="https://dl.zephyrxiang.com/speakmore"
+DOWNLOAD_URL="https://github.com/jzh-1228/OrangeSpeakEasy/releases/latest/download"
 
 fail() {
   echo "ship：$1" >&2
@@ -42,7 +42,7 @@ remote="$(git ls-remote origin "refs/tags/${tag}^{}" | cut -f 1)"
 
 # 这个版本传过（哪怕只传了一部分）就不能重打：打出来的包每次都不一样，会被当成改了已发布的版本，版本号只能作废。
 # 断在上传的话照上面说的再跑 publish-release
-if curl -fsI "${DOWNLOAD_URL}/${tag}/speakmore-darwin-arm64.tar.xz.sha256" >/dev/null 2>&1; then
+if curl -fsI "${DOWNLOAD_URL}/${tag}/orangespeakeasy-darwin-arm64.tar.xz.sha256" >/dev/null 2>&1; then
   fail "下载地址上已经有 ${tag} 的包了：别重新打包。没传完就再运行 scripts/release/with-cos-key.sh npm run publish-release"
 fi
 
@@ -74,9 +74,9 @@ done
 [ "$(curl -fsS "${DOWNLOAD_URL}/channel.json")" = "$(cat dist/release/channel.json)" ] ||
   fail "传上去了，但下载地址上的 channel.json 两分钟后还不是这一次的"
 for sum in \
-  "${tag}/speakmore-darwin-arm64.tar.xz.sha256" "${tag}/SpeakMore-arm64.dmg.sha256" \
-  "${tag}/speakmore-darwin-x64.tar.xz.sha256" "${tag}/SpeakMore-x64.dmg.sha256" \
-  "${tag}/speakmore-win32-x64.zip.sha256" "${tag}/SpeakMore-Setup-x64.exe.sha256"; do
+  "${tag}/orangespeakeasy-darwin-arm64.tar.xz.sha256" "${tag}/OrangeSpeakEasy-arm64.dmg.sha256" \
+  "${tag}/orangespeakeasy-darwin-x64.tar.xz.sha256" "${tag}/OrangeSpeakEasy-x64.dmg.sha256" \
+  "${tag}/orangespeakeasy-win32-x64.zip.sha256" "${tag}/OrangeSpeakEasy-Setup-x64.exe.sha256"; do
   [ "$(curl -fsS "${DOWNLOAD_URL}/${sum}")" = "$(cat "dist/release/${sum}")" ] || fail "下载地址上 ${sum} 和本机的不一样"
 done
 for script in install.sh install.ps1; do

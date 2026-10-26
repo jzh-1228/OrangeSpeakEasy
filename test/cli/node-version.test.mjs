@@ -17,7 +17,7 @@ test("自带的 SQLite 不用加启动参数的版本才行：22.13 起，23 系
   }
   assert.equal(
     en.text(nodeVersionProblem("20.18.1")),
-    "SpeakMore needs Node 22.13 or newer (23.4 or newer on the 23 line); this is 20.18.1.",
+    "OrangeSpeakEasy needs Node 22.13 or newer (23.4 or newer on the 23 line); this is 20.18.1.",
   );
   // 文案那一层跑不起来时用的英文，和 en.mjs 里的一字不差
   for (const old of ["14.21.3", "22.12.0"])

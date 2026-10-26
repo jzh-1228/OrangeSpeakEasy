@@ -80,7 +80,7 @@ test("清单：对象是每份更新清单和它用到的块；其余先是这�
   assert.deepEqual(
     plan.objects.map((item) => item.key).sort(),
     readdirSync(join(dir, "store"))
-      .map((name) => `speakmore/store/${name}`)
+      .map((name) => `orangespeakeasy/store/${name}`)
       .sort(),
   );
   for (const item of plan.objects) {
@@ -90,21 +90,21 @@ test("清单：对象是每份更新清单和它用到的块；其余先是这�
   assert.deepEqual(
     plan.files.map((item) => item.key),
     [
-      "speakmore/v1.2.3/speakmore-darwin-arm64.tar.xz",
-      "speakmore/v1.2.3/speakmore-darwin-arm64.tar.xz.sha256",
-      "speakmore/v1.2.3/SpeakMore-arm64.dmg",
-      "speakmore/v1.2.3/SpeakMore-arm64.dmg.sha256",
-      "speakmore/v1.2.3/speakmore-darwin-x64.tar.xz",
-      "speakmore/v1.2.3/speakmore-darwin-x64.tar.xz.sha256",
-      "speakmore/v1.2.3/SpeakMore-x64.dmg",
-      "speakmore/v1.2.3/SpeakMore-x64.dmg.sha256",
-      "speakmore/v1.2.3/speakmore-win32-x64.zip",
-      "speakmore/v1.2.3/speakmore-win32-x64.zip.sha256",
-      "speakmore/v1.2.3/SpeakMore-Setup-x64.exe",
-      "speakmore/v1.2.3/SpeakMore-Setup-x64.exe.sha256",
-      "speakmore/install.sh",
-      "speakmore/install.ps1",
-      "speakmore/channel.json",
+      "orangespeakeasy/v1.2.3/orangespeakeasy-darwin-arm64.tar.xz",
+      "orangespeakeasy/v1.2.3/orangespeakeasy-darwin-arm64.tar.xz.sha256",
+      "orangespeakeasy/v1.2.3/OrangeSpeakEasy-arm64.dmg",
+      "orangespeakeasy/v1.2.3/OrangeSpeakEasy-arm64.dmg.sha256",
+      "orangespeakeasy/v1.2.3/orangespeakeasy-darwin-x64.tar.xz",
+      "orangespeakeasy/v1.2.3/orangespeakeasy-darwin-x64.tar.xz.sha256",
+      "orangespeakeasy/v1.2.3/OrangeSpeakEasy-x64.dmg",
+      "orangespeakeasy/v1.2.3/OrangeSpeakEasy-x64.dmg.sha256",
+      "orangespeakeasy/v1.2.3/orangespeakeasy-win32-x64.zip",
+      "orangespeakeasy/v1.2.3/orangespeakeasy-win32-x64.zip.sha256",
+      "orangespeakeasy/v1.2.3/OrangeSpeakEasy-Setup-x64.exe",
+      "orangespeakeasy/v1.2.3/OrangeSpeakEasy-Setup-x64.exe.sha256",
+      "orangespeakeasy/install.sh",
+      "orangespeakeasy/install.ps1",
+      "orangespeakeasy/channel.json",
     ],
   );
   const type = (suffix) => plan.files.find(({ key }) => key.endsWith(suffix)).contentType;
@@ -129,11 +129,11 @@ test("清单：版本目录里的长期缓存、不许改；安装脚本和 chan
 
 test("发布目录不齐或对不上：不出清单", async () => {
   rmSync(join(dir, "v1.2.3", archiveName("x64")));
-  assert.throws(() => planUpload(dir), /少了 v1\.2\.3\/speakmore-darwin-x64\.tar\.xz/);
+  assert.throws(() => planUpload(dir), /少了 v1\.2\.3\/orangespeakeasy-darwin-x64\.tar\.xz/);
 
   await makeRelease();
   writeFileSync(join(dir, "v1.2.3", dmgName("x64")), "签完名又改过");
-  assert.throws(() => planUpload(dir), /SpeakMore-x64\.dmg 和它的 \.sha256 对不上/);
+  assert.throws(() => planUpload(dir), /OrangeSpeakEasy-x64\.dmg 和它的 \.sha256 对不上/);
 
   // 清单用到的块少了一个、坏了一个
   await makeRelease();
@@ -179,20 +179,20 @@ test("上传：全新的全传，先对象、再按清单的先后传其余的�
 test("上传：发新版本时只传新的块，旧版本的不碰，安装脚本没变不传，channel.json 换成新的", async () => {
   const store = fakeStore();
   await publish(planUpload(dir), store, () => {});
-  const old = store.objects.get("speakmore/v1.2.3/speakmore-darwin-arm64.tar.xz");
+  const old = store.objects.get("orangespeakeasy/v1.2.3/orangespeakeasy-darwin-arm64.tar.xz");
 
   await makeRelease("1.3.0");
   store.puts.length = 0;
   const plan = planUpload(dir);
   await publish(plan, store, () => {});
   // "shared" 那一块各版本一样，不用再传：每棵树只传新的 version 那块和新的清单
-  assert.equal(store.puts.filter((key) => key.startsWith("speakmore/store/")).length, TARGETS.length * 2);
+  assert.equal(store.puts.filter((key) => key.startsWith("orangespeakeasy/store/")).length, TARGETS.length * 2);
   assert.deepEqual(
-    store.puts.filter((key) => !key.startsWith("speakmore/store/")),
+    store.puts.filter((key) => !key.startsWith("orangespeakeasy/store/")),
     plan.files.map(({ key }) => key).filter((key) => !/install\.(sh|ps1)$/.test(key)),
   );
-  assert.equal(store.puts.at(-1), "speakmore/channel.json");
-  assert.deepEqual(store.objects.get("speakmore/v1.2.3/speakmore-darwin-arm64.tar.xz"), old);
+  assert.equal(store.puts.at(-1), "orangespeakeasy/channel.json");
+  assert.deepEqual(store.objects.get("orangespeakeasy/v1.2.3/orangespeakeasy-darwin-arm64.tar.xz"), old);
 });
 
 test("上传：上面已经有同名的对象就不传，哪怕压出来的字节不一样（名字就是内容）", async () => {
@@ -229,18 +229,18 @@ test("上传：传上去之后对不上：对象没在上面、文件大小或�
     publish(planUpload(dir), lost, () => {}),
     /传完以后上面还缺 \d+ 个对象/,
   );
-  assert.ok(!lost.puts.includes("speakmore/channel.json"));
+  assert.ok(!lost.puts.includes("orangespeakeasy/channel.json"));
 
   const store = fakeStore();
   const put = store.put;
   store.put = async (item) => {
     await put(item);
-    if (!item.key.startsWith("speakmore/store/"))
+    if (!item.key.startsWith("orangespeakeasy/store/"))
       store.objects.set(item.key, { size: item.size - 1, sha256: item.sha256 });
   };
   await assert.rejects(
     publish(planUpload(dir), store, () => {}),
     /传上去之后和本机的对不上/,
   );
-  assert.equal(store.puts.filter((key) => !key.startsWith("speakmore/store/")).length, 1);
+  assert.equal(store.puts.filter((key) => !key.startsWith("orangespeakeasy/store/")).length, 1);
 });

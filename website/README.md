@@ -1,6 +1,6 @@
-# SpeakMore 官网
+# OrangeSpeakEasy 官网
 
-`speakmore.zephyrxiang.com` 的源码：一个单页的静态站，React 19 + Tailwind CSS v4 + Vite，中英双语。
+`orangespeakeasy.zephyrxiang.com` 的源码：一个单页的静态站，React 19 + Tailwind CSS v4 + Vite，中英双语。
 
 ## 跑起来
 
@@ -32,7 +32,7 @@ lint 用仓库根上的 biome：在仓库根 `npm run lint`（已经包含 `webs
 
 ## 截图
 
-图是 App 的真页面、真样式配上造的数据，在 Electron 里离屏截的（不碰 `~/.speakmore`），存成 WebP，传到单独的 COS 桶，经 CDN 域名 `media.speakmore.zephyrxiang.com` 给页面用。仓库里不放图。App 的界面改了就重截：
+图是 App 的真页面、真样式配上造的数据，在 Electron 里离屏截的（不碰 `~/.orangespeakeasy`），存成 WebP，传到单独的 COS 桶，经 CDN 域名 `media.orangespeakeasy.zephyrxiang.com` 给页面用。仓库里不放图。App 的界面改了就重截：
 
 ```bash
 cd website
@@ -57,7 +57,7 @@ npm run deploy
 
 发了新版本要再部署一次：下载链接的版本号是构建时取的。
 
-宿主机 nginx 的站点文件是 `host-nginx.conf`，放在服务器的 `/etc/nginx/sites-available/speakmore-site`。改它时先备份，`sudo nginx -t` 通过才 `sudo systemctl reload nginx`。回滚：容器出了问题就把上一个提交 `npm run deploy` 一次；站点文件出了问题就换回备份再 reload。
+宿主机 nginx 的站点文件是 `host-nginx.conf`，放在服务器的 `/etc/nginx/sites-available/orangespeakeasy-site`。改它时先备份，`sudo nginx -t` 通过才 `sudo systemctl reload nginx`。回滚：容器出了问题就把上一个提交 `npm run deploy` 一次；站点文件出了问题就换回备份再 reload。
 
 只在本机试容器（OrbStack 或 Docker Desktop）：
 

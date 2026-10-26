@@ -206,7 +206,7 @@ export function createKeyManager({
       } catch (error) {
         if (version !== routeVersion) return;
         // 不用 key 的路线装不上，多半是 bug：照实说
-        const { cause, problem, detail } = described(error, null, { id: null, name: "SpeakMore" });
+        const { cause, problem, detail } = described(error, null, { id: null, name: "OrangeSpeakEasy" });
         log.error("route_failed", { route: service.route.mode, cause, error: detail.slice(0, 300) });
         become({ state: "rejected", source: "none", problem, cause });
         return;
@@ -425,7 +425,7 @@ export function createKeyManager({
         try {
           await service.probe({ route, apiKey: null });
         } catch (error) {
-          const { cause, problem } = described(error, null, { id: null, name: "SpeakMore" });
+          const { cause, problem } = described(error, null, { id: null, name: "OrangeSpeakEasy" });
           return { ok: false, cause, problem };
         }
         return { ok: true, source: "none", ms: Math.round(performance.now() - startedAt) };

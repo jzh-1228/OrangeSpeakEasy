@@ -8,9 +8,9 @@ import { routeOf } from "../../storage/settings.mjs";
 import { Cancelled } from "../ask-secret.mjs";
 import { currentSettings, ensureRunning, PACKAGED_RELAUNCH, parse, UsageError } from "../common.mjs";
 
-// speakmore key：问 key、交给后台应用验证并保存、删掉。每家模型一把，不写厂商就是设置里正在用的那家
+// orangespeakeasy key：问 key、交给后台应用验证并保存、删掉。每家模型一把，不写厂商就是设置里正在用的那家
 // （native 模式是收音频的那家，local 模式是润色的那家）。
-// 启动时（speakmore start）、切模式和换模型时（mode、model、polish）缺 key 也从这里问。
+// 启动时（orangespeakeasy start）、切模式和换模型时（mode、model、polish）缺 key 也从这里问。
 
 const MAX_KEY_ATTEMPTS = 3;
 
@@ -101,16 +101,18 @@ export async function submitKey(io, value, provider, changes) {
 export const currentProvider = (io) => keyVendorOf(routeOf(currentSettings(io)));
 
 /**
- * 要换成用某一家，在哪一层换：收音频的在 native（speakmore model），润色的在 local 第二跳（speakmore polish）。
+ * 要换成用某一家，在哪一层换：收音频的在 native（orangespeakeasy model），润色的在 local 第二跳（orangespeakeasy polish）。
  * 不在那一层的模式里时，换的命令只在那种模式里能用，要连模式一起切
  * @param {string} current 现在是哪种模式
  */
 function switchCommand(provider, current) {
   if (findProvider(provider.id)) {
-    return current === "native" ? `speakmore model ${provider.id}` : `speakmore mode native --model ${provider.id}`;
+    return current === "native"
+      ? `orangespeakeasy model ${provider.id}`
+      : `orangespeakeasy mode native --model ${provider.id}`;
   }
   const polish = provider.defaultModel ? provider.id : `${provider.id}/<model> --url <url>`;
-  return current === "local" ? `speakmore polish ${polish}` : `speakmore mode local --polish ${polish}`;
+  return current === "local" ? `orangespeakeasy polish ${polish}` : `orangespeakeasy mode local --polish ${polish}`;
 }
 
 /**
@@ -136,7 +138,7 @@ export function keySourceFor(io, provider, status) {
 /** 启动之前就看得出有 key 可用：存过、环境变量给了，或者 key 归单独启动的服务端管；不用 key 的模式也算 */
 export function hasKeyAlready(io) {
   const provider = currentProvider(io);
-  return provider === undefined || keySource(io, provider) !== null || Boolean(io.env.SPEAKMORE_SERVER_URL);
+  return provider === undefined || keySource(io, provider) !== null || Boolean(io.env.ORANGESPEAKEASY_SERVER_URL);
 }
 
 /**

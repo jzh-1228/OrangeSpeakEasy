@@ -23,7 +23,7 @@ const said = (pattern) => (error) => pattern.test(zh.text(error.problem ?? error
 let dir;
 let file;
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "speakmore-vocabulary-"));
+  dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-vocabulary-"));
   file = join(dir, "vocabulary.json");
 });
 afterEach(() => rmSync(dir, { recursive: true, force: true }));

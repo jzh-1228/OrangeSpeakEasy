@@ -4,7 +4,7 @@
 
 export default {
   meta: {
-    title: "SpeakMore — Speak it written. Select to translate.",
+    title: "OrangeSpeakEasy — Speak it written. Select to translate.",
     description:
       "Voice input, voice translation and selection translation, each one hotkey away. Free and open source for Mac and Windows. Your model, your mode, your cost.",
   },
@@ -16,14 +16,14 @@ export default {
     privacy: "Privacy",
     developers: "Developers",
     download: "Download",
-    github: "SpeakMore on GitHub",
-    home: "SpeakMore home",
+    github: "OrangeSpeakEasy on GitHub",
+    home: "OrangeSpeakEasy home",
   },
   hero: {
     title: "Speak it written. Select to translate.",
     lead: "Free, open-source voice input and translation for Mac and Windows",
     shotAlt:
-      "SpeakMore's home window: the hotkeys of the three features, words, time saved, pace and a daily heatmap, with the active mode at the top right",
+      "OrangeSpeakEasy's home window: the hotkeys of the three features, words, time saved, pace and a daily heatmap, with the active mode at the top right",
     barAlt: "The floating bar during dictation: cancel, a live waveform, done",
   },
   // How keys are written: the right-hand key is named differently on Mac and Windows; shown for the visitor's system
@@ -271,7 +271,7 @@ export default {
       cli: [
         {
           comment: "Switch modes, effective immediately",
-          command: "speakmore mode private",
+          command: "orangespeakeasy mode private",
           output: [
             "Switched to private mode: qwen3-asr-0.6b-q8 on this Mac; no refining, nothing uploaded.",
             "Switched, no restart needed.",
@@ -279,12 +279,12 @@ export default {
         },
         {
           comment: "Change the theme",
-          command: "speakmore theme indigo",
+          command: "orangespeakeasy theme indigo",
           output: ["Theme set to Indigo (indigo).", "Applied, no restart needed."],
         },
         {
           comment: "Status as JSON",
-          command: "speakmore status --json",
+          command: "orangespeakeasy status --json",
           output: ['{"running":true,"status":{…},"settings":{"mode":{"value":"private",…},…},…}'],
         },
       ],

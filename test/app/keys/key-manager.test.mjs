@@ -246,7 +246,7 @@ test("环境变量里的 key 带着换行：直接判成不能用，不交给服
 test("连的是单独启动的服务端：key 在那边，这里不管", async () => {
   const { keys } = setup({ external: true, stored: "stored-key" });
   assert.deepEqual(await keys.loadAtStartup(), { state: "ready", source: "external", problem: null });
-  assert.match(zh.text((await keys.save("new-key")).problem), /SPEAKMORE_SERVER_URL/);
+  assert.match(zh.text((await keys.save("new-key")).problem), /ORANGESPEAKEASY_SERVER_URL/);
   await keys.forget();
   assert.equal(keys.current.source, "external");
 });
@@ -568,7 +568,7 @@ test("检查：没有那一家的 key、key 读不出来、验证没通过，各
   const none = await setup().keys.check(nativeRoute("openai", "gpt-audio-mini"));
   assert.equal(none.ok, false);
   assert.equal(none.cause, "missing");
-  assert.match(zh.text(none.problem), /还没有 OpenAI 的 key.*speakmore key openai/);
+  assert.match(zh.text(none.problem), /还没有 OpenAI 的 key.*orangespeakeasy key openai/);
 
   const unreadable = await setup({ storedOther: new Error("解不开") }).keys.check(
     nativeRoute("openai", "gpt-audio-mini"),
@@ -586,7 +586,7 @@ test("检查：没有那一家的 key、key 读不出来、验证没通过，各
 test("检查：连的是单独启动的服务端时查不了，说清为什么", async () => {
   const result = await setup({ external: true }).keys.check(nativeRoute("gemini", "gemini-3.5-flash"));
   assert.equal(result.ok, false);
-  assert.match(zh.text(result.problem), /SPEAKMORE_SERVER_URL/);
+  assert.match(zh.text(result.problem), /ORANGESPEAKEASY_SERVER_URL/);
 });
 
 test("检查正在用的那家时，用的是这次运行实际在用的那把（中途存过新的就是新的），不是环境变量里的", async () => {
@@ -697,7 +697,7 @@ test("检查两家的路线：缺另一家时说去填哪一家；都有时两�
   const missing = setup({ storedDeepseek: "ds-key" });
   const result = await missing.keys.check(CLOUD_FIRST_HOP);
   assert.equal(result.cause, "missing");
-  assert.match(zh.text(result.problem), /speakmore key bailian/);
+  assert.match(zh.text(result.problem), /orangespeakeasy key bailian/);
   const both = setup({ storedDeepseek: "ds-key", storedBailian: "bl-key" });
   assert.equal((await both.keys.check(CLOUD_FIRST_HOP)).ok, true);
   assert.deepEqual(both.service.calls, [{ probe: "ds-key", route: CLOUD_FIRST_HOP, keys: { bailian: "bl-key" } }]);

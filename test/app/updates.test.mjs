@@ -54,7 +54,7 @@ const AVAILABLE = {
   latest: "0.10.1",
   checkedAt: NOW.toISOString(),
   available: true,
-  behind: [{ kind: "bundle", version: "0.10.0", path: "/Applications/SpeakMore.app" }],
+  behind: [{ kind: "bundle", version: "0.10.0", path: "/Applications/OrangeSpeakEasy.app" }],
   problem: null,
 };
 

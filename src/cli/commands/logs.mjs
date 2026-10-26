@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { noPositionals, parse, positiveInteger } from "../common.mjs";
 
-// speakmore logs：看后台应用的日志。
+// orangespeakeasy logs：看后台应用的日志。
 
 const DEFAULT_LOG_LINES = 40;
 

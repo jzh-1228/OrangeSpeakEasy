@@ -13,7 +13,10 @@ const MAC_CLI = { key: "mac-cli", label: "Mac 终端安装", platform: "mac" };
 const PACKAGES = new Map([
   [dmgName("arm64"), { key: "mac-dmg-arm64", label: "Mac 安装包（Apple 芯片）", platform: "mac" }],
   [dmgName("x64"), { key: "mac-dmg-x64", label: "Mac 安装包（Intel）", platform: "mac" }],
-  ...ARCHS.flatMap((arch) => [archiveName(arch), `speakmore-darwin-${arch}.tar.gz`]).map((name) => [name, MAC_CLI]),
+  ...ARCHS.flatMap((arch) => [archiveName(arch), `orangespeakeasy-darwin-${arch}.tar.gz`]).map((name) => [
+    name,
+    MAC_CLI,
+  ]),
   [WINDOWS_SETUP, { key: "win-setup", label: "Windows 安装程序", platform: "win" }],
   [WINDOWS_ARCHIVE, { key: "win-cli", label: "Windows 终端安装", platform: "win" }],
 ]);

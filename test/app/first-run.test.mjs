@@ -48,13 +48,13 @@ test(
     assert.equal(needsHomeChoice({ ...base, platform: "win32" }), false);
     assert.equal(needsHomeChoice({ ...base, packaged: false }), false);
     assert.equal(needsHomeChoice({ ...base, launchedByCli: true }), false);
-    assert.equal(needsHomeChoice({ ...base, env: { SPEAKMORE_HOME: "/x" } }), false);
-    mkdirSync(join(userHome, "Library", "Application Support", "SpeakMore"), { recursive: true });
+    assert.equal(needsHomeChoice({ ...base, env: { ORANGESPEAKEASY_HOME: "/x" } }), false);
+    mkdirSync(join(userHome, "Library", "Application Support", "OrangeSpeakEasy"), { recursive: true });
     assert.equal(needsHomeChoice(base), false, "0.1 版的老用户");
     rmSync(join(userHome, "Library"), { recursive: true });
-    mkdirSync(join(userHome, ".speakmore"));
+    mkdirSync(join(userHome, ".orangespeakeasy"));
     assert.equal(needsHomeChoice(base), false, "装过了");
-    rmSync(join(userHome, ".speakmore"), { recursive: true });
+    rmSync(join(userHome, ".orangespeakeasy"), { recursive: true });
     writeFileSync(join(userHome, "location"), "");
     assert.equal(
       needsHomeChoice({ ...base, exists: (path) => path === locationFileOf({}, userHome, "darwin") }),
@@ -66,20 +66,20 @@ test(
 test("选默认位置：不写定位文件，建好默认位置的空目录（只让自己进），重新启动后不再问", posixOnly, async (t) => {
   const userHome = scratch(t);
   const dialog = fakeDialog({ boxes: [0] });
-  assert.equal(await choose(userHome, dialog), join(userHome, ".speakmore"));
+  assert.equal(await choose(userHome, dialog), join(userHome, ".orangespeakeasy"));
   assert.equal(existsSync(locationFileOf({}, userHome, "darwin")), false);
-  assert.equal(statSync(join(userHome, ".speakmore")).mode & 0o777, 0o700);
+  assert.equal(statSync(join(userHome, ".orangespeakeasy")).mode & 0o777, 0o700);
   assert.match(dialog.shown[0], /选择存储位置/);
   const next = { env: {}, platform: "darwin", packaged: true, launchedByCli: false, userHome };
   assert.equal(needsHomeChoice(next), false, "不然每次打开都问、App 一直起不来");
 });
 
-test("选了别处：建好那里的 .speakmore（只让自己进），记进定位文件", posixOnly, async (t) => {
+test("选了别处：建好那里的 .orangespeakeasy（只让自己进），记进定位文件", posixOnly, async (t) => {
   const userHome = scratch(t);
   const disk = join(userHome, "disk");
   mkdirSync(disk);
   const home = await choose(userHome, fakeDialog({ boxes: [1], folders: [disk] }));
-  assert.equal(home, join(disk, ".speakmore"));
+  assert.equal(home, join(disk, ".orangespeakeasy"));
   assert.equal(readLocation(locationFileOf({}, userHome, "darwin"), "darwin"), home);
   assert.equal(existsSync(home), true);
 });
@@ -87,10 +87,10 @@ test("选了别处：建好那里的 .speakmore（只让自己进），记进定
 test("取消选文件夹、选的地方不能用：回到第一步再问；选了用户目录本身就是默认位置", posixOnly, async (t) => {
   const userHome = scratch(t);
   const full = join(userHome, "full");
-  mkdirSync(join(full, ".speakmore"), { recursive: true });
-  writeFileSync(join(full, ".speakmore", "notes.txt"), "别人的");
+  mkdirSync(join(full, ".orangespeakeasy"), { recursive: true });
+  writeFileSync(join(full, ".orangespeakeasy", "notes.txt"), "别人的");
   const dialog = fakeDialog({ boxes: [1, 1, 0, 1], folders: [null, full, userHome] });
-  assert.equal(await choose(userHome, dialog), join(userHome, ".speakmore"));
+  assert.equal(await choose(userHome, dialog), join(userHome, ".orangespeakeasy"));
   assert.deepEqual(dialog.shown, [
     "选择存储位置",
     "选文件夹",
@@ -103,15 +103,15 @@ test("取消选文件夹、选的地方不能用：回到第一步再问；选�
   assert.equal(existsSync(locationFileOf({}, userHome, "darwin")), false);
 });
 
-test("选的地方已经有一份 SpeakMore（重装系统前放在移动硬盘上的）：问一句，沿用它", posixOnly, async (t) => {
+test("选的地方已经有一份 OrangeSpeakEasy（重装系统前放在移动硬盘上的）：问一句，沿用它", posixOnly, async (t) => {
   const userHome = scratch(t);
   const disk = join(userHome, "disk");
-  mkdirSync(join(disk, ".speakmore"), { recursive: true });
-  writeFileSync(join(disk, ".speakmore", "settings.json"), "{}");
+  mkdirSync(join(disk, ".orangespeakeasy"), { recursive: true });
+  writeFileSync(join(disk, ".orangespeakeasy", "settings.json"), "{}");
   const dialog = fakeDialog({ boxes: [1, 0], folders: [disk] });
-  assert.equal(await choose(userHome, dialog), join(disk, ".speakmore"));
-  assert.match(dialog.shown.at(-1), /已有 SpeakMore 的数据/);
-  assert.equal(readLocation(locationFileOf({}, userHome, "darwin"), "darwin"), join(disk, ".speakmore"));
+  assert.equal(await choose(userHome, dialog), join(disk, ".orangespeakeasy"));
+  assert.match(dialog.shown.at(-1), /已有 OrangeSpeakEasy 的数据/);
+  assert.equal(readLocation(locationFileOf({}, userHome, "darwin"), "darwin"), join(disk, ".orangespeakeasy"));
 });
 
 test("那块盘不行（exFAT 这类）、路径太长：说清楚，再选一次", posixOnly, async (t) => {
@@ -124,7 +124,7 @@ test("那块盘不行（exFAT 这类）、路径太长：说清楚，再选一�
   const probe = async () => {
     throw new Error("exFAT");
   };
-  assert.equal(await choose(userHome, dialog, { probe }), join(userHome, ".speakmore"));
+  assert.equal(await choose(userHome, dialog, { probe }), join(userHome, ".orangespeakeasy"));
   assert.equal(dialog.shown.filter((message) => message === "此位置不可用").length, 2);
   assert.equal(existsSync(locationFileOf({}, userHome, "darwin")), false);
 });

@@ -35,24 +35,24 @@ function fakeApple(replies) {
 
 test("公证：一次就通过，不等也不重交", () => {
   const { calls, deps } = fakeApple([ACCEPTED]);
-  notarize("/tmp/SpeakMore-x64.dmg", "profile", deps);
+  notarize("/tmp/OrangeSpeakEasy-x64.dmg", "profile", deps);
   assert.equal(calls.submit, 1);
   assert.deepEqual(calls.waits, []);
 });
 
 test("公证：连苹果超时就隔 30 秒重交，第三次通过算成功（0.9.4 发版时碰到过）", () => {
   const { calls, deps } = fakeApple([connectTimeout, connectTimeout, ACCEPTED]);
-  notarize("/tmp/SpeakMore-x64.dmg", "profile", deps);
+  notarize("/tmp/OrangeSpeakEasy-x64.dmg", "profile", deps);
   assert.equal(calls.submit, 3);
   assert.deepEqual(calls.waits, [30_000, 30_000]);
   assert.equal(calls.lines.length, 3);
   assert.match(calls.lines[0], /第 1 次.*connectTimeout.*30 秒后重交/);
-  assert.match(calls.lines[2], /公证通过：SpeakMore-x64\.dmg（a1）/);
+  assert.match(calls.lines[2], /公证通过：OrangeSpeakEasy-x64\.dmg（a1）/);
 });
 
 test("公证：三次都连不上，报最后那次的错，不再重交", () => {
   const { calls, deps } = fakeApple([connectTimeout, connectTimeout, connectTimeout, ACCEPTED]);
-  assert.throws(() => notarize("/tmp/SpeakMore-x64.dmg", "profile", deps), /connectTimeout/);
+  assert.throws(() => notarize("/tmp/OrangeSpeakEasy-x64.dmg", "profile", deps), /connectTimeout/);
   assert.equal(calls.submit, 3);
   assert.deepEqual(calls.waits, [30_000, 30_000]);
 });
@@ -61,7 +61,7 @@ test("公证：苹果给了不通过的结论（非零退出、标准输出带�
   const rejected = () =>
     Object.assign(new Error("Command failed: xcrun notarytool submit …"), { status: 1, stdout: INVALID });
   const { calls, deps } = fakeApple([rejected, ACCEPTED]);
-  assert.throws(() => notarize("/tmp/SpeakMore-x64.dmg", "profile", deps), /没过公证：Invalid.*b2/);
+  assert.throws(() => notarize("/tmp/OrangeSpeakEasy-x64.dmg", "profile", deps), /没过公证：Invalid.*b2/);
   assert.equal(calls.submit, 1);
   assert.deepEqual(calls.log, ["b2"]);
   assert.deepEqual(calls.waits, []);
@@ -69,7 +69,7 @@ test("公证：苹果给了不通过的结论（非零退出、标准输出带�
 
 test("公证：正常退出但状态不是 Accepted，同样不重交、报错", () => {
   const { calls, deps } = fakeApple([INVALID, ACCEPTED]);
-  assert.throws(() => notarize("/tmp/SpeakMore-x64.dmg", "profile", deps), /没过公证：Invalid/);
+  assert.throws(() => notarize("/tmp/OrangeSpeakEasy-x64.dmg", "profile", deps), /没过公证：Invalid/);
   assert.equal(calls.submit, 1);
   assert.deepEqual(calls.log, ["b2"]);
 });

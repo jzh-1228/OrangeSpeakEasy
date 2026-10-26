@@ -152,7 +152,7 @@ export const CHAT_VENDORS = Object.freeze([
     id: "custom",
     // 报错时说的是用户填的那个地址的主机名（chatEndpoint），这里的名字只在列清单时用
     name: "Custom",
-    keyEnv: "SPEAKMORE_CUSTOM_API_KEY",
+    keyEnv: "ORANGESPEAKEASY_CUSTOM_API_KEY",
     keyPage: null,
     protocol: "openai-chat",
     /** 用户填（设置里的 customUrl） */
@@ -186,7 +186,7 @@ export function requestFor(vendor, model, { customParams = null } = {}) {
 }
 
 /**
- * 额外参数里不许写的几项：模型名、提示词由 SpeakMore 发，回话按整段 JSON 读（openai-chat.mjs），
+ * 额外参数里不许写的几项：模型名、提示词由 OrangeSpeakEasy 发，回话按整段 JSON 读（openai-chat.mjs），
  * 改了它们成品就乱了，不如当场说清
  */
 const RESERVED_PARAMS = Object.freeze(["model", "messages", "stream"]);

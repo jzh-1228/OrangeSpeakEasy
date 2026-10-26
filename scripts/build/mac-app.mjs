@@ -1,4 +1,4 @@
-// 把 SpeakMore 打成一个 macOS 应用（SpeakMore.app）。本机打一个自己用（package.mjs），发版时两种芯片各打一个
+// 把 OrangeSpeakEasy 打成一个 macOS 应用（OrangeSpeakEasy.app）。本机打一个自己用（package.mjs），发版时两种芯片各打一个
 // 装进安装包（release.mjs），走的都是这里。小帮手要先编好（build/key-helper），这里只管摆、打包、签名。
 //
 // 签名：配了 Developer ID（见 signing.mjs）就用它签、开 hardened runtime，再配了公证档案就交给苹果公证、
@@ -17,7 +17,7 @@ const readJson = (path) => JSON.parse(readFileSync(path, "utf8"));
 
 /**
  * @param {{ packageDir: string, arch: "arm64" | "x64", out: string, signing: { identity: string, notaryProfile: string | null } | null }} options
- *   packageDir：仓库根目录；out：打到哪个目录下（里面是 SpeakMore-darwin-<芯片>/SpeakMore.app）
+ *   packageDir：仓库根目录；out：打到哪个目录下（里面是 OrangeSpeakEasy-darwin-<芯片>/OrangeSpeakEasy.app）
  * @returns {Promise<string>} 应用的路径
  */
 export async function packageMacApp({ packageDir, arch, out, signing }) {
@@ -26,7 +26,7 @@ export async function packageMacApp({ packageDir, arch, out, signing }) {
   const appName = readJson(join(packageDir, "package.json")).productName;
 
   // 先在一个临时目录里摆出"应用里该有的东西"，只装运行时依赖，再从那里打包
-  const staging = mkdtempSync(join(tmpdir(), "speakmore-package-"));
+  const staging = mkdtempSync(join(tmpdir(), "orangespeakeasy-package-"));
   // 临时目录建出来是 700，打包时原样成了 Contents/Resources/app 的权限：别的用户打不开 App。改成和别的目录一样的 755
   chmodSync(staging, 0o755);
   let bundleDir;
@@ -38,7 +38,7 @@ export async function packageMacApp({ packageDir, arch, out, signing }) {
       overwrite: true,
       name: appName,
       // 签了名以后，系统按"这个标识 + 这张证书的团队"认应用：权限、钥匙串都记在它名下，以后别再改
-      appBundleId: "com.zephyrxiang.speakmore",
+      appBundleId: "com.juzihai.orangespeakeasy",
       appCategoryType: "public.app-category.productivity",
       platform: "darwin",
       arch,

@@ -1,9 +1,9 @@
 // 发布包里装上了、但用的人用不到的东西，打包时删掉：每个首次安装的人都要多下这些。
-// 2026-10-20 量过：Electron 自带五十多种界面语言（Mac 约 46 MB、Windows 约 48 MB，没压缩），SpeakMore 的界面只有中英；
+// 2026-10-20 量过：Electron 自带五十多种界面语言（Mac 约 46 MB、Windows 约 48 MB，没压缩），OrangeSpeakEasy 的界面只有中英；
 // 依赖里的源码映射、类型声明、C/C++ 源码约 18 MB。
 //
 // Mac 终端安装用的原版 Electron.app（runtime/）不在这里裁：它带着 Electron 自己的签名，删掉里面的文件签名就坏了，
-// 而麦克风、辅助功能这些权限按签名认。SpeakMore.app 是打包时我们自己签的，裁完再签，没有这个问题。
+// 而麦克风、辅助功能这些权限按签名认。OrangeSpeakEasy.app 是打包时我们自己签的，裁完再签，没有这个问题。
 
 import { readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
@@ -19,8 +19,8 @@ function removeUnmatched(dir, pattern, candidate) {
 }
 
 /**
- * SpeakMore.app（还没签名）：Electron 框架和应用自己的语言包只留几种
- * @param {string} app …/SpeakMore.app 或打包中途的 Electron.app
+ * OrangeSpeakEasy.app（还没签名）：Electron 框架和应用自己的语言包只留几种
+ * @param {string} app …/OrangeSpeakEasy.app 或打包中途的 Electron.app
  */
 export function trimMacLocales(app) {
   const lproj = (name) => name.endsWith(".lproj");

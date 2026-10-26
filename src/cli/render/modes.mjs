@@ -4,8 +4,8 @@ import { findChatVendor } from "../../server/chat/vendors.mjs";
 import { findProvider } from "../../server/providers/index.mjs";
 import { displayWidth, INDENT, padEnd, paint } from "./text.mjs";
 
-// 识别模式（speakmore mode），和 local 模式的两跳（speakmore transcriber、speakmore polish）。
-// native 的模型照旧在 models.mjs（speakmore model）。
+// 识别模式（orangespeakeasy mode），和 local 模式的两跳（orangespeakeasy transcriber、orangespeakeasy polish）。
+// native 的模型照旧在 models.mjs（orangespeakeasy model）。
 
 /** "DeepSeek 的 deepseek-flash"；自定义服务写它的主机名："127.0.0.1:11434 的 qwen3:8b"。一句 msg */
 export function polishTitle({ vendor, model }, customUrl) {

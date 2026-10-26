@@ -13,11 +13,11 @@ import { parseVersion } from "./versions.mjs";
 // 用 curl 而不是 Node 自己的 fetch：终端里设的代理（https_proxy 这些）它认，安装脚本也用它。Windows 10 起自带 curl.exe。
 
 /** 发布包放在这里，和 install.sh、install.ps1 里的 DOWNLOAD_URL 是同一个 */
-export const DOWNLOAD_URL = "https://dl.zephyrxiang.com/speakmore";
+export const DOWNLOAD_URL = "https://github.com/jzh-1228/OrangeSpeakEasy/releases/latest/download";
 
-/** 从哪下载。和安装脚本一样认 SPEAKMORE_INSTALL_BASE：一个网址前缀，或者本机的一个目录（npm run release 打出来的） */
+/** 从哪下载。和安装脚本一样认 ORANGESPEAKEASY_INSTALL_BASE：一个网址前缀，或者本机的一个目录（npm run release 打出来的） */
 export function downloadBase(env) {
-  const base = env.SPEAKMORE_INSTALL_BASE || DOWNLOAD_URL;
+  const base = env.ORANGESPEAKEASY_INSTALL_BASE || DOWNLOAD_URL;
   if (base.startsWith("/")) return `file://${base}`;
   // Windows 的盘符路径：C:\dist\release → file:///C:/dist/release
   if (/^[A-Za-z]:[\\/]/.test(base)) return `file:///${base.replaceAll("\\", "/")}`;
@@ -85,7 +85,7 @@ function removeQuietly(path, options = {}) {
 
 /**
  * @param {object} options
- * @param {Record<string, string | undefined>} options.env 代理、SPEAKMORE_INSTALL_BASE 从这里认
+ * @param {Record<string, string | undefined>} options.env 代理、ORANGESPEAKEASY_INSTALL_BASE 从这里认
  */
 export function createRelease({ env }) {
   const base = downloadBase(env);
@@ -207,7 +207,7 @@ export function createRelease({ env }) {
      * @returns {Promise<{ manifest: ReturnType<typeof parseManifest>, bytes: number }>} bytes：下了多少（压过的大小），算进这次更新的下载量
      */
     async manifest(sha) {
-      const dir = mkdtempSync(join(tmpdir(), "speakmore-manifest-"));
+      const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-manifest-"));
       try {
         await fetchObjects([sha], dir);
         const packed = readFileSync(join(dir, sha));

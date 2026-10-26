@@ -8,7 +8,7 @@
 //   node scripts/release/delta-report.mjs              比下载地址上的
 //   node scripts/release/delta-report.mjs --allow-big  超了也不拦，只报
 //
-// 只比正式的下载地址（和 ship 传的、核对的是同一处），不认 SPEAKMORE_INSTALL_BASE：本机试装时设的它可能还留在终端里。
+// 只比正式的下载地址（和 ship 传的、核对的是同一处），不认 ORANGESPEAKEASY_INSTALL_BASE：本机试装时设的它可能还留在终端里。
 // 算的是"只装着上一版的机器要下多少"：本机还装着别的几份时（比如 Mac 上终端安装和 App 都有）能拷的更多，实际只少不多。
 
 import { readFileSync, statSync } from "node:fs";

@@ -1,8 +1,8 @@
 # 官网的容器：nginx 托管静态页，端口只绑 127.0.0.1，由宿主机的 nginx（HTTPS）反代过来。
-# 和同一台机器上别的站隔开：项目名、容器名都带 speakmore-site，不占别人的端口，不往宿主机装东西。
+# 和同一台机器上别的站隔开：项目名、容器名都带 orangespeakeasy-site，不占别人的端口，不往宿主机装东西。
 #   docker compose -f website/compose.yaml up -d --build     （在仓库根，或者只拷了构建要用的那几样的目录里）
 #   curl http://127.0.0.1:${SITE_PORT:-9800}/health
-name: speakmore-site
+name: orangespeakeasy-site
 
 services:
   site:
@@ -11,8 +11,8 @@ services:
       dockerfile: website/Dockerfile
       args:
         NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmjs.org}
-    image: speakmore-site:latest
-    container_name: speakmore-site
+    image: orangespeakeasy-site:latest
+    container_name: orangespeakeasy-site
     ports:
       - "127.0.0.1:${SITE_PORT:-9800}:80"
     restart: unless-stopped

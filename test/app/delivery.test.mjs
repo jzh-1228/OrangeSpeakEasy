@@ -14,7 +14,7 @@ const audio = () => Uint8Array.from([0x1a, 0x45, 0xdf, 0xa3, 7]).buffer;
 
 let dir;
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "speakmore-delivery-"));
+  dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-delivery-"));
 });
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 

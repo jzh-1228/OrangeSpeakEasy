@@ -27,9 +27,9 @@ function read(env, name, parse) {
   }
 }
 
-/** 原生链路选哪家哪个模型。SPEAKMORE_MODEL 优先；GEMINI_MODEL 是 0.3 以前的写法，只能写 Gemini 的模型名，照样认 */
+/** 原生链路选哪家哪个模型。ORANGESPEAKEASY_MODEL 优先；GEMINI_MODEL 是 0.3 以前的写法，只能写 Gemini 的模型名，照样认 */
 function modelFrom(env) {
-  for (const name of ["SPEAKMORE_MODEL", "GEMINI_MODEL"]) {
+  for (const name of ["ORANGESPEAKEASY_MODEL", "GEMINI_MODEL"]) {
     if (given(env, name)) return read(env, name, parseModelChoice);
   }
   return DEFAULT_MODEL_CHOICE;
@@ -47,32 +47,36 @@ function thinkingFrom(env) {
 
 /** 本地转写链路：第一跳用哪个本地模型（或云端的 厂商/模型）、润色交给谁、自定义服务的地址和额外参数 */
 function localRouteFrom(env) {
-  const written = given(env, "SPEAKMORE_TRANSCRIBER") ?? DEFAULT_TRANSCRIBER;
+  const written = given(env, "ORANGESPEAKEASY_TRANSCRIBER") ?? DEFAULT_TRANSCRIBER;
   const cloud = cloudTranscriberOf(written);
   const transcriber = cloud ? `${cloud.vendor}/${cloud.model}` : written;
   if (!cloud && !findModel(transcriber)) {
     throw new Error(
-      `SPEAKMORE_TRANSCRIBER 写的是 ${JSON.stringify(transcriber)}，能填的有 ${MODELS.map(({ id }) => id).join(" / ")}`,
+      `ORANGESPEAKEASY_TRANSCRIBER 写的是 ${JSON.stringify(transcriber)}，能填的有 ${MODELS.map(({ id }) => id).join(" / ")}`,
     );
   }
-  const polish = given(env, "SPEAKMORE_POLISH")
-    ? read(env, "SPEAKMORE_POLISH", parseChatChoice)
+  const polish = given(env, "ORANGESPEAKEASY_POLISH")
+    ? read(env, "ORANGESPEAKEASY_POLISH", parseChatChoice)
     : parseChatChoice(DEFAULT_POLISH);
-  const customUrl = given(env, "SPEAKMORE_CUSTOM_URL") ? read(env, "SPEAKMORE_CUSTOM_URL", normalizeBaseUrl) : null;
+  const customUrl = given(env, "ORANGESPEAKEASY_CUSTOM_URL")
+    ? read(env, "ORANGESPEAKEASY_CUSTOM_URL", normalizeBaseUrl)
+    : null;
   if (polish.vendor === "custom" && customUrl === null) {
-    throw new Error("润色交给自定义服务时要给它的地址：SPEAKMORE_CUSTOM_URL");
+    throw new Error("润色交给自定义服务时要给它的地址：ORANGESPEAKEASY_CUSTOM_URL");
   }
-  const params = given(env, "SPEAKMORE_CUSTOM_PARAMS") ? read(env, "SPEAKMORE_CUSTOM_PARAMS", parseCustomParams) : {};
+  const params = given(env, "ORANGESPEAKEASY_CUSTOM_PARAMS")
+    ? read(env, "ORANGESPEAKEASY_CUSTOM_PARAMS", parseCustomParams)
+    : {};
   const customParams = Object.keys(params).length > 0 ? params : null;
   return { mode: "local", transcriber, polish, customUrl, customParams };
 }
 
 /** 本地模型没下载过时先从哪个源下（models/catalog.mjs 的 SOURCES） */
 function modelSourceFrom(env) {
-  const source = given(env, "SPEAKMORE_MODEL_SOURCE") ?? DEFAULT_SOURCE;
+  const source = given(env, "ORANGESPEAKEASY_MODEL_SOURCE") ?? DEFAULT_SOURCE;
   if (!findSource(source)) {
     throw new Error(
-      `SPEAKMORE_MODEL_SOURCE 写的是 ${JSON.stringify(source)}，能填的有 ${SOURCES.map(({ id }) => id).join(" / ")}`,
+      `ORANGESPEAKEASY_MODEL_SOURCE 写的是 ${JSON.stringify(source)}，能填的有 ${SOURCES.map(({ id }) => id).join(" / ")}`,
     );
   }
   return source;
@@ -80,7 +84,7 @@ function modelSourceFrom(env) {
 
 /** 从环境变量读配置。写错了就报错退出，不悄悄换成默认值。 */
 export function loadConfig(env) {
-  const mode = given(env, "SPEAKMORE_MODE") ? read(env, "SPEAKMORE_MODE", parseMode) : DEFAULT_MODE;
+  const mode = given(env, "ORANGESPEAKEASY_MODE") ? read(env, "ORANGESPEAKEASY_MODE", parseMode) : DEFAULT_MODE;
   const thinkingLevel = thinkingFrom(env);
   const route = mode === "local" ? localRouteFrom(env) : { mode: "native", model: modelFrom(env), thinkingLevel };
   const modelSource = modelSourceFrom(env);

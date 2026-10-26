@@ -1,18 +1,18 @@
 import { writeFileSync } from "node:fs";
 
-// 端到端测试时由主进程加载（设了 SPEAKMORE_E2E_OUT 才会）。它代替人做两件事：
+// 端到端测试时由主进程加载（设了 ORANGESPEAKEASY_E2E_OUT 才会）。它代替人做两件事：
 // 模拟"按一下热键、说几秒、再按一下"，以及在该贴字的时候只记下文字、不真的去贴。
 // 麦克风由 Chromium 的假设备提供（scripts/dev/e2e.mjs 传的启动参数），整条链路其余部分都是真的。
 // 走 local 模式时，先等本地模型下载、装好再按热键（数据目录是新的，模型真的要从下载源下一遍），记下各花了多久。
 
-const OUT_PATH = process.env.SPEAKMORE_E2E_OUT;
-const RECORD_MS = Number(process.env.SPEAKMORE_E2E_RECORD_MS ?? 7_500);
+const OUT_PATH = process.env.ORANGESPEAKEASY_E2E_OUT;
+const RECORD_MS = Number(process.env.ORANGESPEAKEASY_E2E_RECORD_MS ?? 7_500);
 const GIVE_UP_MS = RECORD_MS + 40_000;
-// 听写几遍（SPEAKMORE_E2E_ROUNDS）。本机模型按需装载时，两遍之间等它空闲释放，下一遍就验了重新装载
-const ROUNDS = Number(process.env.SPEAKMORE_E2E_ROUNDS ?? 1);
-// 按哪个说话的功能（SPEAKMORE_E2E_ACTION，dictate、translate；译成什么照设置 translate.to，可用 SPEAKMORE_TRANSLATE_TO 换）。
+// 听写几遍（ORANGESPEAKEASY_E2E_ROUNDS）。本机模型按需装载时，两遍之间等它空闲释放，下一遍就验了重新装载
+const ROUNDS = Number(process.env.ORANGESPEAKEASY_E2E_ROUNDS ?? 1);
+// 按哪个说话的功能（ORANGESPEAKEASY_E2E_ACTION，dictate、translate；译成什么照设置 translate.to，可用 ORANGESPEAKEASY_TRANSLATE_TO 换）。
 // upgrade：先按语音输入的键，再凑成语音翻译的组合（小帮手报的"升级"），验这一次中途换成翻译、录音不断
-const ACTION = process.env.SPEAKMORE_E2E_ACTION ?? "dictate";
+const ACTION = process.env.ORANGESPEAKEASY_E2E_ACTION ?? "dictate";
 // 空闲释放最长 30 分钟（设置里的 localModelMemory），再多等一会儿
 const RELEASE_GIVE_UP_MS = 31 * 60_000;
 

@@ -2,7 +2,7 @@
 // 清洗：把各来源的录音抽样、统一成 16 kHz 单声道 16 位 WAV，写进 _work/datasets/<名字>/。
 // 之后每个候选（云端的参照、本地的各个模型）读的都是这同一份，输入一致，比出来的差别才只是模型的差别。
 //
-// 用法：node bench/prepare.mjs [--dataset default] [--sources typeless,speakmore]
+// 用法：node bench/prepare.mjs [--dataset default] [--sources typeless,orangespeakeasy]
 //
 // 洗的时候丢掉的样本都会按原因数出来，不悄悄少几条：解不出来、解出来的时长和来源记的对不上、太短、没有声音。
 // 重跑时已经洗好的直接用，只补新抽到的。终端上只打印统计数字，不打印说的话。

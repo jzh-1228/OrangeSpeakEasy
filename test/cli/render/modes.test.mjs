@@ -10,7 +10,7 @@ const view = (chip, overrides = {}) => ({
     name: model.name,
     bytes: downloadSize(model),
     installed: model.id === "qwen3-asr-0.6b-q8",
-    // 和 speakmore transcriber 一样：标签按这类芯片挑
+    // 和 orangespeakeasy transcriber 一样：标签按这类芯片挑
     tags: tagsOn(model, chip),
     measured: measuredOn(model, chip),
   })),
@@ -29,7 +29,7 @@ test("本机转写模型：一行一个，下面是标签和这类芯片上的�
   assert.match(text, /\n\s+Apple 芯片上实测（Metal）：均分 4\.14\/5 · 68 倍实时 · 内存 2\.0 GB\n/);
   assert.match(text, /sensevoice-small-q8\s+SenseVoice Small \(Q8_0\)\s+253 MB\s+还没下载/);
   assert.match(text, /下载源：魔搭/);
-  assert.match(text, /speakmore config set modelSource original/);
+  assert.match(text, /orangespeakeasy config set modelSource original/);
   assert.doesNotMatch(text, /用不上/);
 });
 

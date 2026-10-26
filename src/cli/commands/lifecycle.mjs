@@ -16,7 +16,7 @@ import { offerDownload } from "./local-models.mjs";
 import { chooseProvider } from "./mode.mjs";
 import { updateNotes } from "./update.mjs";
 
-// 起停和看状态：speakmore（start）、stop、restart、status。
+// 起停和看状态：orangespeakeasy（start）、stop、restart、status。
 
 export async function start(args, io) {
   noPositionals(parse(args).positionals, "start");

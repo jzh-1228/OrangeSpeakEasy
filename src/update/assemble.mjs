@@ -20,7 +20,7 @@ import { chunksIn } from "./manifest.mjs";
 import { withoutAsar } from "./no-asar.mjs";
 import { unpackObject } from "./objects.mjs";
 
-// 照一份清单拼出一棵目录树：本机已经有的块（种子：装着的那几份 SpeakMore）直接拷，没有的才下载。
+// 照一份清单拼出一棵目录树：本机已经有的块（种子：装着的那几份 OrangeSpeakEasy）直接拷，没有的才下载。
 // 更新时下载的量就是"本机缺的块"，和从哪个版本升、跳了几版、改动在哪一层都没关系。
 // 每一块写进去之前都核对 sha256：本机拷的、下载的都一样，拼出来的树和发布的那棵逐字节相同，
 // 所以拼完以后照旧核对签名（bundle.mjs）、照旧试跑（安装脚本），信任链不变。

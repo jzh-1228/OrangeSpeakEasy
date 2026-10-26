@@ -3,7 +3,7 @@ import { SETTINGS } from "../../storage/settings.mjs";
 import { sourceOf } from "./settings.mjs";
 import { displayWidth, INDENT, padEnd, paint } from "./text.mjs";
 
-// 模型（speakmore model）：有哪几家、各用哪个模型、key 有没有、现在用的是哪个。
+// 模型（orangespeakeasy model）：有哪几家、各用哪个模型、key 有没有、现在用的是哪个。
 
 /** 一家的 key 在哪，写成什么 */
 const KEY_STATES = {

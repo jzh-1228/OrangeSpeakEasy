@@ -12,7 +12,7 @@ import { routeTitle } from "./modes.mjs";
 import { themeTitle } from "./settings.mjs";
 import { duration, INDENT, paint, rows } from "./text.mjs";
 
-// 状态面板（speakmore、speakmore status）。和别的画面一样是"数据进、一段文字出"，不碰终端也不读文件。
+// 状态面板（orangespeakeasy、orangespeakeasy status）。和别的画面一样是"数据进、一段文字出"，不碰终端也不读文件。
 
 /**
  * 后台应用正在用的模型。0.3 的后台应用报的是不带厂商的 Gemini 模型名，也不报 provider，照样认；
@@ -203,9 +203,9 @@ export function renderStatus({ status, version, settings, stats }, { color, t, p
   const c = paint(color);
   if (status === null) {
     return [
-      `${c.bold(`SpeakMore ${version}`)} · ${t("cli.status.notRunning")}`,
+      `${c.bold(`OrangeSpeakEasy ${version}`)} · ${t("cli.status.notRunning")}`,
       "",
-      `${INDENT}${t("cli.status.runToStart", { command: c.bold("speakmore") })}`,
+      `${INDENT}${t("cli.status.runToStart", { command: c.bold("orangespeakeasy") })}`,
       "",
     ].join("\n");
   }
@@ -218,7 +218,7 @@ export function renderStatus({ status, version, settings, stats }, { color, t, p
       : summary.missing.length > 0
         ? c.yellow(t("cli.status.missingCount", { count: summary.missing.length }))
         : t("cli.status.preparing");
-  const lines = [`${c.bold(`SpeakMore ${status.version}`)} · ${state}`, ""];
+  const lines = [`${c.bold(`OrangeSpeakEasy ${status.version}`)} · ${state}`, ""];
 
   if (summary.ready) {
     lines.push(`${INDENT}${t("cli.status.ready", { hotkey: hotkeyTitle(status, t) })}`, "");
@@ -278,7 +278,7 @@ export function renderStatus({ status, version, settings, stats }, { color, t, p
   if (permissionMissing) {
     lines.push("");
     if (summary.degraded) lines.push(`${INDENT}${t("common.sentence", { text: summary.degraded })}`);
-    lines.push(`${INDENT}${t("cli.status.openSettings", { command: c.bold("speakmore settings") })}`);
+    lines.push(`${INDENT}${t("cli.status.openSettings", { command: c.bold("orangespeakeasy settings") })}`);
     // 权限记在谁名下是 macOS 的事：Windows 的麦克风开关是全系统一个
     if (platform !== "win32") {
       lines.push(c.dim(`${INDENT}${t(status.packaged ? "cli.status.ownerApp" : "cli.status.ownerTerminal")}`));

@@ -141,7 +141,7 @@ export function createHistory() {
       text.textContent = row.refinedText;
       copy.addEventListener("click", async () => {
         try {
-          await window.speakmore.copyText(row.refinedText);
+          await window.orangespeakeasy.copyText(row.refinedText);
           copy.dataset.done = "";
           copy.title = t("history.copied");
         } catch (error) {
@@ -204,7 +204,7 @@ export function createHistory() {
     loadingMore = true;
     $("history-more").disabled = true;
     try {
-      const page = await window.speakmore.listHistory({ before: last.createdAt, beforeId: last.id });
+      const page = await window.orangespeakeasy.listHistory({ before: last.createdAt, beforeId: last.id });
       ({ rows: latest, total } = mergePage(latest, page));
       draw();
       updateMore();

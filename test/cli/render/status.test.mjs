@@ -5,14 +5,14 @@ import { hotkeyZh, namesZh, noStats, plain, ready, settings } from "./fixtures.m
 
 test("没有在运行时只说一句怎么启动", () => {
   const text = renderStatus({ status: null, version: "0.1.0", settings, stats: noStats }, plain);
-  assert.match(text, /SpeakMore 0\.1\.0 · 没有运行/);
-  assert.match(text, /speakmore/);
+  assert.match(text, /OrangeSpeakEasy 0\.1\.0 · 没有运行/);
+  assert.match(text, /orangespeakeasy/);
   assert.doesNotMatch(text, /权限/);
 });
 
 test("一切就绪时说怎么用，并列出 key、权限、热键、模型", () => {
   const text = renderStatus({ status: ready, version: "0.1.0", settings, stats: noStats }, plain);
-  assert.match(text, /SpeakMore 0\.1\.0 · 运行中/);
+  assert.match(text, /OrangeSpeakEasy 0\.1\.0 · 运行中/);
   assert.match(text, new RegExp(`按一下${hotkeyZh}开始说话`));
   assert.match(text, /key\s+已保存，验证通过/);
   assert.match(text, /麦克风 ✓\s+输入监控 ✓\s+辅助功能 ✓/);
@@ -78,10 +78,10 @@ test("缺东西时标题说还差几样，逐项标出，并说权限记在终�
   };
   const text = renderStatus({ status, version: "0.1.0", settings, stats: noStats }, plain);
   assert.match(text, /运行中，还差 3 样/);
-  assert.match(text, /key\s+还没有填：运行 speakmore key/);
+  assert.match(text, /key\s+还没有填：运行 orangespeakeasy key/);
   assert.match(text, /麦克风 ✗\s+输入监控 ✗\s+辅助功能 ✗/);
   assert.match(text, /没有辅助功能权限：文字会放进剪贴板/);
-  assert.match(text, /speakmore settings/);
+  assert.match(text, /orangespeakeasy settings/);
   assert.match(text, /终端/);
 });
 
@@ -98,7 +98,7 @@ test("Windows 上只有麦克风这一项权限：不列输入监控、辅助功
   };
   const text = renderStatus({ status: denied, version: "0.1.0", settings, stats: noStats }, windows);
   assert.match(text, /权限\s+麦克风 ✗\n/);
-  assert.match(text, /speakmore settings/);
+  assert.match(text, /orangespeakeasy settings/);
   assert.doesNotMatch(text, /输入监控|辅助功能|终端/);
 });
 
@@ -119,7 +119,7 @@ test("key 不能用时，按原因说该怎么办：换 key、改环境变量、
       plain,
     );
   const revoked = rejected({ source: "stored", cause: "key", problem: "这把 key 无效" });
-  assert.match(revoked, /不能用：这把 key 无效。运行 speakmore key 换一把/);
+  assert.match(revoked, /不能用：这把 key 无效。运行 orangespeakeasy key 换一把/);
 
   // 环境变量里的那把不对：存一把新的没用，下次启动用的还是环境变量
   const badEnv = rejected({ source: "env", cause: "key", problem: "这把 key 无效" });
@@ -133,7 +133,7 @@ test("key 不能用时，按原因说该怎么办：换 key、改环境变量、
     problem: "Gemini 拒绝了请求：models/x is not found",
   });
   assert.match(wrongModel, /验证没通过：Gemini 拒绝了请求：models\/x is not found/);
-  assert.match(wrongModel, /speakmore config/);
+  assert.match(wrongModel, /orangespeakeasy config/);
   assert.doesNotMatch(wrongModel, /换一把/);
 });
 
@@ -142,10 +142,10 @@ test("模型和热键写的是后台应用正在用的；设置改过还没生�
   const status = { ...ready, model: "gemini/gemini-3.8-flash", thinking: "LOW" };
   const stale = renderStatus({ status, version: "0.1.0", settings, stats: noStats }, plain);
   assert.match(stale, /模型\s+Gemini 的 gemini-3\.8-flash（LOW）/);
-  assert.match(stale, /model \/ thinking.*speakmore restart/);
+  assert.match(stale, /model \/ thinking.*orangespeakeasy restart/);
 
   const same = renderStatus({ status: ready, version: "0.1.0", settings, stats: noStats }, plain);
-  assert.doesNotMatch(same, /speakmore restart/);
+  assert.doesNotMatch(same, /orangespeakeasy restart/);
 
   const external = {
     ...ready,
@@ -169,10 +169,10 @@ test("按键监听的小程序停了：明说热键不会生效，以及怎么�
   const text = renderStatus({ status, version: "0.1.0", settings, stats: noStats }, plain);
   assert.match(text, /还差 1 样/);
   assert.match(text, /热键不会生效/);
-  assert.match(text, /speakmore restart/);
+  assert.match(text, /orangespeakeasy restart/);
 });
 
-test("装成应用运行时，权限记在 SpeakMore 自己名下，不说成终端", () => {
+test("装成应用运行时，权限记在 OrangeSpeakEasy 自己名下，不说成终端", () => {
   const status = {
     ...ready,
     packaged: true,
@@ -180,7 +180,7 @@ test("装成应用运行时，权限记在 SpeakMore 自己名下，不说成终
     summary: { ready: false, missing: ["输入监控权限"], blocker: null, degraded: null },
   };
   const text = renderStatus({ status, version: "0.1.0", settings, stats: noStats }, plain);
-  assert.match(text, /在系统设置的列表里找“SpeakMore”/);
+  assert.match(text, /在系统设置的列表里找“OrangeSpeakEasy”/);
   assert.doesNotMatch(text, /终端/);
 });
 
@@ -258,7 +258,7 @@ test("用的是 OpenAI：模型写清是哪一家，没有思考档位就不写�
   assert.match(text, /模型\s+OpenAI 的 gpt-audio-mini\n/);
   assert.match(text, /环境变量 OPENAI_API_KEY/);
   // 设置里的思考档位它用不上，不能因此说"还没生效"
-  assert.doesNotMatch(text, /speakmore restart/);
+  assert.doesNotMatch(text, /orangespeakeasy restart/);
 
   const offline = renderStatus(
     {
@@ -276,7 +276,7 @@ test("0.3 的后台应用报的模型名不带厂商：照样认成 Gemini 的�
   const legacy = { ...ready, provider: undefined, model: "gemini-3.6-flash" };
   const text = renderStatus({ status: legacy, version: "0.1.0", settings, stats: noStats }, plain);
   assert.match(text, /模型\s+Gemini 的 gemini-3\.6-flash（MINIMAL）/);
-  assert.doesNotMatch(text, /speakmore restart/);
+  assert.doesNotMatch(text, /orangespeakeasy restart/);
 });
 
 test("local 模式：写模式、两跳各用什么（key 说的是润色那家），本地模型下到哪了", () => {
@@ -297,7 +297,7 @@ test("local 模式：写模式、两跳各用什么（key 说的是润色那家�
   assert.match(text, /模型\s+qwen3-asr-0\.6b-q8 → DeepSeek 的 deepseek-flash/);
   assert.match(text, /本地模型\s+下载中 50%（425 \/ 850 MB）/);
   assert.match(text, /环境变量 DEEPSEEK_API_KEY/);
-  assert.doesNotMatch(text, /speakmore restart/);
+  assert.doesNotMatch(text, /orangespeakeasy restart/);
 
   const readyText = renderStatus(
     {
@@ -318,7 +318,7 @@ test("local 模式：写模式、两跳各用什么（key 说的是润色那家�
     );
   assert.match(
     missing({ state: "missing", model: "qwen3-asr-0.6b-q8" }),
-    /本地模型\s+还没下载：speakmore transcriber download qwen3-asr-0\.6b-q8/,
+    /本地模型\s+还没下载：orangespeakeasy transcriber download qwen3-asr-0\.6b-q8/,
   );
   assert.match(
     missing({ state: "missing", model: "qwen3-asr-0.6b-q8", received: 425_000_000, total: 850_000_000 }),

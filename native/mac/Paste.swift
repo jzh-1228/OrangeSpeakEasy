@@ -109,8 +109,8 @@ func paste(id: Int, text: String) {
 func selfTest() -> Bool {
     let pasteboard = NSPasteboard.general
     let before = snapshotPasteboard(pasteboard)
-    writeTransientText(pasteboard, "speakmore 自检")
-    let wroteText = pasteboard.string(forType: .string) == "speakmore 自检"
+    writeTransientText(pasteboard, "orangespeakeasy 自检")
+    let wroteText = pasteboard.string(forType: .string) == "orangespeakeasy 自检"
     let markedTransient = pasteboard.types?.contains(transientType) ?? false
     restorePasteboard(pasteboard, from: before)
     let after = snapshotPasteboard(pasteboard)

@@ -11,7 +11,7 @@ afterEach(() => {
   for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true });
 });
 function tempResults() {
-  const dir = mkdtempSync(join(tmpdir(), "speakmore-judge-"));
+  const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-judge-"));
   dirs.push(dir);
   return openResults(join(dir, "results.db"));
 }

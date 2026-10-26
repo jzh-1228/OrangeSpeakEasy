@@ -31,7 +31,7 @@ func newMachine(t *testing.T) *machine {
 func (m *machine) getenv(name string) string { return m.env[name] }
 
 func (m *machine) writeLocation(t *testing.T, text string) {
-	dir := filepath.Join(m.local, "SpeakMore")
+	dir := filepath.Join(m.local, "OrangeSpeakEasy")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		t.Fatal(err)
 	}
@@ -49,17 +49,17 @@ func noAsk(t *testing.T) func(string) (string, error) {
 
 func TestHomeFromEnvironmentWins(t *testing.T) {
 	m := newMachine(t)
-	m.env["SPEAKMORE_HOME"] = filepath.Join(m.profile, "custom")
+	m.env["ORANGESPEAKEASY_HOME"] = filepath.Join(m.profile, "custom")
 	m.writeLocation(t, `{"home": "elsewhere"}`)
 	choice, err := resolveHome(m.getenv, noAsk(t))
-	if err != nil || choice.home != m.env["SPEAKMORE_HOME"] || choice.installDir != "" {
+	if err != nil || choice.home != m.env["ORANGESPEAKEASY_HOME"] || choice.installDir != "" {
 		t.Fatalf("got %+v %v", choice, err)
 	}
 }
 
 func TestHomeFromLocationFile(t *testing.T) {
 	m := newMachine(t)
-	home := filepath.Join(m.profile, "Data", ".speakmore")
+	home := filepath.Join(m.profile, "Data", ".orangespeakeasy")
 	if err := os.MkdirAll(home, 0o700); err != nil {
 		t.Fatal(err)
 	}
@@ -74,10 +74,10 @@ func TestHomeFromLocationFile(t *testing.T) {
 
 func TestLocationFileMissingFolderIsAnError(t *testing.T) {
 	m := newMachine(t)
-	missing := filepath.Join(m.profile, "unplugged", ".speakmore")
+	missing := filepath.Join(m.profile, "unplugged", ".orangespeakeasy")
 	m.writeLocation(t, `{"home": "`+strings.ReplaceAll(missing, `\`, `\\`)+`"}`)
 	_, err := resolveHome(m.getenv, noAsk(t))
-	if err == nil || !strings.Contains(err.Error(), "Can't find the SpeakMore folder") {
+	if err == nil || !strings.Contains(err.Error(), "Can't find the OrangeSpeakEasy folder") {
 		t.Fatalf("want a can't-find error, got %v", err)
 	}
 	if _, statErr := os.Stat(missing); statErr == nil {
@@ -97,7 +97,7 @@ func TestBrokenLocationFileIsAnError(t *testing.T) {
 
 func TestDefaultHomeInUseIsAnUpgrade(t *testing.T) {
 	m := newMachine(t)
-	home := filepath.Join(m.profile, ".speakmore")
+	home := filepath.Join(m.profile, ".orangespeakeasy")
 	if err := os.MkdirAll(home, 0o700); err != nil {
 		t.Fatal(err)
 	}
@@ -112,7 +112,7 @@ func TestDefaultHomeInUseIsAnUpgrade(t *testing.T) {
 
 func TestFirstInstallAsksWhere(t *testing.T) {
 	m := newMachine(t)
-	defaultHome := filepath.Join(m.profile, ".speakmore")
+	defaultHome := filepath.Join(m.profile, ".orangespeakeasy")
 	// 直接回车：默认位置
 	choice, err := resolveHome(m.getenv, func(offered string) (string, error) {
 		if offered != defaultHome {
@@ -123,14 +123,14 @@ func TestFirstInstallAsksWhere(t *testing.T) {
 	if err != nil || choice.home != defaultHome || choice.installDir != "" {
 		t.Fatalf("got %+v %v", choice, err)
 	}
-	// 选了别的文件夹：装进它里面的 .speakmore，交给 install.ps1 记进定位文件
+	// 选了别的文件夹：装进它里面的 .orangespeakeasy，交给 install.ps1 记进定位文件
 	folder := filepath.Join(m.profile, "Apps")
 	choice, err = resolveHome(m.getenv, func(string) (string, error) { return folder, nil })
-	if err != nil || choice.home != filepath.Join(folder, ".speakmore") || choice.installDir != folder {
+	if err != nil || choice.home != filepath.Join(folder, ".orangespeakeasy") || choice.installDir != folder {
 		t.Fatalf("got %+v %v", choice, err)
 	}
-	// 选的就是一个 .speakmore：用它本身，不再套一层
-	chosen := filepath.Join(m.profile, "Apps", ".speakmore")
+	// 选的就是一个 .orangespeakeasy：用它本身，不再套一层
+	chosen := filepath.Join(m.profile, "Apps", ".orangespeakeasy")
 	choice, err = resolveHome(m.getenv, func(string) (string, error) { return chosen, nil })
 	if err != nil || choice.home != chosen || choice.installDir != chosen {
 		t.Fatalf("got %+v %v", choice, err)
@@ -150,10 +150,10 @@ func TestCheckFolderAnswer(t *testing.T) {
 		}
 	}
 	taken := filepath.Join(m.profile, "Taken")
-	if err := os.MkdirAll(filepath.Join(taken, ".speakmore"), 0o700); err != nil {
+	if err := os.MkdirAll(filepath.Join(taken, ".orangespeakeasy"), 0o700); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(taken, ".speakmore", "notes.txt"), []byte("x"), 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(taken, ".orangespeakeasy", "notes.txt"), []byte("x"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	for typed, want := range map[string]string{
@@ -168,7 +168,7 @@ func TestCheckFolderAnswer(t *testing.T) {
 	}
 }
 
-// 长度按字符数算（和 install.ps1、speakmore move 一样）：中文一个字三个字节，按字节算会多拦
+// 长度按字符数算（和 install.ps1、orangespeakeasy move 一样）：中文一个字三个字节，按字节算会多拦
 func TestCheckFolderAnswerCountsCharacters(t *testing.T) {
 	// t.TempDir() 带着测试名，太长；放在短一些的临时目录里
 	short := os.TempDir()
@@ -180,7 +180,7 @@ func TestCheckFolderAnswerCountsCharacters(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { os.RemoveAll(base) })
-	room := maxHomeChars - len([]rune(base)) - len([]rune(`\.speakmore`)) - 1
+	room := maxHomeChars - len([]rune(base)) - len([]rune(`\.orangespeakeasy`)) - 1
 	folder := filepath.Join(base, strings.Repeat("语", room))
 	if err := os.MkdirAll(folder, 0o700); err != nil {
 		t.Fatal(err)
@@ -193,7 +193,7 @@ func TestCheckFolderAnswerCountsCharacters(t *testing.T) {
 func TestReuseOldHome(t *testing.T) {
 	m := newMachine(t)
 	old := filepath.Join(m.profile, "Old")
-	if err := os.MkdirAll(filepath.Join(old, ".speakmore", "data"), 0o700); err != nil {
+	if err := os.MkdirAll(filepath.Join(old, ".orangespeakeasy", "data"), 0o700); err != nil {
 		t.Fatal(err)
 	}
 	if folder, problem := checkFolderAnswer(old, english); problem != "" || folder != old {

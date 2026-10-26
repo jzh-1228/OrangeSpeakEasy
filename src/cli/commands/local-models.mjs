@@ -5,7 +5,7 @@ import { createModelStore } from "../../models/store.mjs";
 import { currentSettings } from "../common.mjs";
 
 // 命令行里的本机模型：下没下载、下载并等它下完、要用却没下载时先问一句。
-// 下载由用户点：speakmore transcriber download，或者要用一个没下载的模型时答"是"。
+// 下载由用户点：orangespeakeasy transcriber download，或者要用一个没下载的模型时答"是"。
 // 后台在运行就交给它下（和设置页里看到的是同一个下载）；没在运行就在这个进程里下。
 
 /** 等后台下载时多久看一次进度 */

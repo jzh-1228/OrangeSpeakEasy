@@ -60,7 +60,7 @@ export const SOURCES = Object.freeze([
     },
   }),
   Object.freeze({
-    id: "speakmore",
+    id: "orangespeakeasy",
     prefix: "sm",
     plan: null,
     audioTo: ["gemini", "openai"],

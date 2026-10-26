@@ -16,7 +16,7 @@ ipcRenderer.on("theme:changed", (_event, css) => {
 // 主窗口和首次引导整页重新加载；悬浮条不重新加载（可能正在听写），收到新的语言换掉翻译
 const locale = ipcRenderer.sendSync("locale:get");
 
-contextBridge.exposeInMainWorld("speakmore", {
+contextBridge.exposeInMainWorld("orangespeakeasy", {
   locale,
   // 哪个系统：按系统说法不同的文案（src/i18n）、按系统摆的窗口元素（html 上的 data-platform）用它
   platform: process.platform,

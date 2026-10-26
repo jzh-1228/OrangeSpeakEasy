@@ -10,7 +10,7 @@ afterEach(() => {
   for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true });
 });
 const tempDb = () => {
-  const dir = mkdtempSync(join(tmpdir(), "speakmore-bench-"));
+  const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-bench-"));
   dirs.push(dir);
   return join(dir, "results.db");
 };

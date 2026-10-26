@@ -52,7 +52,7 @@ const DOMAINS = [
   { name: download.host, role: "发布包", bucket: process.env.COS_BUCKET },
   { name: new URL(site.mediaBase).host, role: "官网与 README 的图", bucket: process.env.SITE_MEDIA_BUCKET },
 ];
-const PREFIX = download.pathname.replace(/^\/+|\/+$/g, ""); // 发布包在桶里的前缀，speakmore
+const PREFIX = download.pathname.replace(/^\/+|\/+$/g, ""); // 发布包在桶里的前缀，orangespeakeasy
 
 // 北京时间的日期（CDN 的日志和统计都按 UTC+8）
 const beijing = (offsetDays = 0) => new Date(Date.now() + 8 * 3600e3 + offsetDays * 86400e3).toISOString().slice(0, 10);
@@ -277,7 +277,7 @@ const pad = (text, width) =>
 function render(r) {
   const out = [];
   const line = (text = "") => out.push(text);
-  line(`SpeakMore 下载与流量 · ${r.today}${r.offline ? "（离线，只用缓存）" : ""}`);
+  line(`OrangeSpeakEasy 下载与流量 · ${r.today}${r.offline ? "（离线，只用缓存）" : ""}`);
   line();
 
   const d = r.downloads;

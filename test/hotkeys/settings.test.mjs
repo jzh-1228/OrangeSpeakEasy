@@ -20,19 +20,19 @@ const settingsWith = (settings, values = {}) =>
     ]),
   );
 
-test("动作目录里每个动作一项 hotkey.<动作>，环境变量 SPEAKMORE_HOTKEY_<动作>；听写另认旧名字和旧环境变量", () => {
+test("动作目录里每个动作一项 hotkey.<动作>，环境变量 ORANGESPEAKEASY_HOTKEY_<动作>；听写另认旧名字和旧环境变量", () => {
   assert.deepEqual(Object.keys(mac), ["hotkey.dictate", "hotkey.translate", "hotkey.lookup", "hotkey.cancel"]);
   assert.deepEqual(
     ACTIONS.map((action) => [settingNameOf(action), envOf(action)]),
     [
-      ["hotkey.dictate", "SPEAKMORE_HOTKEY_DICTATE"],
-      ["hotkey.translate", "SPEAKMORE_HOTKEY_TRANSLATE"],
-      ["hotkey.lookup", "SPEAKMORE_HOTKEY_LOOKUP"],
-      ["hotkey.cancel", "SPEAKMORE_HOTKEY_CANCEL"],
+      ["hotkey.dictate", "ORANGESPEAKEASY_HOTKEY_DICTATE"],
+      ["hotkey.translate", "ORANGESPEAKEASY_HOTKEY_TRANSLATE"],
+      ["hotkey.lookup", "ORANGESPEAKEASY_HOTKEY_LOOKUP"],
+      ["hotkey.cancel", "ORANGESPEAKEASY_HOTKEY_CANCEL"],
     ],
   );
-  assert.equal(mac["hotkey.dictate"].env, "SPEAKMORE_HOTKEY_DICTATE");
-  assert.equal(mac["hotkey.dictate"].legacyEnv, "SPEAKMORE_HOTKEY");
+  assert.equal(mac["hotkey.dictate"].env, "ORANGESPEAKEASY_HOTKEY_DICTATE");
+  assert.equal(mac["hotkey.dictate"].legacyEnv, "ORANGESPEAKEASY_HOTKEY");
   assert.equal(mac["hotkey.dictate"].legacyName, "hotkey");
   assert.equal(mac["hotkey.cancel"].legacyEnv, undefined);
   assert.equal(mac["hotkey.cancel"].legacyName, undefined);
@@ -53,7 +53,7 @@ test("写法：一个组合、列表、旧 id 都认，存成规整过的列表�
   assert.equal(parse('["Fn", "MetaRight"]'), '["Fn","MetaRight"]');
   assert.equal(parse('["Space+AltRight","AltRight+Space"]'), '["AltRight+Space"]', "规整后一样的只留一个");
   assert.equal(parse("[]"), "[]", "空列表是关掉，能不能存由 check 管");
-  // PowerShell 调 speakmore.cmd 时会去掉参数里的双引号：不带引号的列表也认（code 名里没有逗号和引号）
+  // PowerShell 调 orangespeakeasy.cmd 时会去掉参数里的双引号：不带引号的列表也认（code 名里没有逗号和引号）
   assert.equal(parse("[Fn, MetaRight]"), '["Fn","MetaRight"]');
   // 旧 id 只在入口认（5.9）：设置文件、环境变量、命令行写的都是它
   assert.equal(parse("right_command"), '["MetaRight"]');

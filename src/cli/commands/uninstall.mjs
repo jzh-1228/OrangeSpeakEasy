@@ -6,8 +6,8 @@ import { forgetLocation } from "../../storage/location.mjs";
 import { STAGING_PREFIX } from "../../update/home.mjs";
 import { noPositionals, parse, UsageError } from "../common.mjs";
 
-// speakmore uninstall：停掉后台，把 SpeakMore 的目录整个删掉；目录以外删不了的照实列出来。
-// 目录以外装的时候动过什么记在 bin\links 里，一行一样：macOS 上是指向 speakmore 命令的链接（一个路径），
+// orangespeakeasy uninstall：停掉后台，把 OrangeSpeakEasy 的目录整个删掉；目录以外删不了的照实列出来。
+// 目录以外装的时候动过什么记在 bin\links 里，一行一样：macOS 上是指向 orangespeakeasy 命令的链接（一个路径），
 // Windows 上是 "path <用户 Path 里的那一项>" 和 "shortcut <开始菜单的快捷方式>"（install.ps1 写的）。
 // Windows 上正在跑的程序删不掉，而这条命令自己就跑在装好的那份 Electron 上：删不掉的等它退出后再删（io.system）。
 
@@ -83,7 +83,7 @@ export async function uninstall(args, io) {
 
   /** 删不掉、等这条命令退出后再删的（只有 Windows 会有） */
   const later = [];
-  // Windows 上这条命令是 bin\speakmore.cmd 起的：cmd 等它退出后还要回头读这个批处理文件，现在删掉的话
+  // Windows 上这条命令是 bin\orangespeakeasy.cmd 起的：cmd 等它退出后还要回头读这个批处理文件，现在删掉的话
   // 会报"找不到批处理文件"、退出码变成 1。bin 留到退出后再删（真机上试过，同一行接 exit 也躲不开）
   const deferBin = io.platform === "win32";
   const remove = (dir) => {

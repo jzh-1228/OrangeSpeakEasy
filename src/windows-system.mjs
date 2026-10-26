@@ -31,15 +31,15 @@ export function removePathEntry(entry) {
     `$key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Environment', $true)
      $raw = [string]$key.GetValue('Path', '', [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
      $entries = @($raw -split ';' | Where-Object { $_ })
-     $kept = @($entries | Where-Object { $_ -ine $env:SPEAKMORE_PATH_ENTRY })
+     $kept = @($entries | Where-Object { $_ -ine $env:ORANGESPEAKEASY_PATH_ENTRY })
      if ($kept.Count -ne $entries.Count) {
        $key.SetValue('Path', ($kept -join ';'), [Microsoft.Win32.RegistryValueKind]::ExpandString)
-       [Environment]::SetEnvironmentVariable('SPEAKMORE_PATH_CHANGED', '1', 'User')
-       [Environment]::SetEnvironmentVariable('SPEAKMORE_PATH_CHANGED', $null, 'User')
+       [Environment]::SetEnvironmentVariable('ORANGESPEAKEASY_PATH_CHANGED', '1', 'User')
+       [Environment]::SetEnvironmentVariable('ORANGESPEAKEASY_PATH_CHANGED', $null, 'User')
        'removed'
      }
      $key.Dispose()`,
-    { SPEAKMORE_PATH_ENTRY: entry },
+    { ORANGESPEAKEASY_PATH_ENTRY: entry },
   );
   return output.trim() === "removed";
 }
@@ -53,9 +53,9 @@ export function removePathEntry(entry) {
 export function isOurShortcut(file, home) {
   if (!existsSync(file)) return false;
   const output = powershell(
-    `$target = (New-Object -ComObject WScript.Shell).CreateShortcut($env:SPEAKMORE_SHORTCUT).TargetPath
-     if ($target.StartsWith("$env:SPEAKMORE_HOME_DIR\\", [StringComparison]::OrdinalIgnoreCase)) { 'ours' }`,
-    { SPEAKMORE_SHORTCUT: file, SPEAKMORE_HOME_DIR: home },
+    `$target = (New-Object -ComObject WScript.Shell).CreateShortcut($env:ORANGESPEAKEASY_SHORTCUT).TargetPath
+     if ($target.StartsWith("$env:ORANGESPEAKEASY_HOME_DIR\\", [StringComparison]::OrdinalIgnoreCase)) { 'ours' }`,
+    { ORANGESPEAKEASY_SHORTCUT: file, ORANGESPEAKEASY_HOME_DIR: home },
   );
   return output.trim() === "ours";
 }
@@ -66,18 +66,18 @@ const RUN_KEYS = [
 ];
 
 /**
- * 去掉开机启动（App 设置里开的，Electron 记在注册表的 Run 里，名字是 SpeakMore）。只删指着这个家目录的那一条
+ * 去掉开机启动（App 设置里开的，Electron 记在注册表的 Run 里，名字是 OrangeSpeakEasy）。只删指着这个家目录的那一条
  * @returns {boolean} 本来有没有
  */
 export function removeLoginItem(home) {
   const output = powershell(
-    `$run = Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name 'SpeakMore' -ErrorAction SilentlyContinue
+    `$run = Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name 'OrangeSpeakEasy' -ErrorAction SilentlyContinue
      # 按字面找家目录（不用 -like：路径里的 [ ] 会被当成通配符）
-     if ($run -and $run.SpeakMore.IndexOf("$env:SPEAKMORE_HOME_DIR\\", [StringComparison]::OrdinalIgnoreCase) -ge 0) {
-       foreach ($key in $env:SPEAKMORE_RUN_KEYS.Split([char]10)) { Remove-ItemProperty -Path $key -Name 'SpeakMore' -ErrorAction SilentlyContinue }
+     if ($run -and $run.OrangeSpeakEasy.IndexOf("$env:ORANGESPEAKEASY_HOME_DIR\\", [StringComparison]::OrdinalIgnoreCase) -ge 0) {
+       foreach ($key in $env:ORANGESPEAKEASY_RUN_KEYS.Split([char]10)) { Remove-ItemProperty -Path $key -Name 'OrangeSpeakEasy' -ErrorAction SilentlyContinue }
        'removed'
      }`,
-    { SPEAKMORE_HOME_DIR: home, SPEAKMORE_RUN_KEYS: RUN_KEYS.join("\n") },
+    { ORANGESPEAKEASY_HOME_DIR: home, ORANGESPEAKEASY_RUN_KEYS: RUN_KEYS.join("\n") },
   );
   return output.trim() === "removed";
 }
@@ -90,8 +90,8 @@ export function removeLoginItem(home) {
  */
 function runDetached(cleanup, env) {
   powershell(
-    "Start-Process powershell -WindowStyle Hidden -WorkingDirectory $env:TEMP -ArgumentList '-NoProfile','-NonInteractive','-EncodedCommand',$env:SPEAKMORE_CLEANUP",
-    { ...env, SPEAKMORE_CLEANUP: Buffer.from(cleanup, "utf16le").toString("base64") },
+    "Start-Process powershell -WindowStyle Hidden -WorkingDirectory $env:TEMP -ArgumentList '-NoProfile','-NonInteractive','-EncodedCommand',$env:ORANGESPEAKEASY_CLEANUP",
+    { ...env, ORANGESPEAKEASY_CLEANUP: Buffer.from(cleanup, "utf16le").toString("base64") },
     { cwd: tmpdir() },
   );
 }
@@ -102,7 +102,7 @@ function runDetached(cleanup, env) {
  * 不会退，等它读完批处理文件的最后一行就行
  */
 const WAIT_FOR_PIDS = `$timeout = 600
-foreach ($id in $env:SPEAKMORE_WAIT_PIDS.Split(',')) { if ($id) { Wait-Process -Id ([int]$id) -Timeout $timeout -ErrorAction SilentlyContinue; $timeout = 10 } }
+foreach ($id in $env:ORANGESPEAKEASY_WAIT_PIDS.Split(',')) { if ($id) { Wait-Process -Id ([int]$id) -Timeout $timeout -ErrorAction SilentlyContinue; $timeout = 10 } }
 Start-Sleep -Milliseconds 800`;
 
 /** 删掉 $targets 里的每一项，删不掉的隔一秒再试，最多十次 */
@@ -120,51 +120,55 @@ const REMOVE_WITH_RETRIES = `for ($try = 0; $try -lt 10; $try++) {
 export function removeAfterExit(dirs, pid = process.pid) {
   runDetached(
     `${WAIT_FOR_PIDS}
-$targets = @($env:SPEAKMORE_REMOVE.Split([char]10) | Where-Object { $_ })
+$targets = @($env:ORANGESPEAKEASY_REMOVE.Split([char]10) | Where-Object { $_ })
 ${REMOVE_WITH_RETRIES}`,
-    { SPEAKMORE_WAIT_PIDS: String(pid), SPEAKMORE_REMOVE: dirs.join("\n") },
+    { ORANGESPEAKEASY_WAIT_PIDS: String(pid), ORANGESPEAKEASY_REMOVE: dirs.join("\n") },
   );
 }
 
 /**
- * 搬家后删旧目录（move/index.mjs）：等这几个进程（搬家的这条命令、起它的 speakmore.cmd——cmd 跑完一行还要回去读批处理文件）
+ * 搬家后删旧目录（move/index.mjs）：等这几个进程（搬家的这条命令、起它的 orangespeakeasy.cmd——cmd 跑完一行还要回去读批处理文件）
  * 都退出，删掉目录里我们的那几项；只剩 MOVED.json（或者什么都不剩）就连目录一起删，还有用户自己的东西就留着它们和 MOVED.json
  */
 export function removeHomeAfterExit(home, names, pids) {
   runDetached(
     `${WAIT_FOR_PIDS}
-$dir = $env:SPEAKMORE_OLD_HOME
-$targets = @($env:SPEAKMORE_REMOVE.Split([char]10) | Where-Object { $_ } | ForEach-Object { [IO.Path]::Combine($dir, $_) })
+$dir = $env:ORANGESPEAKEASY_OLD_HOME
+$targets = @($env:ORANGESPEAKEASY_REMOVE.Split([char]10) | Where-Object { $_ } | ForEach-Object { [IO.Path]::Combine($dir, $_) })
 ${REMOVE_WITH_RETRIES}
 $rest = @(Get-ChildItem -LiteralPath $dir -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -ne 'MOVED.json' })
 if ($rest.Count -eq 0) {
   $targets = @($dir)
   ${REMOVE_WITH_RETRIES}
 }`,
-    { SPEAKMORE_WAIT_PIDS: pids.join(","), SPEAKMORE_OLD_HOME: home, SPEAKMORE_REMOVE: names.join("\n") },
+    {
+      ORANGESPEAKEASY_WAIT_PIDS: pids.join(","),
+      ORANGESPEAKEASY_OLD_HOME: home,
+      ORANGESPEAKEASY_REMOVE: names.join("\n"),
+    },
   );
 }
 
 /**
- * 用户环境变量里的 SPEAKMORE_HOME 指着这个（搬走了的）目录就删掉它：不然以后跑安装程序、从源码启动都还会用旧位置。
+ * 用户环境变量里的 ORANGESPEAKEASY_HOME 指着这个（搬走了的）目录就删掉它：不然以后跑安装程序、从源码启动都还会用旧位置。
  * 0.11.0 及以前想换位置只能设它。指着别处的不动
  * @returns {boolean} 删了没有
  */
 export function clearUserHome(home) {
   const output = powershell(
     `$key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Environment', $true)
-     $raw = [string]$key.GetValue('SPEAKMORE_HOME', '')
+     $raw = [string]$key.GetValue('ORANGESPEAKEASY_HOME', '')
      if ($raw) {
        $full = [IO.Path]::GetFullPath([Environment]::ExpandEnvironmentVariables($raw)).TrimEnd('\\')
-       if ($full -ieq $env:SPEAKMORE_OLD_HOME.TrimEnd('\\')) {
-         $key.DeleteValue('SPEAKMORE_HOME')
-         [Environment]::SetEnvironmentVariable('SPEAKMORE_PATH_CHANGED', '1', 'User')
-         [Environment]::SetEnvironmentVariable('SPEAKMORE_PATH_CHANGED', $null, 'User')
+       if ($full -ieq $env:ORANGESPEAKEASY_OLD_HOME.TrimEnd('\\')) {
+         $key.DeleteValue('ORANGESPEAKEASY_HOME')
+         [Environment]::SetEnvironmentVariable('ORANGESPEAKEASY_PATH_CHANGED', '1', 'User')
+         [Environment]::SetEnvironmentVariable('ORANGESPEAKEASY_PATH_CHANGED', $null, 'User')
          'removed'
        }
      }
      $key.Dispose()`,
-    { SPEAKMORE_OLD_HOME: home },
+    { ORANGESPEAKEASY_OLD_HOME: home },
   );
   return output.trim() === "removed";
 }

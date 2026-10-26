@@ -7,13 +7,13 @@ import { assembleTree } from "./assemble.mjs";
 import { run } from "./exec.mjs";
 import { appTarget, dmgName, versionDir } from "./layout.mjs";
 
-// Mac 上的 SpeakMore.app（拖进"应用程序"的那个）：在哪、是哪个版本，换成新版本，重新打开。
+// Mac 上的 OrangeSpeakEasy.app（拖进"应用程序"的那个）：在哪、是哪个版本，换成新版本，重新打开。
 // 换的时候先在它旁边拼好新的、核对好（这时它还可以照常运行；只下本机缺的块，见 assemble.mjs），
 // 等它退出了再两次改名对调：换到一半出了错，装着的那个原样留着。Windows 上没有单独的应用包。
 
-/** 打包时写进 App 的应用标识（scripts/build/mac-app.mjs）：名字叫 SpeakMore.app 的不一定是我们的 */
-const APP_BUNDLE_ID = "com.zephyrxiang.speakmore";
-const APP_NAME = "SpeakMore.app";
+/** 打包时写进 App 的应用标识（scripts/build/mac-app.mjs）：名字叫 OrangeSpeakEasy.app 的不一定是我们的 */
+const APP_BUNDLE_ID = "com.juzihai.orangespeakeasy";
+const APP_NAME = "OrangeSpeakEasy.app";
 
 /** 一个应用包的应用标识和版本号；不是应用包（不存在、没有 Info.plist）是 null */
 export async function bundleInfo(app) {
@@ -27,7 +27,7 @@ export async function bundleInfo(app) {
   }
 }
 
-/** 正在跑的那个进程的程序在哪个应用包里（…/SpeakMore.app/Contents/MacOS/SpeakMore → …/SpeakMore.app） */
+/** 正在跑的那个进程的程序在哪个应用包里（…/OrangeSpeakEasy.app/Contents/MacOS/OrangeSpeakEasy → …/OrangeSpeakEasy.app） */
 async function bundleOfProcess(pid) {
   let executable;
   try {
@@ -40,7 +40,7 @@ async function bundleOfProcess(pid) {
   return at === -1 ? null : executable.slice(0, at + ".app".length);
 }
 
-/** 程序目录在哪个应用包里（…/SpeakMore.app/Contents/Resources/app → …/SpeakMore.app）；不在应用包里是 null */
+/** 程序目录在哪个应用包里（…/OrangeSpeakEasy.app/Contents/Resources/app → …/OrangeSpeakEasy.app）；不在应用包里是 null */
 export function bundleOfPackage(packageDir) {
   const suffix = /\.app[\\/]Contents[\\/]Resources[\\/]app[\\/]?$/;
   const match = suffix.exec(packageDir);
@@ -67,7 +67,7 @@ async function teamOf(app) {
 
 /**
  * @param {object} options
- * @param {Record<string, string | undefined>} options.env SPEAKMORE_APP 指定 App 在哪（测试用）；打开 App 时交给它
+ * @param {Record<string, string | undefined>} options.env ORANGESPEAKEASY_APP 指定 App 在哪（测试用）；打开 App 时交给它
  * @param {ReturnType<import("./release.mjs").createRelease>} options.release
  * @param {NodeJS.Platform} [options.platform]
  * @param {string} [options.arch] 拼哪种芯片的 App：和装着的这一份一样
@@ -75,15 +75,15 @@ async function teamOf(app) {
 export function createBundles({ env, release, platform = process.platform, arch = process.arch }) {
   return {
     /**
-     * 装着的 SpeakMore.app 在哪、是哪个版本。先看 SPEAKMORE_APP 指的；再看正在跑的那个、这份程序自己所在的那个
+     * 装着的 OrangeSpeakEasy.app 在哪、是哪个版本。先看 ORANGESPEAKEASY_APP 指的；再看正在跑的那个、这份程序自己所在的那个
      * （用户可能没放在"应用程序"里）；再看两个"应用程序"文件夹
      * @param {{ pid?: number | null, self?: string | null }} [where] pid：正在跑的 App 的进程号；self：这份程序所在的应用包
      * @returns {Promise<{ path: string, version: string } | null>}
      */
     async find({ pid = null, self = null } = {}) {
       if (platform !== "darwin") return null;
-      const candidates = env.SPEAKMORE_APP
-        ? [env.SPEAKMORE_APP]
+      const candidates = env.ORANGESPEAKEASY_APP
+        ? [env.ORANGESPEAKEASY_APP]
         : [
             pid === null ? null : await bundleOfProcess(pid),
             self,
@@ -99,7 +99,7 @@ export function createBundles({ env, release, platform = process.platform, arch 
     },
 
     /**
-     * 清掉上次被打断时在 app 旁边拼了一半的 .SpeakMore.app.new（.old 不碰：对调到一半被打断时，装着的那个可能就在它那里）。
+     * 清掉上次被打断时在 app 旁边拼了一半的 .OrangeSpeakEasy.app.new（.old 不碰：对调到一半被打断时，装着的那个可能就在它那里）。
      * 删不掉的交回在哪、为什么
      */
     clean(app) {
@@ -113,9 +113,9 @@ export function createBundles({ env, release, platform = process.platform, arch 
     },
 
     /**
-     * 把这个版本的 SpeakMore.app 拼好、核对好，放在 app 旁边待换。这一步不碰装着的那个，它可以照常运行。
+     * 把这个版本的 OrangeSpeakEasy.app 拼好、核对好，放在 app 旁边待换。这一步不碰装着的那个，它可以照常运行。
      * 拼：照清单只下本机缺的块，没变的从装着的几份里拷（assemble.mjs）。
-     * 核对：拼出来的确实是这个版本的 SpeakMore、签名完好，而且和装着的出自同一个开发者
+     * 核对：拼出来的确实是这个版本的 OrangeSpeakEasy、签名完好，而且和装着的出自同一个开发者
      * （块按 sha256 认，只防得住路上坏了；同一个开发者才防得住被人换了）
      * @param {{ version: string, targets: Record<string, string> }} channel release.channel() 问到的
      * @param {string} app 装着的 App
@@ -207,7 +207,7 @@ export function createBundles({ env, release, platform = process.platform, arch 
     /**
      * 打开 App（换完之后把原来在跑的那个重新打开）。open 会把自己的环境变量交给打开的 App，
      * 而更新是借 Electron 当 Node 跑的（ELECTRON_RUN_AS_NODE=1）：带过去的话 App 也当成 Node 跑，一启动就退出。
-     * 别的照样带过去，SPEAKMORE_HOME 这些和这边一致。
+     * 别的照样带过去，ORANGESPEAKEASY_HOME 这些和这边一致。
      * fresh：另开一个，不管同一个应用包是不是已经有进程在跑（搬家的进度窗口就是这个应用包，不加的话 open 只会把它叫到前面）
      */
     async open(app, { fresh = false } = {}) {

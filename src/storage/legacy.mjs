@@ -6,7 +6,7 @@ import { LocalizedError, msg } from "../i18n/index.mjs";
 import { ensureHome, keyFile, legacyDataDir, oldAppKeyFile } from "./paths.mjs";
 
 // 旧版本留下的东西，第一次运行新版时换成现在的样子：
-//   0.1 版把数据放在 ~/Library/Application Support/SpeakMore。那里还有东西的话，搬进现在的家目录（migrateLegacyData）。
+//   0.1 版把数据放在 ~/Library/Application Support/OrangeSpeakEasy。那里还有东西的话，搬进现在的家目录（migrateLegacyData）。
 //     想退回 0.1：把这几样搬回原处即可。历史里的录音只按文件名认（history.mjs），不用跟着改。
 //   0.13 以前热键的设置叫 hotkey、存一个旧 id（migrateLegacySettings）。
 

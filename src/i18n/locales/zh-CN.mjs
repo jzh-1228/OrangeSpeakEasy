@@ -145,7 +145,7 @@ export default {
   hotkeyProblem: {
     chord: "「{action}」的 {chord} 用不了：{reason}",
     fallback: "「{action}」先用默认的 {chord}",
-    needsTrusted: "要先在系统设置里给 SpeakMore 辅助功能权限",
+    needsTrusted: "要先在系统设置里给 OrangeSpeakEasy 辅助功能权限",
     registerFailed: "系统没让注册，可能被别的应用占了",
     invalid: "小帮手认不出这个组合",
   },
@@ -232,9 +232,9 @@ export default {
   settings: {
     describe: {
       mode: "识别方式：native（直出）是录音直接交给收音频的模型，local（混合）是先转成文字、再交给任意大模型整理，private（离线）是只用本机模型转文字、什么都不上传",
-      model: "用哪一家的哪个模型整理，写成 厂商/模型；只写厂商就用它的默认模型。换模型用 speakmore model",
+      model: "用哪一家的哪个模型整理，写成 厂商/模型；只写厂商就用它的默认模型。换模型用 orangespeakeasy model",
       thinking: "Gemini 的思考档位，越高越慢。别家的模型用不上",
-      transcriber: "local（混合）方式用哪个模型转文字，本机模型要先下载好（speakmore transcriber download）",
+      transcriber: "local（混合）方式用哪个模型转文字，本机模型要先下载好（orangespeakeasy transcriber download）",
       privateTranscriber: "private（离线）方式用哪个本机模型转文字，只能是本机模型，要先下载好",
       polish: "local（混合）方式把文字交给哪一家的哪个模型整理，写成 厂商/模型；自定义服务写 custom/模型名",
       customUrl: "自定义服务的地址（兼容 OpenAI 接口的那种），比如 https://api.example.com/v1",
@@ -296,7 +296,7 @@ export default {
     modelDownloading: "本地模型下载中（{percent}%），完成后即可使用",
     modelLoading: "本地模型正在装载，稍等几秒",
     modelFailed: "本地模型没装上：{reason}",
-    modelMissing: "本地模型 {model} 还没下载：在引擎页下载，或运行 speakmore transcriber download {id}",
+    modelMissing: "本地模型 {model} 还没下载：在引擎页下载，或运行 orangespeakeasy transcriber download {id}",
     undecodable: "录音解不开：{reason}",
     transcribeFailed: "本机转文字失败：{reason}",
   },
@@ -361,7 +361,7 @@ export default {
     endpointNotFound: "{provider} 的这个地址上没有对话接口（HTTP 404）：检查地址是否写全，多数以 /v1 结尾",
     paramsNotJson: '额外参数不是有效的 JSON：键名和字符串都要用英文双引号，比如 {"reasoning_effort": "minimal"}',
     paramsNotObject: '额外参数要是一个 JSON 对象，用大括号括起来，比如 {"reasoning_effort": "minimal"}',
-    paramsReserved: "额外参数里不能写 {name}：{names} 由 SpeakMore 发送",
+    paramsReserved: "额外参数里不能写 {name}：{names} 由 OrangeSpeakEasy 发送",
   },
 
   setup: {
@@ -395,14 +395,15 @@ export default {
     unreadableFor: "存着的 {provider} key 读不出来了，重新填一次",
     notSaved: "密钥检测通过，但未能保存（{reason}），退出后需重新填写",
     keychainUnavailable: "系统钥匙串不可用，没法安全地保存 key",
-    external: "现在连的是单独启动的服务端（SPEAKMORE_SERVER_URL），key 在那边配",
-    externalModel: "现在连的是单独启动的服务端（SPEAKMORE_SERVER_URL），用哪个模型由那边定",
+    external: "现在连的是单独启动的服务端（ORANGESPEAKEASY_SERVER_URL），key 在那边配",
+    externalModel: "现在连的是单独启动的服务端（ORANGESPEAKEASY_SERVER_URL），用哪个模型由那边定",
     noKeyFor: "{provider} 密钥未配置",
-    noKeyForCli: "还没有 {provider} 的 key：运行 speakmore key {id}",
+    noKeyForCli: "还没有 {provider} 的 key：运行 orangespeakeasy key {id}",
     unknownProvider: "不认识 {id} 这家模型厂商",
-    noKeyService: "还没有填 {provider} API key：在终端运行 speakmore key，或者点菜单栏上 SpeakMore 的图标打开设置",
+    noKeyService:
+      "还没有填 {provider} API key：在终端运行 orangespeakeasy key，或者点菜单栏上 OrangeSpeakEasy 的图标打开设置",
     noKeyServiceFor:
-      "还没有填 {provider} API key：在终端运行 speakmore key {id}，或者点菜单栏上 SpeakMore 的图标打开设置",
+      "还没有填 {provider} API key：在终端运行 orangespeakeasy key {id}，或者点菜单栏上 OrangeSpeakEasy 的图标打开设置",
     failedFor: "{provider} 的 key 未通过：{reason}",
     whichVendor: "离线方式不用 key；要给某一家存 key，写明是哪一家",
   },
@@ -484,7 +485,7 @@ export default {
     noMicrophone: "找不到麦克风",
     noSignal: "麦克风没信号：查输入设备、是否静音",
     recordError: "录音出错：{reason}",
-    helperStopped: "按键监听停了，{hotkey}失效：重启 SpeakMore 试试",
+    helperStopped: "按键监听停了，{hotkey}失效：重启 OrangeSpeakEasy 试试",
     secureInput: "有应用开着安全输入，部分组合键暂时用不了",
     // 只有 Windows 有：系统不把发给管理员窗口的按键交给我们
     elevatedForeground: "前台是以管理员身份运行的窗口，在它上面快捷键用不了",
@@ -494,12 +495,12 @@ export default {
     ready: "就绪 · 按 {keycap} 说话",
     missing: "还差：{items}",
     preparing: "准备中…",
-    open: "打开 SpeakMore",
+    open: "打开 OrangeSpeakEasy",
     history: "历史记录",
     settings: "设置…",
     version: "版本 {version}",
     updateAvailable: "新版本 {version} 可用…",
-    quit: "退出 SpeakMore",
+    quit: "退出 OrangeSpeakEasy",
     fallbackTitle: "听写",
   },
 
@@ -922,12 +923,12 @@ export default {
       title: "存储位置",
       change: "更改…",
       pickTitle: "选择新的存储位置",
-      pickMessage: "SpeakMore 会移到所选文件夹中的 .speakmore",
+      pickMessage: "OrangeSpeakEasy 会移到所选文件夹中的 .orangespeakeasy",
       pickButton: "选择",
       confirm: "移动到 {to}？",
       confirmDetail:
-        "将复制 {size}（{count} 个文件），包括程序、本机模型、录音和设置。移动期间 SpeakMore 会暂时退出，完成后自动重新打开；未能完成时一切照旧。",
-      unknown: "原位置中不属于 SpeakMore 的文件不会移动，也不会删除：{items}",
+        "将复制 {size}（{count} 个文件），包括程序、本机模型、录音和设置。移动期间 OrangeSpeakEasy 会暂时退出，完成后自动重新打开；未能完成时一切照旧。",
+      unknown: "原位置中不属于 OrangeSpeakEasy 的文件不会移动，也不会删除：{items}",
       move: "移动",
       cancel: "取消",
       failed: "未能更改：{reason}",
@@ -941,7 +942,7 @@ export default {
       otherBehind: "{copy} 仍是 v{current}，可一并更新到 v{latest}",
       updateTo: "更新到 v{version}",
       downloading: "正在下载 v{version}…",
-      installing: "正在安装，SpeakMore 将自动重新打开…",
+      installing: "正在安装，OrangeSpeakEasy 将自动重新打开…",
       cliRunning: "命令行正在更新到 v{version}…",
       updated: "已更新到 v{version}",
       failed: "更新未完成：{problem}",
@@ -956,13 +957,13 @@ export default {
   firstRun: {
     title: "选择存储位置",
     detail:
-      "SpeakMore 的程序数据、本机模型、录音和设置都保存在同一个文件夹中。\n\n默认位置：{home}\n\n本机模型每个约 0.2–1.6 GB。如需保存到其他磁盘，可以现在选择；以后也可在 设置 › 通用 › 存储位置 中更改。",
+      "OrangeSpeakEasy 的程序数据、本机模型、录音和设置都保存在同一个文件夹中。\n\n默认位置：{home}\n\n本机模型每个约 0.2–1.6 GB。如需保存到其他磁盘，可以现在选择；以后也可在 设置 › 通用 › 存储位置 中更改。",
     useDefault: "使用默认位置",
     choose: "选择其他位置…",
     pickTitle: "选择存储位置",
-    pickMessage: "SpeakMore 会保存在所选文件夹中的 .speakmore",
+    pickMessage: "OrangeSpeakEasy 会保存在所选文件夹中的 .orangespeakeasy",
     pickButton: "选择",
-    existing: "{home} 中已有 SpeakMore 的数据",
+    existing: "{home} 中已有 OrangeSpeakEasy 的数据",
     existingDetail: "将直接使用其中的设置、历史和录音。",
     reuse: "使用",
     again: "重新选择",
@@ -981,15 +982,15 @@ export default {
     from: "原位置",
     to: "新位置",
     step: {
-      preparing: "正在准备，SpeakMore 会暂时退出…",
+      preparing: "正在准备，OrangeSpeakEasy 会暂时退出…",
       switching: "正在切换到新位置…",
       done: "所有文件已移到新位置。",
     },
     copying: "正在复制 {done} / {total}（{percent}%）· 完成前请勿断开磁盘",
     removed: "原位置的文件已删除。",
     later: "原位置的文件将在此窗口关闭后删除。",
-    left: "原位置中不属于 SpeakMore 的文件保留未动：{items}",
-    unchanged: "SpeakMore 仍在原位置，一切照旧。",
+    left: "原位置中不属于 OrangeSpeakEasy 的文件保留未动：{items}",
+    unchanged: "OrangeSpeakEasy 仍在原位置，一切照旧。",
     done: "完成",
     close: "关闭",
   },
@@ -1075,8 +1076,8 @@ export default {
   // 这个家目录里正在运行的那个（src/instance.mjs）：停不掉时说的话
   instance: {
     stuckNoPid:
-      "SpeakMore 卡住了不答话，也认不出它的进程号。在“活动监视器”里找到名叫 Electron 或 SpeakMore 的进程，结束它。",
-    cantStop: "SpeakMore 停不掉（进程号 {pid}）。在“活动监视器”里结束它。",
+      "OrangeSpeakEasy 卡住了不答话，也认不出它的进程号。在“活动监视器”里找到名叫 Electron 或 OrangeSpeakEasy 的进程，结束它。",
+    cantStop: "OrangeSpeakEasy 停不掉（进程号 {pid}）。在“活动监视器”里结束它。",
   },
 
   // 版本检查和更新（src/update）：命令行和 App 都会说这些
@@ -1089,75 +1090,77 @@ export default {
     checksum: "下载的更新数据（{object}）与发布的不符，可能在传输中损坏，请重新更新。",
     badManifest: "下载地址上的更新清单（{manifest}）无效，请稍后重试；仍然不行请反馈。",
     noTarget: "{version} 的发布中没有这台电脑用的更新（{target}）。",
-    appWrongPackage: "拼出来的不是 {version} 版的 SpeakMore.app，未安装。",
-    appUnsigned: "新版本的 SpeakMore.app 签名无效，未安装：{reason}",
+    appWrongPackage: "拼出来的不是 {version} 版的 OrangeSpeakEasy.app，未安装。",
+    appUnsigned: "新版本的 OrangeSpeakEasy.app 签名无效，未安装：{reason}",
     appOtherDeveloper:
-      "新版本的 SpeakMore.app 与已安装的不是同一开发者签名（{found}，已安装的是 {installed}），未安装。",
+      "新版本的 OrangeSpeakEasy.app 与已安装的不是同一开发者签名（{found}，已安装的是 {installed}），未安装。",
     appReplace: "无法替换 {path}：{reason}。可以下载 {url}，手动拖入“应用程序”。",
     busy: "另一个更新正在进行（进程 {pid}），请等它完成。",
     installFailed: "安装未完成（安装脚本的退出码是 {code}），原因见它说的话或日志。",
     recordFailed: "更新记录写不进 {file}（{reason}），设置里显示的进度可能不准。",
     exitedEarly: "更新进程意外退出（退出码 {code}），经过见日志 {log}。",
-    reopenUnknown: "已换上新版本，但不知道 SpeakMore.app 在哪，请在“应用程序”中打开。",
-    reopenFailed: "已换上新版本，但未能重新打开 SpeakMore.app（{reason}），请在“应用程序”中打开。",
-    restartFailed: "已换上新版本，但未能重新启动（退出码 {code}）。请在终端运行 speakmore 启动，经过见日志 {log}。",
+    reopenUnknown: "已换上新版本，但不知道 OrangeSpeakEasy.app 在哪，请在“应用程序”中打开。",
+    reopenFailed: "已换上新版本，但未能重新打开 OrangeSpeakEasy.app（{reason}），请在“应用程序”中打开。",
+    restartFailed:
+      "已换上新版本，但未能重新启动（退出码 {code}）。请在终端运行 orangespeakeasy 启动，经过见日志 {log}。",
     interrupted: "上一次更新未完成就中断了，经过见日志 {log}。可以重新更新。",
     downloading: "下载更新：{percent}%",
     delta: "已下载 {download}，其余 {reused} 取自本机已有的文件。",
     prepareFailed: "无法在 {dir} 准备新版本：{reason}",
-    updating: "更新 SpeakMore：{current} → {latest}",
-    updatingApp: "更新 SpeakMore.app：{current} → {latest}",
-    appDone: "SpeakMore.app 已更新到 {version}。",
-    reopened: "已重新打开 SpeakMore.app。",
+    updating: "更新 OrangeSpeakEasy：{current} → {latest}",
+    updatingApp: "更新 OrangeSpeakEasy.app：{current} → {latest}",
+    appDone: "OrangeSpeakEasy.app 已更新到 {version}。",
+    reopened: "已重新打开 OrangeSpeakEasy.app。",
     leftover: "临时文件未能删除：{dir}（{reason}），可以手动删除。",
-    copies: { home: "终端安装的 SpeakMore", bundle: "SpeakMore.app" },
+    copies: { home: "终端安装的 OrangeSpeakEasy", bundle: "OrangeSpeakEasy.app" },
   },
 
   paths: {
-    homeNotAbsolute: "环境变量 SPEAKMORE_HOME 要写绝对路径，现在是 {home}",
+    homeNotAbsolute: "环境变量 ORANGESPEAKEASY_HOME 要写绝对路径，现在是 {home}",
     homeTooLong:
-      "SpeakMore 的目录路径太长，控制通道建不起来：{home}\n把这个文件夹挪到路径短一些的地方，再运行安装命令、选它所在的文件夹。",
+      "OrangeSpeakEasy 的目录路径太长，控制通道建不起来：{home}\n把这个文件夹挪到路径短一些的地方，再运行安装命令、选它所在的文件夹。",
     homeParentMissing:
-      "找不到 SpeakMore 的目录 {home}：它所在的 {parent} 不存在。装在移动硬盘或别的盘上的话，先把那块盘接上。",
-    homeMoved: "SpeakMore 已经搬到 {to} 了，这里（{home}）是还没删完的旧目录。从新位置打开 SpeakMore。",
+      "找不到 OrangeSpeakEasy 的目录 {home}：它所在的 {parent} 不存在。装在移动硬盘或别的盘上的话，先把那块盘接上。",
+    homeMoved: "OrangeSpeakEasy 已经搬到 {to} 了，这里（{home}）是还没删完的旧目录。从新位置打开 OrangeSpeakEasy。",
     homeMissing:
-      "找不到 SpeakMore 的目录 {home}（定位文件 {file} 记着它在那里）。\n装在移动硬盘或别的盘上的话，先把那块盘接上；不再用那个位置的话，删掉定位文件就改用默认位置。",
+      "找不到 OrangeSpeakEasy 的目录 {home}（定位文件 {file} 记着它在那里）。\n装在移动硬盘或别的盘上的话，先把那块盘接上；不再用那个位置的话，删掉定位文件就改用默认位置。",
   },
 
   move: {
     notFull: "要写完整路径，比如 {example}：{folder}",
     noFolder: "{folder} 不存在，或者不是文件夹。先建好它，再选一次。",
-    sameHome: "SpeakMore 已经在 {home} 了，不用搬。",
-    insideHome: "不能搬到 SpeakMore 现在的目录（{home}）里面，换一个文件夹。",
-    notEmpty: "{home} 里已经有东西了。SpeakMore 只搬到空的位置：换一个文件夹，或者先把它清空。",
+    sameHome: "OrangeSpeakEasy 已经在 {home} 了，不用搬。",
+    insideHome: "不能搬到 OrangeSpeakEasy 现在的目录（{home}）里面，换一个文件夹。",
+    notEmpty: "{home} 里已经有东西了。OrangeSpeakEasy 只搬到空的位置：换一个文件夹，或者先把它清空。",
     tooLongBytes: "路径太长了：{home}\n最长 {max} 个字节（中文一个字算三个），换一个短一些的位置。",
     tooLongChars: "路径太长了：{home}\n最长 {max} 个字符，换一个短一些的位置。",
-    inProgress: "SpeakMore 正在从 {home} 搬到 {to}，搬完会自动重新打开。",
+    inProgress: "OrangeSpeakEasy 正在从 {home} 搬到 {to}，搬完会自动重新打开。",
     unfinishedCopy:
-      "这里（{home}）是一次没搬完的搬家拷出来的，SpeakMore 仍在 {from}。从那里打开 SpeakMore，会顺带把这次没搬完的收拾掉。",
+      "这里（{home}）是一次没搬完的搬家拷出来的，OrangeSpeakEasy 仍在 {from}。从那里打开 OrangeSpeakEasy，会顺带把这次没搬完的收拾掉。",
     interrupted: "搬到一半中断了（进程意外退出）",
     notRecorded:
-      "这一次用的目录 {home} 是环境变量 SPEAKMORE_HOME 临时指定的，SpeakMore 记着的位置是 {recorded}。只能搬记着的那一个。",
-    homeTooOld: "{home} 里的程序是旧版本，还不支持搬家。先更新它（speakmore update，不行就重新运行安装命令），再搬。",
-    appTooOld: "{app} 还是 {version} 版，不认识新位置。先运行 speakmore update 把它一起更新，再搬。",
+      "这一次用的目录 {home} 是环境变量 ORANGESPEAKEASY_HOME 临时指定的，OrangeSpeakEasy 记着的位置是 {recorded}。只能搬记着的那一个。",
+    homeTooOld:
+      "{home} 里的程序是旧版本，还不支持搬家。先更新它（orangespeakeasy update，不行就重新运行安装命令），再搬。",
+    appTooOld: "{app} 还是 {version} 版，不认识新位置。先运行 orangespeakeasy update 把它一起更新，再搬。",
     noSpace: "{folder} 所在的磁盘空间不足：需要 {need}，只剩 {free}。",
-    recovered: "上次搬到 {to} 没有完成，已经收拾好：SpeakMore 仍在 {home}。",
+    recovered: "上次搬到 {to} 没有完成，已经收拾好：OrangeSpeakEasy 仍在 {home}。",
     copying: "正在拷到 {to}…",
     switching: "正在切换到新位置…",
     rehomeFailed: "新位置的程序没能接上（安装脚本退出码 {code}）。",
-    restoreFailed: "没能把 SpeakMore 的入口换回 {home}（安装脚本退出码 {code}）。",
-    putBack: "上次搬到 {home} 没有完成，SpeakMore 已经换回 {from}。请再打开一次 SpeakMore。",
+    restoreFailed: "没能把 OrangeSpeakEasy 的入口换回 {home}（安装脚本退出码 {code}）。",
+    putBack: "上次搬到 {home} 没有完成，OrangeSpeakEasy 已经换回 {from}。请再打开一次 OrangeSpeakEasy。",
     notOurCopy: "{to} 里的东西不是这次搬家拷过去的，没有动它。",
     copyBroken: "拷过去的文件不完整：{reason}",
     cleanupProblem: "恢复原状时出了问题：{problem}",
     recordFailed: "搬家记录未能写入（{reason}），不影响使用。",
     leftover: "{dir} 未能删干净（{reason}），可以手动删除。",
-    clearedEnv: "已删除指向旧位置的环境变量 SPEAKMORE_HOME。",
-    reopened: "已重新打开 SpeakMore。",
-    reopenFailed: "SpeakMore 未能自动重新打开（{reason}），请手动打开。",
+    clearedEnv: "已删除指向旧位置的环境变量 ORANGESPEAKEASY_HOME。",
+    reopened: "已重新打开 OrangeSpeakEasy。",
+    reopenFailed: "OrangeSpeakEasy 未能自动重新打开（{reason}），请手动打开。",
     restartFailed: "启动命令退出码 {code}",
     unsupportedDrive:
-      "{home} 所在的磁盘不支持 SpeakMore：{what}（{reason}）。U 盘、移动硬盘常用的 exFAT、FAT32 格式不支持，请换一块 APFS 或 Mac OS 扩展格式的磁盘。",
+      "{home} 所在的磁盘不支持 OrangeSpeakEasy：{what}（{reason}）。U 盘、移动硬盘常用的 exFAT、FAT32 格式不支持，请换一块 APFS 或 Mac OS 扩展格式的磁盘。",
     probe: {
       create: "无法新建文件夹",
       restrict: "无法设为仅本人可访问",
@@ -1167,128 +1170,131 @@ export default {
   },
 
   location: {
-    invalid: "SpeakMore 的定位文件内容不对：{file}\n它应该写着 SpeakMore 目录的完整路径。删掉这个文件会改用默认位置。",
-    unreadable: "读不了 SpeakMore 的定位文件 {file}（{reason}）",
+    invalid:
+      "OrangeSpeakEasy 的定位文件内容不对：{file}\n它应该写着 OrangeSpeakEasy 目录的完整路径。删掉这个文件会改用默认位置。",
+    unreadable: "读不了 OrangeSpeakEasy 的定位文件 {file}（{reason}）",
   },
 
   control: {
-    notRunning: "SpeakMore 没有在运行",
-    timeout: "SpeakMore 没有在 {seconds} 秒内回话（命令 {command}）",
-    unreadable: "SpeakMore 的回答看不懂（命令 {command}）",
+    notRunning: "OrangeSpeakEasy 没有在运行",
+    timeout: "OrangeSpeakEasy 没有在 {seconds} 秒内回话（命令 {command}）",
+    unreadable: "OrangeSpeakEasy 的回答看不懂（命令 {command}）",
   },
 
   storage: {
     historyTooNew: "历史库的版本是 {found}，比这个程序认识的 {known} 新，不敢动它",
-    historyTooOld: "历史库的版本是 {found}，这个程序认识的是 {known}：先把 SpeakMore 启动一次，或者更新到新版",
-    legacyRunning: "旧版本的 SpeakMore 还在运行，数据搬不过来。先把它退出（菜单栏“听写”→“退出”），再运行一次。",
+    historyTooOld: "历史库的版本是 {found}，这个程序认识的是 {known}：先把 OrangeSpeakEasy 启动一次，或者更新到新版",
+    legacyRunning: "旧版本的 OrangeSpeakEasy 还在运行，数据搬不过来。先把它退出（菜单栏“听写”→“退出”），再运行一次。",
     settingsMigrateFailed: "设置文件 {file} 里的旧热键换不过来（{reason}）。让这个文件能写，再运行一次。",
   },
 
   cli: {
-    help: `SpeakMore：按一下热键说话，整理好的文字贴进当前输入框。
+    help: `OrangeSpeakEasy：按一下热键说话，整理好的文字贴进当前输入框。
 
-  speakmore                     启动（已经在运行就只显示状态）。第一次会问你要一把 API key（默认用 Gemini）
-  speakmore start               同上
-  speakmore stop                停掉
-  speakmore restart             重启
-  speakmore status [--json]     看状态：在不在运行、key、系统权限、今天和累计说了多少
-  speakmore update              更新到最新版本（Mac 上装着 SpeakMore.app 的话连它一起）。设置、key、词典、历史和录音不动
+  orangespeakeasy                     启动（已经在运行就只显示状态）。第一次会问你要一把 API key（默认用 Gemini）
+  orangespeakeasy start               同上
+  orangespeakeasy stop                停掉
+  orangespeakeasy restart             重启
+  orangespeakeasy status [--json]     看状态：在不在运行、key、系统权限、今天和累计说了多少
+  orangespeakeasy update              更新到最新版本（Mac 上装着 OrangeSpeakEasy.app 的话连它一起）。设置、key、词典、历史和录音不动
 
-  speakmore history [-n 条数] [--json]
+  orangespeakeasy history [-n 条数] [--json]
                                 看说过的话和划词翻译，按天分组，新的在前（默认最近 {limit} 条）
-  speakmore dict [--json]       看词典：常说的人名、产品名和术语，识别时按这里的写法。只存在本机
-  speakmore dict add|remove <词>…
+  orangespeakeasy dict [--json]       看词典：常说的人名、产品名和术语，识别时按这里的写法。只存在本机
+  orangespeakeasy dict add|remove <词>…
                                 加词、删词，几个词一次给（有空格的词加引号）
-  speakmore dict import <文件>   从一列的 CSV 或一行一个词的文本导入，已有的跳过
-  speakmore usage [--json]      看花了多少钱：今天、本月、累计的花费、token，模型多久回话，按型号分开
-  speakmore mode                看三种识别模式各用什么：native（直出）录音直接交给模型，local（混合）先转文字、再交给模型整理，private（离线）只用本机模型转文字、什么都不上传
-  speakmore mode <native|local|private> [--model …] [--transcriber …] [--polish … --url … --params …]
+  orangespeakeasy dict import <文件>   从一列的 CSV 或一行一个词的文本导入，已有的跳过
+  orangespeakeasy usage [--json]      看花了多少钱：今天、本月、累计的花费、token，模型多久回话，按型号分开
+  orangespeakeasy mode                看三种识别模式各用什么：native（直出）录音直接交给模型，local（混合）先转文字、再交给模型整理，private（离线）只用本机模型转文字、什么都不上传
+  orangespeakeasy mode <native|local|private> [--model …] [--transcriber …] [--polish … --url … --params …]
                                 切模式，当场生效。可以连带那种模式自己的设置，比如第一次进 local 就用自定义服务
-  speakmore model               native 模式：看能用哪几家的模型（{providers}）、各家的 key 有没有、现在用的哪个
-  speakmore model <厂商>[/<模型>]
-                                native 模式里换一家或换个模型，比如 speakmore model openai。没有它的 key 会先问
-  speakmore transcriber [<模型>]
+  orangespeakeasy model               native 模式：看能用哪几家的模型（{providers}）、各家的 key 有没有、现在用的哪个
+  orangespeakeasy model <厂商>[/<模型>]
+                                native 模式里换一家或换个模型，比如 orangespeakeasy model openai。没有它的 key 会先问
+  orangespeakeasy transcriber [<模型>]
                                 local 模式转文字那一步：看、换本机模型。要用的还没下载时先问要不要下
-  speakmore transcriber download|cancel|delete <模型> [--yes]
+  orangespeakeasy transcriber download|cancel|delete <模型> [--yes]
                                 下载、停下、删除本机转文字的模型（哪种模式里都能做；正在用的删不了）
-  speakmore transcriber check [<模型>]
+  orangespeakeasy transcriber check [<模型>]
                                 检查本机转文字的模型：用系统朗读念一句交给它转，看能不能正常出字。不写就查现在选的
-  speakmore polish [<厂商>[/<模型>] [--url <地址>] [--params <JSON>]]
+  orangespeakeasy polish [<厂商>[/<模型>] [--url <地址>] [--params <JSON>]]
                                 local 模式整理那一步：看、换整理的模型（{polishers}）。custom 是兼容 OpenAI 接口的任意服务，
                                 --params 是发给它的额外请求参数，比如 '{"reasoning_effort": "minimal"}'
-  speakmore polish check [<厂商>[/<模型>] [--url <地址>] [--params <JSON>]]
+  orangespeakeasy polish check [<厂商>[/<模型>] [--url <地址>] [--params <JSON>]]
                                 检查整理那一步能不能用
-  speakmore model check [<厂商>[/<模型>]]
+  orangespeakeasy model check [<厂商>[/<模型>]]
                                 检查能不能用：拿那一家的 key 发一个最小的请求。不写就查现在用的
-  speakmore key [<厂商>]         换一把 key，不写厂商就是现在用的那家（输入不会显示出来；也可以从管道喂进来）
-  speakmore key --forget [<厂商>]
+  orangespeakeasy key [<厂商>]         换一把 key，不写厂商就是现在用的那家（输入不会显示出来；也可以从管道喂进来）
+  orangespeakeasy key --forget [<厂商>]
                                 删掉存着的 key
-  speakmore config              看设置：热键、模型、思考档位、主题、语言，以及数据和日志在哪
-  speakmore config set <名字> <值>
+  orangespeakeasy config              看设置：热键、模型、思考档位、主题、语言，以及数据和日志在哪
+  orangespeakeasy config set <名字> <值>
                                 直接改一项，不检查能不能用（换模式、换模型用上面的命令，它们先检查）
-  speakmore config unset <名字>  回到默认值
-  speakmore theme               看有哪几套主题、现在用的哪套
-  speakmore theme <名字>         换一套（{themes}），当场生效不用重启
-  speakmore settings            打开设置（去系统设置授权时用）
-  speakmore logs [-n 行数] [-f]  看日志，-f 一直跟着
-  speakmore move [<文件夹>] [--yes]
-                                搬家：把 SpeakMore 的目录（程序、本机模型、录音、设置）整个搬进那个文件夹里的 .speakmore，
-                                比如搬到另一块磁盘。speakmore move ~ 搬回默认位置。不写文件夹就看现在在哪
-  speakmore uninstall [--keep-data] [--yes]
-                                卸载：停掉后台，把 SpeakMore 的目录整个删掉。--keep-data 留下设置、key、词典、历史和录音
+  orangespeakeasy config unset <名字>  回到默认值
+  orangespeakeasy theme               看有哪几套主题、现在用的哪套
+  orangespeakeasy theme <名字>         换一套（{themes}），当场生效不用重启
+  orangespeakeasy settings            打开设置（去系统设置授权时用）
+  orangespeakeasy logs [-n 行数] [-f]  看日志，-f 一直跟着
+  orangespeakeasy move [<文件夹>] [--yes]
+                                搬家：把 OrangeSpeakEasy 的目录（程序、本机模型、录音、设置）整个搬进那个文件夹里的 .orangespeakeasy，
+                                比如搬到另一块磁盘。orangespeakeasy move ~ 搬回默认位置。不写文件夹就看现在在哪
+  orangespeakeasy uninstall [--keep-data] [--yes]
+                                卸载：停掉后台，把 OrangeSpeakEasy 的目录整个删掉。--keep-data 留下设置、key、词典、历史和录音
 
-  speakmore help                这段说明
-  speakmore --version           版本号
+  orangespeakeasy help                这段说明
+  orangespeakeasy --version           版本号
 `,
-    macOnly: "SpeakMore 目前只支持 macOS 和 Windows：听热键和贴字靠的是这两个系统各自的接口。",
-    nodeVersion: "SpeakMore 需要 Node 22.13 或更新的版本（23 系列要 23.4 以上），现在是 {version}。",
+    macOnly: "OrangeSpeakEasy 目前只支持 macOS 和 Windows：听热键和贴字靠的是这两个系统各自的接口。",
+    nodeVersion: "OrangeSpeakEasy 需要 Node 22.13 或更新的版本（23 系列要 23.4 以上），现在是 {version}。",
     unknownCommand: "没有 {name} 这个命令。",
-    seeHelp: "运行 speakmore help 看全部命令。",
-    stuck: "它可能卡住了。运行 speakmore stop 可以把它强行停掉，再运行 speakmore 重新启动。",
+    seeHelp: "运行 orangespeakeasy help 看全部命令。",
+    stuck: "它可能卡住了。运行 orangespeakeasy stop 可以把它强行停掉，再运行 orangespeakeasy 重新启动。",
     migrated: "旧版本的数据已经搬到 {home}（{items}）。",
     badArgs: "参数不对：{reason}",
     extraArgs: "多了参数 {args}。用法：{usage}",
     positiveInteger: "{flag} 后面要跟一个正整数",
-    starting: "正在启动 SpeakMore…",
-    runRestart: "运行 speakmore restart",
-    packagedRelaunch: "在菜单栏点“听写”→“退出”，再打开一次 SpeakMore.app",
+    starting: "正在启动 OrangeSpeakEasy…",
+    runRestart: "运行 orangespeakeasy restart",
+    packagedRelaunch: "在菜单栏点“听写”→“退出”，再打开一次 OrangeSpeakEasy.app",
     syntax: {
-      start: "speakmore start",
-      stop: "speakmore stop",
-      restart: "speakmore restart",
-      status: "speakmore status [--json]",
-      history: "speakmore history [-n 条数] [--json]",
-      usage: "speakmore usage [--json]",
-      logs: "speakmore logs [-n 行数] [-f]",
-      settings: "speakmore settings",
-      uninstall: "speakmore uninstall [--keep-data] [--yes]",
-      move: "speakmore move [<文件夹>] [--yes]",
-      config: "用法：speakmore config | speakmore config set <名字> <值> | speakmore config unset <名字>",
-      theme: "用法：speakmore theme | speakmore theme <名字>",
-      model: "用法：speakmore model | speakmore model <厂商>[/<模型>] | speakmore model check [<厂商>[/<模型>]]",
-      mode: "用法：speakmore mode | speakmore mode <native|local|private> [--model …] [--transcriber …] [--polish … --url … --params …]",
+      start: "orangespeakeasy start",
+      stop: "orangespeakeasy stop",
+      restart: "orangespeakeasy restart",
+      status: "orangespeakeasy status [--json]",
+      history: "orangespeakeasy history [-n 条数] [--json]",
+      usage: "orangespeakeasy usage [--json]",
+      logs: "orangespeakeasy logs [-n 行数] [-f]",
+      settings: "orangespeakeasy settings",
+      uninstall: "orangespeakeasy uninstall [--keep-data] [--yes]",
+      move: "orangespeakeasy move [<文件夹>] [--yes]",
+      config:
+        "用法：orangespeakeasy config | orangespeakeasy config set <名字> <值> | orangespeakeasy config unset <名字>",
+      theme: "用法：orangespeakeasy theme | orangespeakeasy theme <名字>",
+      model:
+        "用法：orangespeakeasy model | orangespeakeasy model <厂商>[/<模型>] | orangespeakeasy model check [<厂商>[/<模型>]]",
+      mode: "用法：orangespeakeasy mode | orangespeakeasy mode <native|local|private> [--model …] [--transcriber …] [--polish … --url … --params …]",
       transcriber:
-        "用法：speakmore transcriber | speakmore transcriber <模型> | speakmore transcriber download|cancel|delete <模型> [--yes] | speakmore transcriber check [<模型>]",
+        "用法：orangespeakeasy transcriber | orangespeakeasy transcriber <模型> | orangespeakeasy transcriber download|cancel|delete <模型> [--yes] | orangespeakeasy transcriber check [<模型>]",
       polish:
-        "用法：speakmore polish | speakmore polish <厂商>[/<模型>] [--url <地址>] [--params <JSON>] | speakmore polish check [<厂商>[/<模型>] [--url <地址>] [--params <JSON>]]",
+        "用法：orangespeakeasy polish | orangespeakeasy polish <厂商>[/<模型>] [--url <地址>] [--params <JSON>] | orangespeakeasy polish check [<厂商>[/<模型>] [--url <地址>] [--params <JSON>]]",
     },
     update: {
       upToDate: "已经是最新的（{version}）。",
-      available: "有新版本 {latest}（现在是 {current}）：运行 speakmore update。",
-      otherAvailable: "{copy} 还是 {current}，有新版本 {latest}：运行 speakmore update。",
-      startHint: "已经更新到 {version}。运行 speakmore 启动。",
+      available: "有新版本 {latest}（现在是 {current}）：运行 orangespeakeasy update。",
+      otherAvailable: "{copy} 还是 {current}，有新版本 {latest}：运行 orangespeakeasy update。",
+      startHint: "已经更新到 {version}。运行 orangespeakeasy 启动。",
       inProgress: "正在更新到 {version}…",
       lastFailed: "上一次更新没有完成：{problem}",
     },
 
     lifecycle: {
-      openedOnboarding: "已经打开首次引导，照着把缺的权限补上。补完运行 speakmore status 再看一眼。",
-      openedSettings: "已经打开设置，照着把缺的权限补上。补完运行 speakmore status 再看一眼。",
-      notRunning: "SpeakMore 本来就没有在运行。",
-      stopped: "SpeakMore 已经停掉。",
-      killed: "SpeakMore 卡住了没有回应，已经强行结束。",
+      openedOnboarding: "已经打开首次引导，照着把缺的权限补上。补完运行 orangespeakeasy status 再看一眼。",
+      openedSettings: "已经打开设置，照着把缺的权限补上。补完运行 orangespeakeasy status 再看一眼。",
+      notRunning: "OrangeSpeakEasy 本来就没有在运行。",
+      stopped: "OrangeSpeakEasy 已经停掉。",
+      killed: "OrangeSpeakEasy 卡住了没有回应，已经强行结束。",
       packagedRestart:
-        "现在运行的是装在“应用程序”里的 SpeakMore.app。从命令行重启会把它换成终端启动的那一个，权限和 key 都是另一套。",
+        "现在运行的是装在“应用程序”里的 OrangeSpeakEasy.app。从命令行重启会把它换成终端启动的那一个，权限和 key 都是另一套。",
       howToRestart: "要重启它：{relaunch}。",
     },
     key: {
@@ -1297,12 +1303,12 @@ export default {
       getOne: "没有的话在这里申请一把：{url}",
       storage: "它会用系统钥匙串加密后存在这台电脑上，不会发到别处。",
       skip: "现在不想填就直接按回车。",
-      legacyDaemon: "正在运行的 SpeakMore 是旧版本，还不认得 {provider} 的 key：先{restart}，再来一次。",
+      legacyDaemon: "正在运行的 OrangeSpeakEasy 是旧版本，还不认得 {provider} 的 key：先{restart}，再来一次。",
       verifying: "正在验证…",
       saved: "key 已保存，验证通过。",
       rejected: "这把 key 没有通过：{problem}",
       notInline:
-        "key 不要写在命令后面：那样它会留在 shell 的历史记录里。运行 speakmore key 再粘贴，或者从管道喂：pbpaste | speakmore key。要给某一家填，后面写它的名字：{providers}",
+        "key 不要写在命令后面：那样它会留在 shell 的历史记录里。运行 orangespeakeasy key 再粘贴，或者从管道喂：pbpaste | orangespeakeasy key。要给某一家填，后面写它的名字：{providers}",
       forgotten: "存着的 {provider} 的 key 已经删掉。",
       whichVendor: "离线模式不用 key。要给某一家填，后面写它的名字：{providers}",
       cancelled: "已取消，key 没有改动。",
@@ -1311,25 +1317,28 @@ export default {
       switchHint: "要换成用它：{command}",
       needText: "需要一把 {provider} API key：录音在本机转成文字，只把文字发给 {provider} 整理。",
       customWithModel:
-        "自定义服务的 key 要和模型名、地址一起填：speakmore polish custom/<模型名> --url <地址>（还没在 local 模式时：speakmore mode local --polish custom/<模型名> --url <地址>）",
+        "自定义服务的 key 要和模型名、地址一起填：orangespeakeasy polish custom/<模型名> --url <地址>（还没在 local 模式时：orangespeakeasy mode local --polish custom/<模型名> --url <地址>）",
     },
     config: {
       nextLaunch: "下次启动生效。",
-      packaged: "现在运行的是装在“应用程序”里的 SpeakMore.app。要让新设置生效：{relaunch}。",
-      restarting: "正在重启 SpeakMore 让它生效…",
+      packaged: "现在运行的是装在“应用程序”里的 OrangeSpeakEasy.app。要让新设置生效：{relaunch}。",
+      restarting: "正在重启 OrangeSpeakEasy 让它生效…",
       restartedBroken: "重启了，但现在不能用：{problem}",
       undo: "想撤回这次改动：{undo}",
-      restartedKeyBad: "重启了，但 {provider} 的 key 不能用：{problem}。运行 speakmore key {id} 换一把",
-      restartedNoKey: "重启了，但还没有 {provider} 的 key，现在不能用：运行 speakmore key {id}",
-      restartedStarting: "重启了，还没准备好：运行 speakmore status 看看。",
-      restartedUnverified: "重启了，但没连上 {provider}，新设置对不对还没验证：过一会儿运行 speakmore status 看看。",
+      restartedKeyBad: "重启了，但 {provider} 的 key 不能用：{problem}。运行 orangespeakeasy key {id} 换一把",
+      restartedNoKey: "重启了，但还没有 {provider} 的 key，现在不能用：运行 orangespeakeasy key {id}",
+      restartedStarting: "重启了，还没准备好：运行 orangespeakeasy status 看看。",
+      restartedUnverified:
+        "重启了，但没连上 {provider}，新设置对不对还没验证：过一会儿运行 orangespeakeasy status 看看。",
       applied: "已经生效。",
-      oldDaemonLive: "正在运行的 SpeakMore 是旧版本，不会当场换：运行 speakmore restart。",
+      oldDaemonLive: "正在运行的 OrangeSpeakEasy 是旧版本，不会当场换：运行 orangespeakeasy restart。",
       appliedLive: "已经生效，不用重启。",
-      themeOverridden: "正在运行的 SpeakMore 用的还是{theme}：启动它的环境里设着 {variable}，它盖过设置文件。",
-      languageOverridden: "正在运行的 SpeakMore 用的还是{language}：启动它的环境里设着 {variable}，它盖过设置文件。",
-      modelSourceOverridden: "正在运行的 SpeakMore 用的还是{source}：启动它的环境里设着 {variable}，它盖过设置文件。",
-      hotkeyOverridden: "正在运行的 SpeakMore 用的还是{hotkey}：启动它的环境里设着 {variable}，它盖过设置文件。",
+      themeOverridden: "正在运行的 OrangeSpeakEasy 用的还是{theme}：启动它的环境里设着 {variable}，它盖过设置文件。",
+      languageOverridden:
+        "正在运行的 OrangeSpeakEasy 用的还是{language}：启动它的环境里设着 {variable}，它盖过设置文件。",
+      modelSourceOverridden:
+        "正在运行的 OrangeSpeakEasy 用的还是{source}：启动它的环境里设着 {variable}，它盖过设置文件。",
+      hotkeyOverridden: "正在运行的 OrangeSpeakEasy 用的还是{hotkey}：启动它的环境里设着 {variable}，它盖过设置文件。",
       envWarning: "注意：环境变量 {variable} 现在设着，它会盖过这个值。",
       warning: "注意：{warning}",
       changed: "{name} 改成了 {value}。",
@@ -1337,19 +1346,19 @@ export default {
       otherMode: "现在是 {current} 模式，这一项切到 {mode} 模式时才用上。",
       unset: "{name} 回到了默认值 {value}。",
       themeChanged: "主题换成了{theme}。",
-      notRunning: "SpeakMore 没有在运行。先运行 speakmore 启动。",
+      notRunning: "OrangeSpeakEasy 没有在运行。先运行 orangespeakeasy 启动。",
       settingsOpened: "设置已经打开。",
       title: "设置",
       choices: "{describe}。能填：{choices}",
-      hintSet: "改一项：speakmore config set hotkey.dictate Fn+Space",
-      hintUnset: "回到默认：speakmore config unset hotkey.dictate",
-      hintKey: "换 key：speakmore key",
-      hintTheme: "换主题：speakmore theme",
+      hintSet: "改一项：orangespeakeasy config set hotkey.dictate Fn+Space",
+      hintUnset: "回到默认：orangespeakeasy config unset hotkey.dictate",
+      hintKey: "换 key：orangespeakeasy key",
+      hintTheme: "换主题：orangespeakeasy theme",
       folder: "目录",
       settingsFile: "设置文件",
       log: "日志",
       oneFolder: "程序、设置、key、词典、历史、录音都在这一个目录里。",
-      uninstallHint: "不想用了：speakmore uninstall 会停掉后台，把它整个删掉。",
+      uninstallHint: "不想用了：orangespeakeasy uninstall 会停掉后台，把它整个删掉。",
     },
     source: {
       default: "默认",
@@ -1360,29 +1369,29 @@ export default {
     themes: {
       title: "主题",
       current: "现在用的是{theme} · {source}",
-      switch: "换一套：speakmore theme {id}（当场生效，不用重启）",
+      switch: "换一套：orangespeakeasy theme {id}（当场生效，不用重启）",
     },
     modes: {
       title: "识别模式",
-      notIn: "现在是 {current} 模式，{what}要在 {mode} 模式里才能换：先运行 speakmore mode {mode}",
+      notIn: "现在是 {current} 模式，{what}要在 {mode} 模式里才能换：先运行 orangespeakeasy mode {mode}",
       notSwitched: "没有换：{problem}",
       applied: "已经换上，不用重启。",
       notUsable: "但还不能用：{problem}",
-      downloading: "本地模型在后台下载（{percent}%），下好就能用：进度看 speakmore status",
+      downloading: "本地模型在后台下载（{percent}%），下好就能用：进度看 orangespeakeasy status",
       loading: "本地模型正在装载，几秒就好。",
-      switch: "切换：speakmore mode {mode}（当场生效）",
-      nativeModels: "native 里换模型：speakmore model",
-      localHops: "local 的两步：speakmore transcriber（转文字）· speakmore polish（整理）",
-      withSettings: "第一次进 local 就用自定义服务：speakmore mode local --polish custom/<模型名> --url <地址>",
+      switch: "切换：orangespeakeasy mode {mode}（当场生效）",
+      nativeModels: "native 里换模型：orangespeakeasy model",
+      localHops: "local 的两步：orangespeakeasy transcriber（转文字）· orangespeakeasy polish（整理）",
+      withSettings: "第一次进 local 就用自定义服务：orangespeakeasy mode local --polish custom/<模型名> --url <地址>",
       flagsFor: "{flag} 不是 {mode} 模式的设置；切到 {mode} 时能带的是 {flags}",
       already: "已经是 {mode} 模式：{route}。",
       switched: "切到了 {mode} 模式：{route}。",
       localRoute: "{transcriber} → {polish}",
       privateRoute: "本机的 {transcriber}，不整理、不上传",
-      privateModel: "private 的本机模型：speakmore transcriber（只认本机模型）",
+      privateModel: "private 的本机模型：orangespeakeasy transcriber（只认本机模型）",
     },
     local: {
-      notInLocal: "现在是 {current} 模式，用不上这些：要用先切过去（speakmore mode local 或 private）",
+      notInLocal: "现在是 {current} 模式，用不上这些：要用先切过去（orangespeakeasy mode local 或 private）",
       cloudNoDownload: "{model} 是云端模型，不用下载",
       cloudCheckOk: "{model} 能用，问一次用了 {seconds}。",
       transcribersTitle: "本机转文字的模型（local 的第一步、private 的模型）",
@@ -1394,76 +1403,78 @@ export default {
       summary: "本机已下载 {count} / {all} 个，共 {size}",
       freeSpace: "磁盘剩余 {size}",
       transcriberCurrent: "现在用的是 {model}",
-      transcriberSwitch: "换一个：speakmore transcriber {id}",
-      transcriberManage: "下载：speakmore transcriber download {id} · 停下：cancel · 删除：delete · 检查：check",
+      transcriberSwitch: "换一个：orangespeakeasy transcriber {id}",
+      transcriberManage: "下载：orangespeakeasy transcriber download {id} · 停下：cancel · 删除：delete · 检查：check",
       downloadStart: "下载 {model}（{size}，从{source}）……",
       downloadBackground:
-        "交给后台下了：按 Ctrl-C 只是不看进度，下载接着进行；要停下用 speakmore transcriber cancel {id}",
+        "交给后台下了：按 Ctrl-C 只是不看进度，下载接着进行；要停下用 orangespeakeasy transcriber cancel {id}",
       downloadProgress: "下载中 {percent}%（{received} / {total}）",
       downloadDone: "{model} 下好了。",
       downloadAlready: "{model} 已经下载好了。",
       downloadStopped: "{model} 的下载停下了（在别处取消了）。下完的文件留着，下到一半的那个下次从头来。",
       downloadInterrupted:
-        "SpeakMore 在下载途中退出了。下完的文件留着，再运行 speakmore transcriber download {id} 接着下。",
+        "OrangeSpeakEasy 在下载途中退出了。下完的文件留着，再运行 orangespeakeasy transcriber download {id} 接着下。",
       nothingToCancel: "{model} 没有在下载。",
       cancelled: "停下了 {model} 的下载。下完的文件留着，下到一半的那个下次从头来。",
       notOnDisk: "{model} 本来就没下载，不用删。",
       deleteConfirm: "删掉 {model}（{size}）？以后要用得重新下载。输入 y 确认：",
-      deleteNeedsConfirm: "删除要确认：在终端里运行，或者加 --yes（speakmore transcriber delete {id} --yes）",
+      deleteNeedsConfirm: "删除要确认：在终端里运行，或者加 --yes（orangespeakeasy transcriber delete {id} --yes）",
       deleteAborted: "没有删。",
       deleted: "删掉了 {model}，腾出 {size}。",
-      oldDaemonDelete: "正在运行的 SpeakMore 是旧版本，不知道哪个模型正在用，先不删：运行 speakmore restart 再删。",
+      oldDaemonDelete:
+        "正在运行的 OrangeSpeakEasy 是旧版本，不知道哪个模型正在用，先不删：运行 orangespeakeasy restart 再删。",
       checking: "正在检查 {model}：念一句话交给它转……",
       checkOk: "{model} 能用。念的是「{said}」，转出来「{text}」，用了 {seconds}。",
       checkLoaded: "它没在用，临时装上用了 {seconds}，查完已经卸掉。",
-      oldDaemonCheck: "正在运行的 SpeakMore 是旧版本，查不了本机模型：运行 speakmore restart 之后再查。",
+      oldDaemonCheck: "正在运行的 OrangeSpeakEasy 是旧版本，查不了本机模型：运行 orangespeakeasy restart 之后再查。",
       notDownloadedAsk: "{model} 还没下载（{size}，从{source}下）。现在下载吗？输入 y 下载：",
-      notDownloadedHint: "{model} 还没下载：先运行 speakmore transcriber download {id}",
-      notDownloadedLater: "没有下载，也没有换。想下的时候运行 speakmore transcriber download {id}",
+      notDownloadedHint: "{model} 还没下载：先运行 orangespeakeasy transcriber download {id}",
+      notDownloadedLater: "没有下载，也没有换。想下的时候运行 orangespeakeasy transcriber download {id}",
       transcriberSwitched: "转文字的模型换成了 {model}。",
       polishTitle: "整理的模型（local 模式的第二步）",
       customName: "自定义服务",
       customModel: "自己填模型名和地址",
       alsoModels: "也能选：{models}",
       polishCurrent: "现在用的是 {model}",
-      polishSwitch: "换一个：speakmore polish deepseek/deepseek-v4-pro",
-      polishCustom: "自定义服务（兼容 OpenAI 接口）：speakmore polish custom/<模型名> --url <地址> [--params '<JSON>']",
+      polishSwitch: "换一个：orangespeakeasy polish deepseek/deepseek-v4-pro",
+      polishCustom:
+        "自定义服务（兼容 OpenAI 接口）：orangespeakeasy polish custom/<模型名> --url <地址> [--params '<JSON>']",
       polishParams: "额外参数：{params}",
-      polishCheck: "看能不能用：speakmore polish check",
+      polishCheck: "看能不能用：orangespeakeasy polish check",
       polishSwitched: "整理的模型换成了 {model}。",
       urlNeeded: "整理交给自定义服务时要给它的地址：--url <地址>（兼容 OpenAI 接口，多数以 /v1 结尾）",
       paramsCustomOnly: "--params 只给自定义服务：整理交给 custom/<模型名> 时才带上",
       sourceCurrent: "下载源：{source}",
-      sourceSwitch: "换下载源：speakmore config set modelSource {other}（下不动时会自动换另一个）",
+      sourceSwitch: "换下载源：orangespeakeasy config set modelSource {other}（下不动时会自动换另一个）",
     },
     choose: {
-      question: "先选怎么把录音变成文字（以后可以用 speakmore mode、speakmore model 换）：",
+      question: "先选怎么把录音变成文字（以后可以用 orangespeakeasy mode、orangespeakeasy model 换）：",
       native: "native（直出）模式：录音直接交给模型",
       local: "local（混合）模式：本机先转文字，只把文字交给模型整理（第一次要下载约 {size} 的本地模型）",
       private: "private（离线）模式：只用本机模型转文字，不整理、什么都不上传（第一次要下载约 {size} 的本地模型）",
       privateOption: "离线        不用 key",
       custom:
-        "  想用别的服务（兼容 OpenAI 接口）：装好后运行 speakmore mode local --polish custom/<模型名> --url <地址>",
+        "  想用别的服务（兼容 OpenAI 接口）：装好后运行 orangespeakeasy mode local --polish custom/<模型名> --url <地址>",
     },
     model: {
       textOnly:
-        "{provider} 只收文字，用在 local 模式的整理那一步：speakmore polish {id}（还没在 local 模式时先 speakmore mode local）",
-      notInNative: "现在是 {current} 模式，这里的模型用不上：要用先切回去（speakmore mode native）",
+        "{provider} 只收文字，用在 local 模式的整理那一步：orangespeakeasy polish {id}（还没在 local 模式时先 orangespeakeasy mode local）",
+      notInNative: "现在是 {current} 模式，这里的模型用不上：要用先切回去（orangespeakeasy mode native）",
       unknownProvider: "不认识 {name} 这家，能用的有 {providers}。指定模型写成 厂商/模型",
       invalid: "模型写的是 {value}，{reason}",
       describe: "{provider} 的 {model}",
       option: "默认用 {model}",
       optionWithKey: "默认用 {model}，已经有 key",
-      choose: "先选用哪一家的模型把录音整理成文字（以后可以用 speakmore model 换）：",
+      choose: "先选用哪一家的模型把录音整理成文字（以后可以用 orangespeakeasy model 换）：",
       choosePrompt: "输入编号后按回车（直接回车选 {fallback}）：",
       choosePromptAgain: "输入编号后按回车：",
       choiceItem: "{number}（{name}）",
       noSuchChoice: "没有 {answer} 这一项，能选 {choices}。",
-      noKeyNonInteractive: "还没有 {provider} 的 key，没有换：先运行 speakmore key {id}，再换。",
+      noKeyNonInteractive: "还没有 {provider} 的 key，没有换：先运行 orangespeakeasy key {id}，再换。",
       notSwitched: "没有换：还没有 {provider} 的 key。",
       switched: "模型换成了 {model}。",
       checking: "正在检查 {model}…",
-      oldDaemonCheck: "正在运行的 SpeakMore 是旧版本，查不了：运行 speakmore restart 之后再查。",
+      oldDaemonCheck: "正在运行的 OrangeSpeakEasy 是旧版本，查不了：运行 orangespeakeasy restart 之后再查。",
       unusable: "不能用：{problem}",
       usable: "能用：{model}，用的是{from}，来回 {seconds} 秒。",
       fromEnv: "环境变量 {variable} 里的 key",
@@ -1476,9 +1487,9 @@ export default {
       keyEnv: "key 来自环境变量 {variable}",
       noKey: "还没有 key",
       current: "现在用的是 {provider} 的 {model} · {source}",
-      switch: "换一家：speakmore model {id}（还没有它的 key 会先问你要）",
-      pick: "指定模型：speakmore model {id}/{model}",
-      check: "看能不能用：speakmore model check（不写就查现在用的这个）",
+      switch: "换一家：orangespeakeasy model {id}（还没有它的 key 会先问你要）",
+      pick: "指定模型：orangespeakeasy model {id}/{model}",
+      check: "看能不能用：orangespeakeasy model check（不写就查现在用的这个）",
     },
     status: {
       notRunning: "没有运行",
@@ -1504,7 +1515,7 @@ export default {
       localDownloading: "下载中 {percent}%（{received} / {total} MB）",
       localLoading: "装载中",
       localIdle: "空闲时已释放，开口时再装",
-      localMissing: "还没下载：speakmore transcriber download {id}",
+      localMissing: "还没下载：orangespeakeasy transcriber download {id}",
       modelInUse: "{provider} 的 {model}",
       modelWithThinking: "{provider} 的 {model}（{thinking}）",
       keyEnv: "这次运行用的是环境变量 {variable} 里的，没有保存",
@@ -1515,31 +1526,32 @@ export default {
       keySaved: "已保存，验证通过",
       keySavedUnverified: "已保存；启动时没连上 {provider}，还没验证这把能不能用",
       keyChecking: "正在验证…",
-      keyCheckFailed: "验证没通过：{problem}。key 未必有问题，先看{what}：speakmore config",
+      keyCheckFailed: "验证没通过：{problem}。key 未必有问题，先看{what}：orangespeakeasy config",
       modelAndLevel: "模型和档位",
       modelOnly: "模型",
       keyEnvRejected: "环境变量 {variable} 里的 key 不能用：{problem}。改对它，或者去掉这个环境变量，再重新启动",
-      keyRejected: "不能用：{problem}。运行 speakmore key 换一把",
-      keyUnreadable: "{problem}：运行 speakmore key",
-      keyMissing: "还没有填：运行 speakmore key",
-      keyMissingFor: "还没有填 {provider} 的：运行 speakmore key {id}",
+      keyRejected: "不能用：{problem}。运行 orangespeakeasy key 换一把",
+      keyUnreadable: "{problem}：运行 orangespeakeasy key",
+      keyMissing: "还没有填：运行 orangespeakeasy key",
+      keyMissingFor: "还没有填 {provider} 的：运行 orangespeakeasy key {id}",
       dictations: { other: "{count} 次" },
       characters: { other: "{count} 字" },
       pace: "每分钟 {count} 字",
       atLeast: "至少 {cost}",
       costUnknown: "花费不明",
       pending: "设置里的 {names} 和正在用的不一样，还没生效：{relaunch}。",
-      helperStopped: "按键监听的小程序停了，热键不会生效：{relaunch}。还是这样的话看 speakmore logs。",
+      helperStopped: "按键监听的小程序停了，热键不会生效：{relaunch}。还是这样的话看 orangespeakeasy logs。",
       openSettings: '运行 {command} 打开设置的权限页：每项权限旁边有去系统设置的按钮，开关打开后点"重新检查"。',
-      ownerApp: "权限记在应用自己名下，在系统设置的列表里找“SpeakMore”。",
-      ownerTerminal: "权限记在启动 SpeakMore 的那个终端程序名下（比如“终端”或 iTerm），在系统设置的列表里找它。",
-      footer: `speakmore history  看说过的话     speakmore config  看和改设置
-speakmore usage    看花了多少钱   speakmore stop    停掉
-speakmore help     全部命令`,
+      ownerApp: "权限记在应用自己名下，在系统设置的列表里找“OrangeSpeakEasy”。",
+      ownerTerminal: "权限记在启动 OrangeSpeakEasy 的那个终端程序名下（比如“终端”或 iTerm），在系统设置的列表里找它。",
+      footer: `orangespeakeasy history  看说过的话     orangespeakeasy config  看和改设置
+orangespeakeasy usage    看花了多少钱   orangespeakeasy stop    停掉
+orangespeakeasy help     全部命令`,
     },
     dict: {
-      usage: "用法：speakmore dict [--json] | speakmore dict add|remove <词>… | speakmore dict import <文件>",
-      empty: "词典是空的。加词：speakmore dict add <词>…",
+      usage:
+        "用法：orangespeakeasy dict [--json] | orangespeakeasy dict add|remove <词>… | orangespeakeasy dict import <文件>",
+      empty: "词典是空的。加词：orangespeakeasy dict add <词>…",
       header: "词典里有 {count} 个词（{file}，只存在本机）：",
       added: "已添加：{term}",
       notAdded: "没加上 {term}：{reason}",
@@ -1554,7 +1566,7 @@ speakmore help     全部命令`,
       recording: "录音 {seconds} 秒，留在 {path}",
       notSaved: "（没存下来）",
       source: "{label}：{text}",
-      more: "显示最近 {shown} 条，共 {total} 条。speakmore history -n {total} 看全部。",
+      more: "显示最近 {shown} 条，共 {total} 条。orangespeakeasy history -n {total} 看全部。",
     },
     usage: {
       empty: "还没有用量记录。说一句话之后再来看：每次调模型花了多少钱、多少 token、多久回话，都会记下来。",
@@ -1579,41 +1591,41 @@ speakmore help     全部命令`,
       estimateNote: "钱是按各家官方标准价估算的美元；Gemini 在免费额度内用的其实不收钱。",
     },
     logs: {
-      none: "还没有日志：SpeakMore 启动过之后会写到 {file}",
+      none: "还没有日志：OrangeSpeakEasy 启动过之后会写到 {file}",
     },
     move: {
-      where: "SpeakMore 现在在 {home}。",
-      how: "要搬到别处（比如另一块磁盘）：speakmore move <文件夹>，会搬进那个文件夹里的 .speakmore。搬回默认位置：speakmore move ~",
+      where: "OrangeSpeakEasy 现在在 {home}。",
+      how: "要搬到别处（比如另一块磁盘）：orangespeakeasy move <文件夹>，会搬进那个文件夹里的 .orangespeakeasy。搬回默认位置：orangespeakeasy move ~",
       needsConfirm: "搬家要先确认。不在终端里运行时加上 --yes。",
-      plan: "要把 SpeakMore 从 {from} 搬到 {to}：拷 {size}（{count} 个文件），程序、本机模型、录音和设置都在里面。\n搬的时候 SpeakMore 会先停下，搬完自动重新打开；没搬成的话一切照旧。",
-      unknown: "旧目录里不是 SpeakMore 的东西不搬，也不删：{items}",
+      plan: "要把 OrangeSpeakEasy 从 {from} 搬到 {to}：拷 {size}（{count} 个文件），程序、本机模型、录音和设置都在里面。\n搬的时候 OrangeSpeakEasy 会先停下，搬完自动重新打开；没搬成的话一切照旧。",
+      unknown: "旧目录里不是 OrangeSpeakEasy 的东西不搬，也不删：{items}",
       confirm: "确定搬吗？输入 y 再按回车：",
       aborted: "没有动。",
       progress: "已拷 {percent}%（{done} / {total}）",
-      done: "SpeakMore 已经搬到 {to}（{count} 个文件，{size}）。",
+      done: "OrangeSpeakEasy 已经搬到 {to}（{count} 个文件，{size}）。",
       removed: "旧目录 {dir} 已经删掉。",
       later: "旧目录 {dir} 正被这条命令用着，等它退出后几秒内删掉。",
-      left: "旧目录 {dir} 里还留着不是 SpeakMore 的东西，没有动：{items}",
+      left: "旧目录 {dir} 里还留着不是 OrangeSpeakEasy 的东西，没有动：{items}",
     },
     uninstall: {
       yours: "设置、key、词典、历史和录音",
       needsConfirm: "卸载要先确认。不在终端里运行时加上 --yes。",
-      planKeep: "要卸载 SpeakMore：删掉 {home} 里的程序和运行环境，{yours}留着。",
-      planAll: "要卸载 SpeakMore：把 {home} 整个删掉，包括程序、运行环境，以及你的{yours}。删了找不回来。",
+      planKeep: "要卸载 OrangeSpeakEasy：删掉 {home} 里的程序和运行环境，{yours}留着。",
+      planAll: "要卸载 OrangeSpeakEasy：把 {home} 整个删掉，包括程序、运行环境，以及你的{yours}。删了找不回来。",
       confirm: "确定吗？输入 y 再按回车：",
       aborted: "没有动。",
       removedKeep: "{home} 里的程序、运行环境、日志和缓存",
       keychainItem: "钥匙串里用来加密 key 的那一条",
-      keychainFailed: "钥匙串里用来加密 key 的那一条没删掉（{reason}）：可以在“钥匙串访问”里搜 SpeakMore 手动删",
+      keychainFailed: "钥匙串里用来加密 key 的那一条没删掉（{reason}）：可以在“钥匙串访问”里搜 OrangeSpeakEasy 手动删",
       removedAll: "{home}（程序、运行环境，以及你的{yours}）",
-      locationFile: "记着 SpeakMore 装在哪的定位文件 {file}",
+      locationFile: "记着 OrangeSpeakEasy 装在哪的定位文件 {file}",
       locationUnreadable: "定位文件 {file} 读不出来（{reason}），没有删：不要了可以手动删掉",
       halfCopy: "{dir}（上次没搬完时拷过去的一份）",
       // Windows：install.ps1 在用户 Path 里加的那一项、App 设置里开过的开机启动
       pathEntry: "用户 Path 里的 {entry}",
       loginItem: "开机启动",
       afterExit: "程序文件正被这条命令用着，等它退出后几秒内删掉",
-      done: "SpeakMore 已经卸载。",
+      done: "OrangeSpeakEasy 已经卸载。",
       removed: "删掉了：{item}",
       kept: "留着：{home} 里的{yours}。重新安装之后接着用；不要了就把这个目录删掉",
       leftovers: "还留在系统里的：",
@@ -1633,8 +1645,8 @@ speakmore help     全部命令`,
       signal: "被信号 {signal} 结束",
       exitCode: "退出码 {code}",
       exitedEarly: "中途退出",
-      failed: "SpeakMore 没能启动（{reason}）。日志 {file} 的最后几行：\n{tail}",
-      noAnswer: "SpeakMore 启动后 {seconds} 秒没有答话。看看日志：{file}",
+      failed: "OrangeSpeakEasy 没能启动（{reason}）。日志 {file} 的最后几行：\n{tail}",
+      noAnswer: "OrangeSpeakEasy 启动后 {seconds} 秒没有答话。看看日志：{file}",
       needXcode: "编译按键监听的小程序需要 Xcode 命令行工具。先运行：xcode-select --install",
       buildFailed: "按键监听的小程序没有编译成功（没装 Xcode 命令行工具的话先运行 xcode-select --install）：\n{detail}",
       needGo:
@@ -1664,23 +1676,25 @@ speakmore help     全部命令`,
       CapsLock: { name: "大写锁定键", short: "大写锁定", keycap: "Caps Lock" },
     },
     instance: {
-      stuckNoPid: "SpeakMore 卡住了不答话，也认不出它的进程号。在“任务管理器”的“详细信息”里找到 electron.exe，结束它。",
-      cantStop: "SpeakMore 停不掉（进程号 {pid}）。在“任务管理器”里结束它。",
+      stuckNoPid:
+        "OrangeSpeakEasy 卡住了不答话，也认不出它的进程号。在“任务管理器”的“详细信息”里找到 electron.exe，结束它。",
+      cantStop: "OrangeSpeakEasy 停不掉（进程号 {pid}）。在“任务管理器”里结束它。",
     },
     update: {
-      restartFailed: "已换上新版本，但未能重新启动（退出码 {code}）。请从开始菜单打开 SpeakMore，经过见日志 {log}。",
+      restartFailed:
+        "已换上新版本，但未能重新启动（退出码 {code}）。请从开始菜单打开 OrangeSpeakEasy，经过见日志 {log}。",
     },
     move: {
       unsupportedDrive:
-        "{home} 所在的磁盘不支持 SpeakMore：{what}（{reason}）。U 盘、移动硬盘常用的 exFAT、FAT32 格式不支持，请换一块 NTFS 格式的磁盘。",
+        "{home} 所在的磁盘不支持 OrangeSpeakEasy：{what}（{reason}）。U 盘、移动硬盘常用的 exFAT、FAT32 格式不支持，请换一块 NTFS 格式的磁盘。",
     },
     cli: {
       key: { storage: "它会用 Windows 的数据保护加密后存在这台电脑上，不会发到别处。" },
-      config: { hintSet: "改一项：speakmore config set hotkey.dictate ControlRight" },
+      config: { hintSet: "改一项：orangespeakeasy config set hotkey.dictate ControlRight" },
     },
     permissions: { openSettings: "设置" },
     setup: { openSettings: "任务栏通知区域的图标 › 设置" },
-    // PowerShell 调 speakmore.cmd 时会去掉参数里的双引号（2026-10-19 在 PowerShell 5.1 上实测），要在双引号前加反斜杠
+    // PowerShell 调 orangespeakeasy.cmd 时会去掉参数里的双引号（2026-10-19 在 PowerShell 5.1 上实测），要在双引号前加反斜杠
     chat: {
       paramsNotJson:
         '额外参数不是有效的 JSON：键名和字符串都要用英文双引号，比如 {"reasoning_effort": "minimal"}。在 PowerShell 里给 --params 时，双引号前要加反斜杠：\'{\\"reasoning_effort\\": \\"minimal\\"}\'',
@@ -1688,9 +1702,9 @@ speakmore help     全部命令`,
     key: {
       keychainUnavailable: "系统的加密存储不可用，没法安全地保存 key",
       noKeyService:
-        "还没有填 {provider} API key：在终端运行 speakmore key，或者点任务栏通知区域里 SpeakMore 的图标打开设置",
+        "还没有填 {provider} API key：在终端运行 orangespeakeasy key，或者点任务栏通知区域里 OrangeSpeakEasy 的图标打开设置",
       noKeyServiceFor:
-        "还没有填 {provider} API key：在终端运行 speakmore key {id}，或者点任务栏通知区域里 SpeakMore 的图标打开设置",
+        "还没有填 {provider} API key：在终端运行 orangespeakeasy key {id}，或者点任务栏通知区域里 OrangeSpeakEasy 的图标打开设置",
     },
     delivery: { pasteFailed: "没能自动粘贴：文字已复制，按 Ctrl+V 粘贴" },
     bar: { noMicPermission: "缺麦克风权限：设置 › 隐私和安全性 › 麦克风" },

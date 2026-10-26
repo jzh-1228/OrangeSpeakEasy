@@ -21,7 +21,7 @@ private let copyWait: TimeInterval = 0.4
 /// 到点没变先回没选中，再多盯这么久：慢的应用（远程桌面、忙着的 Electron）过了点才写进剪贴板，写了就还原
 private let lateCopyWait: TimeInterval = 1.5
 /// 问辅助功能的那条线：一次问一个
-private let axQueue = DispatchQueue(label: "speakmore.selection")
+private let axQueue = DispatchQueue(label: "orangespeakeasy.selection")
 private let cKeyCode: CGKeyCode = 8
 
 // MARK: - 纯逻辑（tests/main.swift 测）

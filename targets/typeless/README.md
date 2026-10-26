@@ -1,6 +1,6 @@
 # Typeless 逆向
 
-目标：Typeless for macOS 2.8.1（`now.typeless.desktop`，build 2.8.1.130），一款语音输入工具。目的是学习它的实现，并为自己做一个同类工具（服务端自建）提供依据。照这份分析做出来的就是 [SpeakMore](../../README.md)。
+目标：Typeless for macOS 2.8.1（`now.typeless.desktop`，build 2.8.1.130），一款语音输入工具。目的是学习它的实现，并为自己做一个同类工具（服务端自建）提供依据。照这份分析做出来的就是 [OrangeSpeakEasy](../../README.md)。
 
 分析主干是 [REA](https://github.com/morluto/rea) 6.4.0（MCP 工具 + 命令行），结论引用它返回的 Evidence ID。
 

@@ -2,7 +2,7 @@ import { join } from "node:path";
 import { noPositionals, parse, positiveInteger, renderOptions } from "../common.mjs";
 import { renderHistory } from "../render/history.mjs";
 
-// speakmore history：按天分组看说过的话。历史库直接只读打开，不经过后台应用。
+// orangespeakeasy history：按天分组看说过的话。历史库直接只读打开，不经过后台应用。
 
 export const DEFAULT_HISTORY_LIMIT = 20;
 

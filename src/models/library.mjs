@@ -6,7 +6,7 @@ import { sizeText } from "./describe.mjs";
 import { createModelStore } from "./store.mjs";
 
 // 本机的模型库：配置表（models/catalog.mjs）里的模型，哪些下好了、哪些正在下、下到哪、上次为什么没下下来；
-// 下载、取消、删除都由用户点（设置里的"模型"页、speakmore transcriber），这里不自己下。
+// 下载、取消、删除都由用户点（设置里的"模型"页、orangespeakeasy transcriber），这里不自己下。
 // 下载前先查磁盘空间。几个模型可以同时下，各下各的。
 // 和识别模式无关：哪种模式里都能下、能删。正在用的不能删，这条规矩在模式那一层（app/modes.mjs 的 removeModel）。
 // App 和命令行（后台没在运行时）用的都是它。

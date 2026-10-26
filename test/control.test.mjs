@@ -23,7 +23,7 @@ const log = {
 beforeEach(() => {
   // 套接字路径有长度上限，临时目录用短名字。地址照家目录的约定取：macOS 是套接字文件，Windows 是 named pipe
   dir = mkdtempSync(join(tmpdir(), "sm-"));
-  const paths = resolvePaths({ SPEAKMORE_HOME: dir });
+  const paths = resolvePaths({ ORANGESPEAKEASY_HOME: dir });
   mkdirSync(paths.runDir);
   socketPath = paths.controlSocket;
   server = null;

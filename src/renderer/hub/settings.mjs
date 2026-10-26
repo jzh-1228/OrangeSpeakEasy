@@ -69,7 +69,7 @@ export function describeUpdate(update, t) {
     };
   }
   if (update.available) {
-    // 这个 App 自己旧了说"新版本可用"；只是另一份（终端安装的、或者 SpeakMore.app）旧了，说是哪一份
+    // 这个 App 自己旧了说"新版本可用"；只是另一份（终端安装的、或者 OrangeSpeakEasy.app）旧了，说是哪一份
     const { other } = update;
     const text = other
       ? t("preferences.update.otherBehind", {
@@ -199,7 +199,7 @@ export function createSettings({ refresh }) {
     showNote("general-problem", null);
     showNote("theme-note", null);
     try {
-      const result = await window.speakmore.setTheme(event.target.value);
+      const result = await window.orangespeakeasy.setTheme(event.target.value);
       showNote("theme-note", result.note ?? null);
     } catch (error) {
       showNote("general-problem", t("preferences.themeFailed", { reason: describeError(error) }), "problem");
@@ -212,7 +212,7 @@ export function createSettings({ refresh }) {
     showNote("general-problem", null);
     showNote("language-note", null);
     try {
-      const result = await window.speakmore.setLanguage(event.target.value);
+      const result = await window.orangespeakeasy.setLanguage(event.target.value);
       showNote("language-note", result.note ?? null);
     } catch (error) {
       showNote("general-problem", t("preferences.languageFailed", { reason: describeError(error) }), "problem");
@@ -224,7 +224,7 @@ export function createSettings({ refresh }) {
     showNote("lookup-problem", null);
     showNote("lookup-note", null);
     try {
-      const result = await window.speakmore.setLookupTo(event.target.value);
+      const result = await window.orangespeakeasy.setLookupTo(event.target.value);
       if (result.ok === false) {
         showNote("lookup-problem", t("preferences.lookupFailed", { reason: t.text(result.problem) }), "problem");
       } else showNote("lookup-note", result.note ?? null);
@@ -238,7 +238,7 @@ export function createSettings({ refresh }) {
     showNote("local-models-problem", null);
     showNote("source-note", null);
     try {
-      const result = await window.speakmore.setModelSource(event.target.value);
+      const result = await window.orangespeakeasy.setModelSource(event.target.value);
       showNote("source-note", result.note ?? null);
     } catch (error) {
       showNote("local-models-problem", t("preferences.sourceFailed", { reason: describeError(error) }), "problem");
@@ -250,7 +250,7 @@ export function createSettings({ refresh }) {
     showNote("local-models-problem", null);
     showNote("acceleration-note", null);
     try {
-      const result = await window.speakmore.setAcceleration(event.target.value);
+      const result = await window.orangespeakeasy.setAcceleration(event.target.value);
       showNote("acceleration-note", result.note ?? null);
     } catch (error) {
       showNote(
@@ -266,7 +266,7 @@ export function createSettings({ refresh }) {
     showNote("local-models-problem", null);
     showNote("local-model-memory-note", null);
     try {
-      const result = await window.speakmore.setLocalModelMemory(event.target.value);
+      const result = await window.orangespeakeasy.setLocalModelMemory(event.target.value);
       showNote("local-model-memory-note", result.note ?? null);
     } catch (error) {
       showNote(
@@ -282,7 +282,7 @@ export function createSettings({ refresh }) {
     showNote("hotkeys-problem", null);
     showNote("bar-hint-note", null);
     try {
-      const result = await window.speakmore.setBarHint(event.target.checked ? "on" : "off");
+      const result = await window.orangespeakeasy.setBarHint(event.target.checked ? "on" : "off");
       showNote("bar-hint-note", result.note ?? null);
     } catch (error) {
       showNote("hotkeys-problem", t("preferences.barHintFailed", { reason: describeError(error) }), "problem");
@@ -293,7 +293,7 @@ export function createSettings({ refresh }) {
   $("open-at-login").addEventListener("change", async (event) => {
     showNote("general-problem", null);
     try {
-      await window.speakmore.setOpenAtLogin(event.target.checked);
+      await window.orangespeakeasy.setOpenAtLogin(event.target.checked);
     } catch (error) {
       showNote("general-problem", t("preferences.loginFailed", { reason: describeError(error) }), "problem");
     }
@@ -328,8 +328,8 @@ export function createSettings({ refresh }) {
     showNote("general-problem", null);
     const action = updateAction;
     try {
-      if (action === "check") await window.speakmore.checkForUpdate();
-      else if (action === "start") await window.speakmore.startUpdate();
+      if (action === "check") await window.orangespeakeasy.checkForUpdate();
+      else if (action === "start") await window.orangespeakeasy.startUpdate();
     } catch (error) {
       const key = action === "start" ? "preferences.update.startFailed" : "preferences.update.checkFailed";
       const param = action === "start" ? { reason: describeError(error) } : { problem: describeError(error) };
@@ -345,7 +345,7 @@ export function createSettings({ refresh }) {
     $("storage-change").disabled = true;
     try {
       // 确认了的话主进程起搬家的进度窗口，这个 App 随后会退出
-      await window.speakmore.changeStorage();
+      await window.orangespeakeasy.changeStorage();
     } catch (error) {
       showNote("storage-note", t("preferences.storage.failed", { reason: describeError(error) }), "problem");
     } finally {
@@ -369,13 +369,13 @@ export function createSettings({ refresh }) {
   for (const row of dialog.querySelectorAll("[data-permission]")) {
     row
       .querySelector("button")
-      .addEventListener("click", () => window.speakmore.openPrivacySettings(row.dataset.permission));
+      .addEventListener("click", () => window.orangespeakeasy.openPrivacySettings(row.dataset.permission));
   }
-  $("recheck").addEventListener("click", () => window.speakmore.recheckPermissions());
+  $("recheck").addEventListener("click", () => window.orangespeakeasy.recheckPermissions());
 
   // ---------- 关于 ----------
 
-  $("open-homepage").addEventListener("click", () => window.speakmore.openHomepage());
+  $("open-homepage").addEventListener("click", () => window.orangespeakeasy.openHomepage());
 
   // ---------- 对话框本身 ----------
 

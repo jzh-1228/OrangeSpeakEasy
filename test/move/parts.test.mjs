@@ -35,7 +35,7 @@ function put(file, content = "x") {
 }
 
 test("试盘：建出来的目录只让自己进，试用的链接、套接字不留下", posixOnly, async (t) => {
-  const home = join(scratch(t), ".speakmore");
+  const home = join(scratch(t), ".orangespeakeasy");
   assert.deepEqual(await probeTarget(home), { created: true });
   assert.equal(statSync(home).mode & 0o777, 0o700);
   assert.deepEqual(readdirSync(home), []);
@@ -46,7 +46,7 @@ test("试盘：哪一样做不到就说哪一样；目录是这里建的就删�
   const fails = () => {
     throw Object.assign(new Error("not supported"), { code: "EINVAL" });
   };
-  const home = join(root, "a", ".speakmore");
+  const home = join(root, "a", ".orangespeakeasy");
   mkdirSync(join(root, "a"));
   await assert.rejects(probeTarget(home, { restrict: fails }), (error) => {
     assert.equal(error.problem.key, "move.unsupportedDrive");
@@ -56,7 +56,7 @@ test("试盘：哪一样做不到就说哪一样；目录是这里建的就删�
   });
   assert.equal(existsSync(home), false);
 
-  const kept = join(root, "b", ".speakmore");
+  const kept = join(root, "b", ".orangespeakeasy");
   mkdirSync(kept, { recursive: true });
   await assert.rejects(probeTarget(kept, { restrict: fails }));
   assert.equal(existsSync(kept), true);
@@ -72,7 +72,7 @@ test("会换家的安装脚本：Mac 在 app 里，Windows 在 current 指着的
   const root = scratch(t);
   const mac = join(root, "mac");
   assert.equal(installerIn(mac, "darwin"), null);
-  put(join(mac, "app", "install.sh"), "SPEAKMORE_PREVIOUS_HOME");
+  put(join(mac, "app", "install.sh"), "ORANGESPEAKEASY_PREVIOUS_HOME");
   assert.equal(installerIn(mac, "darwin"), join(mac, "app", "install.sh"));
   assert.equal(canRehome(join(mac, "app", "install.sh")), true);
 
@@ -95,13 +95,13 @@ test("换家：交给安装脚本新旧两个目录，只给安装、更新用�
   const seen = join(root, "seen");
   put(
     join(home, "app", "install.sh"),
-    `# SPEAKMORE_PREVIOUS_HOME\nprintf '%s|%s|%s|%s|%s' "$SPEAKMORE_HOME" "$SPEAKMORE_PREVIOUS_HOME" "$1" "$SPEAKMORE_INSTALL_DIR$SPEAKMORE_VERSION$ELECTRON_RUN_AS_NODE" "$KEEP" > '${seen}'\nexit 7\n`,
+    `# ORANGESPEAKEASY_PREVIOUS_HOME\nprintf '%s|%s|%s|%s|%s' "$ORANGESPEAKEASY_HOME" "$ORANGESPEAKEASY_PREVIOUS_HOME" "$1" "$ORANGESPEAKEASY_INSTALL_DIR$ORANGESPEAKEASY_VERSION$ELECTRON_RUN_AS_NODE" "$KEEP" > '${seen}'\nexit 7\n`,
   );
   const env = {
     PATH: process.env.PATH,
     KEEP: "kept",
-    SPEAKMORE_INSTALL_DIR: "/x",
-    SPEAKMORE_VERSION: "9",
+    ORANGESPEAKEASY_INSTALL_DIR: "/x",
+    ORANGESPEAKEASY_VERSION: "9",
     ELECTRON_RUN_AS_NODE: "1",
   };
   const code = await rehome({ home, previous: join(root, "old"), env, stdio: "ignore", platform: "darwin" });

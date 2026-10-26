@@ -53,7 +53,7 @@ test("删掉第一跳那家的 key：听写的报错点名它、给的命令是�
   assert.deepEqual(app.keys.current.vendor, { id: "bailian", name: "Bailian" });
   const said = zh.text((await dictateOnce(app.service.url)).V.problem);
   assert.match(said, /Bailian/);
-  assert.match(said, /speakmore key bailian/);
+  assert.match(said, /orangespeakeasy key bailian/);
 });
 
 test("两把都删了、只把第一跳那家存回去：状态改说缺润色那家的", async (t) => {

@@ -5,7 +5,7 @@
 //
 // 用法：走哪条链路、用哪个模型和服务端一样由环境变量定（src/server/config.mjs），key 经 with-key.sh 喂进来：
 //   scripts/dev/with-key.sh gemini node scripts/dev/eval-translate.mjs --label <名字> --to en [--limit 20]
-//   SPEAKMORE_MODE=local scripts/dev/with-key.sh deepseek node scripts/dev/eval-translate.mjs --label <名字> --to ja
+//   ORANGESPEAKEASY_MODE=local scripts/dev/with-key.sh deepseek node scripts/dev/eval-translate.mjs --label <名字> --to ja
 // 混合方式用 eval-prompt.mjs 存下的本机转写（transcripts.<模型>.json），没有的先跑一遍 eval-prompt.mjs 的混合方式。
 // --limit 只跑一部分：按录音时长从短到长等距挑，长短都有。
 // 结果和对照表里有说话的原文，放在 git 之外：targets/typeless/_work/translate-eval/。
@@ -100,7 +100,7 @@ async function nativeRunner({ route, apiKey }) {
 async function localRunner({ route, apiKey }) {
   const cachePath = join(WORK, `prompt-eval/transcripts.${route.transcriber}.json`);
   if (!existsSync(cachePath)) {
-    console.error(`没有 ${cachePath}：先用 SPEAKMORE_MODE=local 跑一遍 eval-prompt.mjs，把本机转写存下来`);
+    console.error(`没有 ${cachePath}：先用 ORANGESPEAKEASY_MODE=local 跑一遍 eval-prompt.mjs，把本机转写存下来`);
     process.exit(2);
   }
   const transcripts = JSON.parse(readFileSync(cachePath, "utf8"));

@@ -438,7 +438,7 @@ test("要的模型还没下载：不自己去下，停在 missing；按下热键
   assert.deepEqual(service.localModel, { state: "missing", model: "qwen3-asr-0.6b-q8" });
   await service.useKey("deepseek-key");
   const problem = zh.text((await dictateOnce(service.url)).V.problem);
-  assert.match(problem, /Qwen3-ASR 0\.6B \(Q8_0\) 还没下载.*speakmore transcriber download qwen3-asr-0\.6b-q8/);
+  assert.match(problem, /Qwen3-ASR 0\.6B \(Q8_0\) 还没下载.*orangespeakeasy transcriber download qwen3-asr-0\.6b-q8/);
 });
 
 test("用户在下它的时候：状态带着进度，按下热键说下到哪了；下好了马上装上", async (t) => {

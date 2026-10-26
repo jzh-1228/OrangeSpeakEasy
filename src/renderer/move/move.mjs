@@ -43,6 +43,6 @@ function render(state) {
 }
 
 localize();
-$("move-close").addEventListener("click", () => window.speakmore.closeMove());
-window.speakmore.onMoveState(render);
-render(await window.speakmore.moveState());
+$("move-close").addEventListener("click", () => window.orangespeakeasy.closeMove());
+window.orangespeakeasy.onMoveState(render);
+render(await window.orangespeakeasy.moveState());

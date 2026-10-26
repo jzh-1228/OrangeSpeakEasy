@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/icon.svg" width="112" height="112" alt="SpeakMore 图标：靛青底印章，刻五道声波" />
+  <img src="assets/icon.svg" width="112" height="112" alt="OrangeSpeakEasy 图标：靛青底印章，刻五道声波" />
 </p>
 
-<h1 align="center">SpeakMore</h1>
+<h1 align="center">OrangeSpeakEasy</h1>
 
 <p align="center">
   <b>口述成文，划词即译。</b><br>
@@ -25,7 +25,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://media.speakmore.zephyrxiang.com/readme/home-dark.zh-CN.596d6346.webp" />
-  <img src="https://media.speakmore.zephyrxiang.com/readme/home.zh-CN.52652b74.webp" alt="SpeakMore 主窗口首页：标题为口述成文，划词即译，下方为三项功能的快捷键、字数、节省时间、语速与每日热力图，右上角为当前识别方式" />
+  <img src="https://media.speakmore.zephyrxiang.com/readme/home.zh-CN.52652b74.webp" alt="OrangeSpeakEasy 主窗口首页：标题为口述成文，划词即译，下方为三项功能的快捷键、字数、节省时间、语速与每日热力图，右上角为当前识别方式" />
 </picture>
 
 ## 三项功能
@@ -98,15 +98,15 @@
 ## 🚀 安装
 
 <p align="center">
-  <a href="https://dl.zephyrxiang.com/speakmore/v0.17.0/SpeakMore-arm64.dmg"><img src="https://img.shields.io/badge/下载-Mac%20·%20Apple%20芯片-111?style=for-the-badge&logo=apple&logoColor=white" alt="下载 Mac 版（Apple 芯片）" /></a>
-  <a href="https://dl.zephyrxiang.com/speakmore/v0.17.0/SpeakMore-x64.dmg"><img src="https://img.shields.io/badge/下载-Mac%20·%20Intel-555?style=for-the-badge&logo=apple&logoColor=white" alt="下载 Mac 版（Intel）" /></a>
-  <a href="https://dl.zephyrxiang.com/speakmore/v0.17.0/SpeakMore-Setup-x64.exe"><img src="https://img.shields.io/badge/下载-Windows-0078d4?style=for-the-badge&logo=windows&logoColor=white" alt="下载 Windows 版" /></a>
+  <a href="https://github.com/jzh-1228/OrangeSpeakEasy/releases/latest/download/v0.17.0/OrangeSpeakEasy-arm64.dmg"><img src="https://img.shields.io/badge/下载-Mac%20·%20Apple%20芯片-111?style=for-the-badge&logo=apple&logoColor=white" alt="下载 Mac 版（Apple 芯片）" /></a>
+  <a href="https://github.com/jzh-1228/OrangeSpeakEasy/releases/latest/download/v0.17.0/OrangeSpeakEasy-x64.dmg"><img src="https://img.shields.io/badge/下载-Mac%20·%20Intel-555?style=for-the-badge&logo=apple&logoColor=white" alt="下载 Mac 版（Intel）" /></a>
+  <a href="https://github.com/jzh-1228/OrangeSpeakEasy/releases/latest/download/v0.17.0/OrangeSpeakEasy-Setup-x64.exe"><img src="https://img.shields.io/badge/下载-Windows-0078d4?style=for-the-badge&logo=windows&logoColor=white" alt="下载 Windows 版" /></a>
 </p>
 
 **macOS**
 
 - 系统要求：macOS 12 及以上。
-- 打开 dmg，将 SpeakMore 拖入"应用程序"。
+- 打开 dmg，将 OrangeSpeakEasy 拖入"应用程序"。
 - 安装包已使用 Developer ID 签名，并通过 Apple 公证。
 
 **Windows**
@@ -116,40 +116,40 @@
 - 仅为当前账户安装，无需管理员权限。
 - 安装过程无需联网。
 
-**终端安装**（附带 `speakmore` 命令行工具）
+**终端安装**（附带 `orangespeakeasy` 命令行工具）
 
 ```bash
 # macOS
-curl -fsSL https://dl.zephyrxiang.com/speakmore/install.sh | bash
+curl -fsSL https://github.com/jzh-1228/OrangeSpeakEasy/releases/latest/download/install.sh | bash
 ```
 
 ```powershell
 # Windows（PowerShell）
-irm https://dl.zephyrxiang.com/speakmore/install.ps1 | iex
+irm https://github.com/jzh-1228/OrangeSpeakEasy/releases/latest/download/install.ps1 | iex
 ```
 
 - 下载链接末尾附加 `.sha256`，可获取对应文件的校验值。
 
 **存储位置**
 
-- 程序、本机模型、设置、历史记录与录音统一保存在一个文件夹中，默认为 `~/.speakmore`（Windows 为 `%USERPROFILE%\.speakmore`）。
-- 首次安装时可另选位置，例如其他磁盘：Mac App 首次打开时询问，Windows 安装程序在安装前询问，终端安装在命令行中询问。SpeakMore 保存在所选文件夹中的 `.speakmore`。
-- 之后可在「设置 › 通用 › 存储位置」更改，或执行 `speakmore move <文件夹>`；全部文件整体迁移，完成后自动重新打开。
+- 程序、本机模型、设置、历史记录与录音统一保存在一个文件夹中，默认为 `~/.orangespeakeasy`（Windows 为 `%USERPROFILE%\.orangespeakeasy`）。
+- 首次安装时可另选位置，例如其他磁盘：Mac App 首次打开时询问，Windows 安装程序在安装前询问，终端安装在命令行中询问。OrangeSpeakEasy 保存在所选文件夹中的 `.orangespeakeasy`。
+- 之后可在「设置 › 通用 › 存储位置」更改，或执行 `orangespeakeasy move <文件夹>`；全部文件整体迁移，完成后自动重新打开。
 - 所选磁盘需为 APFS、Mac OS 扩展或 NTFS 格式；exFAT、FAT32 格式的 U 盘与移动硬盘不支持。
 
 <details>
 <summary><b>安装包与终端安装的区别</b></summary>
 
-- 安装包为独立应用：macOS 权限授予 SpeakMore 本身，支持开机自启。
+- 安装包为独立应用：macOS 权限授予 OrangeSpeakEasy 本身，支持开机自启。
 - 终端安装在 macOS 上由终端启动，权限授予所用终端。
-- Windows 下两种方式的安装内容相同，均位于 `%USERPROFILE%\.speakmore`，并添加开始菜单项。
-- 两种方式共用设置、历史记录与 `speakmore` 命令，同一时间运行其一即可。
+- Windows 下两种方式的安装内容相同，均位于 `%USERPROFILE%\.orangespeakeasy`，并添加开始菜单项。
+- 两种方式共用设置、历史记录与 `orangespeakeasy` 命令，同一时间运行其一即可。
 
 </details>
 
 ## 🧭 使用
 
-SpeakMore 常驻菜单栏（Windows 为任务栏通知区域）。三项功能均由快捷键触发，在任意应用中可用，无需打开主窗口。
+OrangeSpeakEasy 常驻菜单栏（Windows 为任务栏通知区域）。三项功能均由快捷键触发，在任意应用中可用，无需打开主窗口。
 
 ### 语音输入
 
@@ -267,7 +267,7 @@ macOS 上读取选中的文字需要辅助功能权限，首次引导中一并�
   <img src="https://media.speakmore.zephyrxiang.com/readme/vendors-light.zh-CN.f8b32f94.webp" width="860" alt="支持的厂商：Gemini、OpenAI、通义千问、阿里云百炼、DeepSeek、Kimi、智谱 GLM、MiniMax、SenseVoice，以及 OpenAI 兼容服务" />
 </picture>
 
-<sub>上述名称与标志归各自权利人所有，仅用于说明 SpeakMore 支持对接的服务。</sub>
+<sub>上述名称与标志归各自权利人所有，仅用于说明 OrangeSpeakEasy 支持对接的服务。</sub>
 
 **引擎页**分「语音」「划词」两段：语音输入与语音翻译共用「语音」一段的模型，划词翻译使用「划词」一段单独选择的文字模型。
 
@@ -382,7 +382,7 @@ macOS 上读取选中的文字需要辅助功能权限，首次引导中一并�
 
 ## 💸 费用自由
 
-- SpeakMore 本身免费。
+- OrangeSpeakEasy 本身免费。
 - 模型费用按实际用量，直接结算给厂商。
 - 首页按今天、本月、累计统计花费：柱状图与趋势线看走势，下方列出各模型的花费与占比；三项功能一并计入。
 
@@ -415,7 +415,7 @@ macOS 上读取选中的文字需要辅助功能权限，首次引导中一并�
     <td>企业版</td><td>需询价</td><td>需询价</td><td>不限</td><td>Typeless 服务器<sup>1</sup></td><td>需注册</td>
   </tr>
   <tr>
-    <td rowspan="4"><b>SpeakMore</b></td><td><b>纯本机</b></td><td><b>¥0</b></td><td><b>¥0</b></td><td>不限</td><td><b>本机</b></td><td><b>无需</b></td>
+    <td rowspan="4"><b>OrangeSpeakEasy</b></td><td><b>纯本机</b></td><td><b>¥0</b></td><td><b>¥0</b></td><td>不限</td><td><b>本机</b></td><td><b>无需</b></td>
   </tr>
   <tr>
     <td><b>本机 + DeepSeek</b></td><td><b>¥2.63</b></td><td><b>¥32</b></td><td>不限</td><td>仅文字 → DeepSeek</td><td><b>无需</b></td>
@@ -428,7 +428,7 @@ macOS 上读取选中的文字需要辅助功能权限，首次引导中一并�
   </tr>
 </table>
 
-<sub>Typeless 价格取自 <a href="https://www.typeless.com/pricing">typeless.com/pricing</a>（2026-10-17），美元按 6.71 折算人民币。SpeakMore 为估算值，口径同上文推荐组合；使用 Gemini 免费额度时不产生费用。<br>
+<sub>Typeless 价格取自 <a href="https://www.typeless.com/pricing">typeless.com/pricing</a>（2026-10-17），美元按 6.71 折算人民币。OrangeSpeakEasy 为估算值，口径同上文推荐组合；使用 Gemini 免费额度时不产生费用。<br>
 <sup>1</sup> 同时上传当前应用、窗口标题与屏幕文字，详见<a href="targets/typeless/docs/06-context-capture-and-privacy.md">逆向笔记</a>。</sub>
 
 ## 📊 评测
@@ -470,12 +470,12 @@ macOS 上读取选中的文字需要辅助功能权限，首次引导中一并�
 
 - **开源**：MIT 许可，三项功能的全部代码公开。
 - **无需账号**：无注册与登录流程。
-- **单一目录**：数据、设置、密钥、模型与日志统一存放于一个文件夹，默认为 `~/.speakmore`（Windows 为 `%USERPROFILE%\.speakmore`），可迁移至其他磁盘。
-- **一键清除**：执行 `speakmore uninstall` 删除全部内容。
+- **单一目录**：数据、设置、密钥、模型与日志统一存放于一个文件夹，默认为 `~/.orangespeakeasy`（Windows 为 `%USERPROFILE%\.orangespeakeasy`），可迁移至其他磁盘。
+- **一键清除**：执行 `orangespeakeasy uninstall` 删除全部内容。
 - **签名公证**：Mac 版经 Developer ID 签名与 Apple 公证。
 - **可校验**：全部安装包提供 SHA-256 校验值。
 - **逆向分析**：Typeless 客户端的拆解整理为 [18 篇笔记](targets/typeless/docs/00-overview.md)。
-- **独立实现**：SpeakMore 参照其交互从零实现，不含 Typeless 的任何代码与密钥。
+- **独立实现**：OrangeSpeakEasy 参照其交互从零实现，不含 Typeless 的任何代码与密钥。
 
 ## 🧑‍💻 开发者
 
@@ -488,9 +488,9 @@ macOS 上读取选中的文字需要辅助功能权限，首次引导中一并�
 - **门禁**：Biome 代码检查，界面尺寸、字号与文案规范检查；`npm run check` 一次执行全部检查。
 
 ```bash
-git clone https://github.com/zephyr4123/speakmore.git && cd speakmore
+git clone https://github.com/jzh-1228/OrangeSpeakEasy.git && cd orangespeakeasy
 npm install
-npm start          # 等同于 speakmore 命令
+npm start          # 等同于 orangespeakeasy 命令
 npm run check      # 代码检查与全部测试
 ```
 
@@ -520,41 +520,41 @@ flowchart LR
 
 | 命令 | 说明 |
 | --- | --- |
-| `speakmore` | 启动；已运行时显示状态 |
-| `speakmore stop` / `restart` | 停止 / 重启 |
-| `speakmore status [--json]` | 运行状态、密钥、权限与用量 |
-| `speakmore update` | 升级至最新版本 |
-| `speakmore history [-n 条数] [--json]` | 历史记录（含语音翻译与划词翻译），按时间倒序 |
-| `speakmore usage [--json]` | 花费、token 与响应耗时，按模型分列 |
-| `speakmore dict [--json]` | 查看词典 |
-| `speakmore dict add` / `remove <词>…` | 添加 / 删除词 |
-| `speakmore dict import <文件>` | 从单列 CSV 或每行一词的文本导入，已有的词跳过 |
-| `speakmore mode [native\|local\|private]` | 查看或切换识别方式 |
-| `speakmore model [<厂商>[/<模型>]]` | 查看或切换直出模型 |
-| `speakmore transcriber [<模型>]` | 查看或切换转文字模型 |
-| `speakmore transcriber download <模型>` | 下载本机模型 |
-| `speakmore transcriber cancel <模型>` | 取消下载 |
-| `speakmore transcriber delete <模型>` | 删除本机模型 |
-| `speakmore polish [<厂商>/<模型>]` | 查看或切换整理模型 |
-| `speakmore model check` | 检测直出模型 |
-| `speakmore transcriber check` | 检测转文字模型 |
-| `speakmore polish check` | 检测整理模型 |
-| `speakmore key [<厂商>]` | 更换密钥，支持管道输入 |
-| `speakmore key --forget [<厂商>]` | 删除已保存的密钥 |
-| `speakmore config` / `config set` / `config unset` | 查看设置 / 修改单项 / 恢复默认值 |
-| `speakmore theme [名称]` | 查看或切换主题 |
-| `speakmore settings` | 打开设置 |
-| `speakmore logs [-n 行数] [-f]` | 查看日志 |
-| `speakmore move [<文件夹>]` | 将全部文件迁移至该文件夹中的 `.speakmore`（`~` 为默认位置）；不带参数时显示当前位置 |
-| `speakmore uninstall [--keep-data]` | 卸载（执行前确认） |
+| `orangespeakeasy` | 启动；已运行时显示状态 |
+| `orangespeakeasy stop` / `restart` | 停止 / 重启 |
+| `orangespeakeasy status [--json]` | 运行状态、密钥、权限与用量 |
+| `orangespeakeasy update` | 升级至最新版本 |
+| `orangespeakeasy history [-n 条数] [--json]` | 历史记录（含语音翻译与划词翻译），按时间倒序 |
+| `orangespeakeasy usage [--json]` | 花费、token 与响应耗时，按模型分列 |
+| `orangespeakeasy dict [--json]` | 查看词典 |
+| `orangespeakeasy dict add` / `remove <词>…` | 添加 / 删除词 |
+| `orangespeakeasy dict import <文件>` | 从单列 CSV 或每行一词的文本导入，已有的词跳过 |
+| `orangespeakeasy mode [native\|local\|private]` | 查看或切换识别方式 |
+| `orangespeakeasy model [<厂商>[/<模型>]]` | 查看或切换直出模型 |
+| `orangespeakeasy transcriber [<模型>]` | 查看或切换转文字模型 |
+| `orangespeakeasy transcriber download <模型>` | 下载本机模型 |
+| `orangespeakeasy transcriber cancel <模型>` | 取消下载 |
+| `orangespeakeasy transcriber delete <模型>` | 删除本机模型 |
+| `orangespeakeasy polish [<厂商>/<模型>]` | 查看或切换整理模型 |
+| `orangespeakeasy model check` | 检测直出模型 |
+| `orangespeakeasy transcriber check` | 检测转文字模型 |
+| `orangespeakeasy polish check` | 检测整理模型 |
+| `orangespeakeasy key [<厂商>]` | 更换密钥，支持管道输入 |
+| `orangespeakeasy key --forget [<厂商>]` | 删除已保存的密钥 |
+| `orangespeakeasy config` / `config set` / `config unset` | 查看设置 / 修改单项 / 恢复默认值 |
+| `orangespeakeasy theme [名称]` | 查看或切换主题 |
+| `orangespeakeasy settings` | 打开设置 |
+| `orangespeakeasy logs [-n 行数] [-f]` | 查看日志 |
+| `orangespeakeasy move [<文件夹>]` | 将全部文件迁移至该文件夹中的 `.orangespeakeasy`（`~` 为默认位置）；不带参数时显示当前位置 |
+| `orangespeakeasy uninstall [--keep-data]` | 卸载（执行前确认） |
 
-- `update` 同时升级 SpeakMore.app，设置、密钥、历史记录、录音与词典保留。
+- `update` 同时升级 OrangeSpeakEasy.app，设置、密钥、历史记录、录音与词典保留。
 - `check` 类命令发送最小请求（本机模型由系统语音朗读样句），检测连通性与响应速度。
 - `native` 为直出，`local` 为混合，`private` 为离线。
 - 直出厂商：`gemini` / `openai` / `bailian`。
 - 整理厂商：`deepseek` / `bailian` / `moonshot` / `zhipu` / `minimax` / `custom`；自定义服务另需 `--url <地址>`，可选 `--params '<JSON>'` 附加请求参数。
 - 语音翻译的目标语言：`config set translate.to`；划词翻译的模型与目标语言：`config set lookup.model`、`config set lookup.to`，或在 App 的引擎页与设置中修改。
-- 管道输入示例：`pbpaste | speakmore key`（Windows：`Get-Clipboard | speakmore key`）。
+- 管道输入示例：`pbpaste | orangespeakeasy key`（Windows：`Get-Clipboard | orangespeakeasy key`）。
 
 </details>
 
@@ -587,10 +587,10 @@ flowchart LR
 | `theme` | `ink` | 主题：`ink` / `cinnabar` / `indigo` |
 | `language` | `system` | 语言：`system` / `en` / `zh-CN` |
 
-- 设置保存于 `~/.speakmore/settings.json`。
-- 快捷键的值为组合列表，键名采用 [`KeyboardEvent.code`](https://developer.mozilla.org/docs/Web/API/UI_Events/Keyboard_event_code_values)（如 `AltRight`、`MetaRight`、`ControlRight`、`Fn`、`Space`、`Enter`、`KeyK`、`F13`），两键以 `+` 相连。单个组合可直接写：`speakmore config set hotkey.dictate ControlRight+F9`；多个组合写作 JSON 数组：`'["AltRight","ControlRight"]'`。
+- 设置保存于 `~/.orangespeakeasy/settings.json`。
+- 快捷键的值为组合列表，键名采用 [`KeyboardEvent.code`](https://developer.mozilla.org/docs/Web/API/UI_Events/Keyboard_event_code_values)（如 `AltRight`、`MetaRight`、`ControlRight`、`Fn`、`Space`、`Enter`、`KeyK`、`F13`），两键以 `+` 相连。单个组合可直接写：`orangespeakeasy config set hotkey.dictate ControlRight+F9`；多个组合写作 JSON 数组：`'["AltRight","ControlRight"]'`。
 - 组合至多两键；取消只接受单个非修饰键。与系统或常用快捷键冲突的组合不可绑定（如 ⌘、⌃ 加字母，Windows 键，Windows 的左 Alt + 空格、左 Alt + 回车），只含左侧修饰键的组合、单独的 Shift 与 CapsLock 亦不可。
-- 目标语言写语言代码，如 `en`、`ja`、`zh-CN`；`translate.to` 可写多个：`speakmore config set translate.to en,ja`。
+- 目标语言写语言代码，如 `en`、`ja`、`zh-CN`；`translate.to` 可写多个：`orangespeakeasy config set translate.to en,ja`。
 - 0.13 及以前的 `hotkey` 设置在升级时自动换算；`config set hotkey right_command` 等旧写法仍然有效。
 - Gemini 思考档位可选：`MINIMAL` / `LOW` / `MEDIUM` / `HIGH`。
 - 内存紧的电脑可把 `localModelMemory` 设为空闲 1、5、10 或 30 分钟后释放（设置 › 本机模型 › 内存）：开口时装载转文字模型，与说话同时进行；录音和整理期间不释放，空闲到点即归还内存。默认常驻。
@@ -598,10 +598,10 @@ flowchart LR
 - 自定义服务需要额外参数时写入 `customParams`（划词翻译为 `lookup.customParams`），例如 `{"reasoning_effort": "minimal"}`；检测与请求均附带，`model`、`messages`、`stream` 不可覆盖。推理模型限制输出长度时留足思考的余量（如 `{"max_completion_tokens": 4096}`），否则长段落会被截断。
 - 本机的 Ollama、LM Studio 也能空闲后释放模型，写在 `customParams` 里：Ollama（0.35 起）用 `{"keep_alive": "5m"}`，LM Studio 用 `{"ttl": 300}`（秒）。
 - Windows PowerShell 中 `--params` 的双引号前需加反斜杠：`--params '{\"reasoning_effort\": \"minimal\"}'`。
-- 通过 App 或 `speakmore mode`、`model`、`transcriber`、`polish` 切换时先行检测，立即生效。
+- 通过 App 或 `orangespeakeasy mode`、`model`、`transcriber`、`polish` 切换时先行检测，立即生效。
 - `config set` 直接写入，不做检测。
-- 临时覆盖：启动时设置 `SPEAKMORE_HOTKEY_DICTATE`、`SPEAKMORE_HOTKEY_TRANSLATE`、`SPEAKMORE_HOTKEY_LOOKUP`、`SPEAKMORE_HOTKEY_CANCEL`、`SPEAKMORE_MODE`、`SPEAKMORE_MODEL`、`SPEAKMORE_TRANSLATE_TO`、`SPEAKMORE_LOOKUP_MODEL` 等环境变量；快捷键的写法同设置文件，旧的 `SPEAKMORE_HOTKEY` 等同于 `SPEAKMORE_HOTKEY_DICTATE`。
-- 环境变量中的密钥优先于已保存的密钥：`GEMINI_API_KEY`、`OPENAI_API_KEY`、`DEEPSEEK_API_KEY`、`BAILIAN_API_KEY`、`MOONSHOT_API_KEY`（Kimi）、`ZHIPU_API_KEY`、`MINIMAX_API_KEY`、`SPEAKMORE_CUSTOM_API_KEY`、`SPEAKMORE_LOOKUP_CUSTOM_API_KEY`（划词翻译的自定义服务）。
+- 临时覆盖：启动时设置 `ORANGESPEAKEASY_HOTKEY_DICTATE`、`ORANGESPEAKEASY_HOTKEY_TRANSLATE`、`ORANGESPEAKEASY_HOTKEY_LOOKUP`、`ORANGESPEAKEASY_HOTKEY_CANCEL`、`ORANGESPEAKEASY_MODE`、`ORANGESPEAKEASY_MODEL`、`ORANGESPEAKEASY_TRANSLATE_TO`、`ORANGESPEAKEASY_LOOKUP_MODEL` 等环境变量；快捷键的写法同设置文件，旧的 `ORANGESPEAKEASY_HOTKEY` 等同于 `ORANGESPEAKEASY_HOTKEY_DICTATE`。
+- 环境变量中的密钥优先于已保存的密钥：`GEMINI_API_KEY`、`OPENAI_API_KEY`、`DEEPSEEK_API_KEY`、`BAILIAN_API_KEY`、`MOONSHOT_API_KEY`（Kimi）、`ZHIPU_API_KEY`、`MINIMAX_API_KEY`、`ORANGESPEAKEASY_CUSTOM_API_KEY`、`ORANGESPEAKEASY_LOOKUP_CUSTOM_API_KEY`（划词翻译的自定义服务）。
 
 </details>
 
@@ -611,7 +611,7 @@ flowchart LR
 - 每次模型调用均记录 token（含音频与思考）、模型、花费与耗时；语音翻译与划词翻译一并记录。
 - 首页按今天、本月、累计显示花费走势与各模型占比，悬停柱子查看那一段的细数。
 - 本机转文字单列，不计费。
-- `speakmore usage` 提供更详细的数据。
+- `orangespeakeasy usage` 提供更详细的数据。
 - 花费为按各厂商官方价格估算的美元金额；以人民币计价的平台按 6.71 折算。
 - Gemini 提示词缓存对重复部分按一成价格计费；开始口述时即预先建立缓存。
 
@@ -627,7 +627,7 @@ flowchart LR
 | 辅助功能 | 模拟 ⌘V 写入文字；读取选中的文字（划词翻译）；拦下 `esc`、组合快捷键与录制中的按键，不传给前台应用 |
 
 - App 在首次引导中申请上述权限，开启输入监控后按一次语音输入的快捷键即可确认生效。
-- 终端安装时，权限授予运行 SpeakMore 的终端。
+- 终端安装时，权限授予运行 OrangeSpeakEasy 的终端。
 - Windows 仅需麦克风权限（设置 › 隐私和安全性 › 麦克风）。
 
 </details>
@@ -646,13 +646,13 @@ flowchart LR
 | `models/` | 本机模型 |
 | `bin/`、`app/`、`runtime/` | 终端安装的程序文件 |
 
-- 全部文件位于存储位置（默认 `~/.speakmore/`，Windows 为 `%USERPROFILE%\.speakmore\`），仅当前用户可读。
+- 全部文件位于存储位置（默认 `~/.orangespeakeasy/`，Windows 为 `%USERPROFILE%\.orangespeakeasy\`），仅当前用户可读。
 - 密钥的解密密钥保存在钥匙串中（Windows 由 DPAPI 绑定账户），文件复制至他处无法解密。
 - 日志仅记录长度、耗时与用量，不记录口述内容、选中的文字与密钥。
 - 本机模型按需下载，并校验 SHA-256。
-- 目录之外：钥匙串条目、已授予的系统权限、"应用程序"中的 SpeakMore。
+- 目录之外：钥匙串条目、已授予的系统权限、"应用程序"中的 OrangeSpeakEasy。
 - Windows 另有开始菜单快捷方式、Path 条目与开机自启项。
-- 存储位置不在默认位置时，另有一个记录其位置的定位文件：`~/Library/Application Support/com.zephyrxiang.speakmore/location.json`（Windows 为 `%LOCALAPPDATA%\SpeakMore\location.json`）。
+- 存储位置不在默认位置时，另有一个记录其位置的定位文件：`~/Library/Application Support/com.juzihai.orangespeakeasy/location.json`（Windows 为 `%LOCALAPPDATA%\OrangeSpeakEasy\location.json`）。
 
 </details>
 
@@ -661,20 +661,20 @@ flowchart LR
 
 | 现象 | 处理方法 |
 | --- | --- |
-| 密钥显示"未验证" | 联网后执行 `speakmore status` |
-| 检测未通过，密钥无误 | `speakmore model check` 查看返回内容 |
-| 按快捷键无响应 | `speakmore status` 查看缺失项，`speakmore restart` 重启 |
+| 密钥显示"未验证" | 联网后执行 `orangespeakeasy status` |
+| 检测未通过，密钥无误 | `orangespeakeasy model check` 查看返回内容 |
+| 按快捷键无响应 | `orangespeakeasy status` 查看缺失项，`orangespeakeasy restart` 重启 |
 | 语音翻译提示"离线方式不支持语音翻译" | 在引擎页改用直出或混合方式 |
 | 划词卡片提示"先选中要翻译的文字"或"没取到选中的文字" | 确认已选中文字后重按；macOS 需开启辅助功能权限 |
 | 划词卡片提示"未配置密钥" | 点击卡片上的"配置密钥"，填写所选模型的密钥 |
 | macOS 上部分组合快捷键暂时无效 | 有应用开着安全输入（如密码框、终端的安全键盘输入），关闭后恢复；悬浮条会提示 |
 | Windows 上快捷键或划词在个别窗口中无效 | 该窗口以管理员身份运行，系统不向普通程序转发按键与选中的文字；悬浮条或卡片会提示 |
-| 命令提示"没有在 5 秒内回话" | 执行 `speakmore stop`，再执行 `speakmore` |
-| 菜单栏中无图标 | 按住 ⌘ 将部分图标拖出菜单栏，或执行 `speakmore settings` |
-| 提示找不到 SpeakMore 的目录 | 存储位置在移动硬盘上时，先连接该磁盘 |
+| 命令提示"没有在 5 秒内回话" | 执行 `orangespeakeasy stop`，再执行 `orangespeakeasy` |
+| 菜单栏中无图标 | 按住 ⌘ 将部分图标拖出菜单栏，或执行 `orangespeakeasy settings` |
+| 提示找不到 OrangeSpeakEasy 的目录 | 存储位置在移动硬盘上时，先连接该磁盘 |
 
 - "未验证"表示启动时未能连接厂商，暂用已保存的密钥。
-- 检测未通过多由模型名称或思考档位有误导致，`speakmore config unset model` 可恢复默认。
+- 检测未通过多由模型名称或思考档位有误导致，`orangespeakeasy config unset model` 可恢复默认。
 - 带刘海的 MacBook 会将多余的菜单栏图标隐藏于刘海之后。
 
 </details>
@@ -682,11 +682,11 @@ flowchart LR
 <details>
 <summary><b>🔄 升级与卸载</b></summary>
 
-- **升级**：App 的「设置 › 通用 › 软件更新」检查并安装新版本；终端运行 `speakmore update` 效果相同。两处共用同一套更新流程：先在后台下载并校验，再替换终端安装与 SpeakMore.app，最后重新打开升级前运行的一方；仅替换期间短暂停止。更新只下载变化的部分，通常为几 MB。
+- **升级**：App 的「设置 › 通用 › 软件更新」检查并安装新版本；终端运行 `orangespeakeasy update` 效果相同。两处共用同一套更新流程：先在后台下载并校验，再替换终端安装与 OrangeSpeakEasy.app，最后重新打开升级前运行的一方；仅替换期间短暂停止。更新只下载变化的部分，通常为几 MB。
 - **0.10.1 及更早版本**：无法检测到之后的版本，需重新安装一次：Mac 下载新版 dmg 覆盖安装，或重新运行终端安装命令；Windows 重新运行安装程序或安装命令。
 - **升级保留**：设置、密钥、历史记录、录音与词典。
-- **降级至 0.11.0 及更早版本**：旧版本仅识别默认位置，降级前先执行 `speakmore move ~` 迁回默认位置。
-- **卸载**：`speakmore uninstall` 停止 SpeakMore，删除整个目录、命令、定位文件及钥匙串条目。
+- **降级至 0.11.0 及更早版本**：旧版本仅识别默认位置，降级前先执行 `orangespeakeasy move ~` 迁回默认位置。
+- **卸载**：`orangespeakeasy uninstall` 停止 OrangeSpeakEasy，删除整个目录、命令、定位文件及钥匙串条目。
 - **Windows 卸载**：另删除 Path 条目、开始菜单快捷方式与开机自启项。
 - **保留数据卸载**：附加 `--keep-data`，保留设置、密钥、历史记录、录音与词典。
 - **仅安装 App 时卸载**：从菜单栏退出后，将其移至废纸篓。
@@ -698,4 +698,4 @@ flowchart LR
 - [MIT](LICENSE)。
 - `.claude/skills/` 下的文件来自 [REA](https://github.com/morluto/rea)，适用其自身的 MIT 许可。
 - 首次引导演示里的三张头像（`src/renderer/onboarding/avatars/`）是免费商用的图库照片：[Pexels 7705905](https://www.pexels.com/photo/7705905/)（ShotPot）、[Pexels 3936894](https://www.pexels.com/photo/3936894/)（Татьяна Танатова）、[Unsplash 0-LBoX_pAiA](https://unsplash.com/photos/0-LBoX_pAiA)（Adi Probo），分别适用 Pexels 和 Unsplash 的许可。
-- 名称致敬 Typeless。SpeakMore 依据逆向分析笔记独立实现，与 Typeless 无隶属关系。
+- 名称致敬 Typeless。OrangeSpeakEasy 依据逆向分析笔记独立实现，与 Typeless 无隶属关系。

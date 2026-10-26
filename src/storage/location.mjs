@@ -13,24 +13,24 @@ import {
 import { posix, win32 } from "node:path";
 import { LocalizedError, msg } from "../i18n/index.mjs";
 
-// 定位文件：SpeakMore 的目录（家目录）装在了默认位置以外的哪里。它是 SpeakMore 在家目录以外唯一留下的文件，
+// 定位文件：OrangeSpeakEasy 的目录（家目录）装在了默认位置以外的哪里。它是 OrangeSpeakEasy 在家目录以外唯一留下的文件，
 // 位置固定，所以从哪儿启动的都找得到：Mac 上"应用程序"里的 App、安装脚本、Windows 的安装程序、从源码跑的。
-//   macOS    ~/Library/Application Support/com.zephyrxiang.speakmore/location.json
-//   Windows  %LOCALAPPDATA%\SpeakMore\location.json
+//   macOS    ~/Library/Application Support/com.juzihai.orangespeakeasy/location.json
+//   Windows  %LOCALAPPDATA%\OrangeSpeakEasy\location.json
 // 内容是 UTF-8（不带 BOM）的 JSON：{ "home": "<家目录的完整路径>" }；正在搬家时多一项 moving（见 move/）。
-// 只有明确选了位置才写：speakmore move 搬到别处、安装时指定了目录（SPEAKMORE_INSTALL_DIR）。搬回默认位置、完整卸载时删掉。
+// 只有明确选了位置才写：orangespeakeasy move 搬到别处、安装时指定了目录（ORANGESPEAKEASY_INSTALL_DIR）。搬回默认位置、完整卸载时删掉。
 // 没有它就是默认位置：0.11.0 及以前装的、一直用默认位置的，磁盘上不会多出这个文件。
-// 环境变量 SPEAKMORE_HOME 只管"这一次用哪个目录"（开发、测试、更新时传递），从来不写它。
+// 环境变量 ORANGESPEAKEASY_HOME 只管"这一次用哪个目录"（开发、测试、更新时传递），从来不写它。
 // 读它的不止这里：install.sh、install.ps1、native/windows-setup 各有一份，位置和格式以这里为准，
 // test/storage/location-everywhere.test.mjs 核对几处写的是同一个。
 
 /**
  * macOS 上放在按应用标识取名的 Application Support 目录里：不放 ~/.config（常被 dotfiles 工具同步到别的电脑，那里不一定有这块盘），
- * 也不放 ~/Library/Application Support/SpeakMore（0.1 版的数据目录，legacy.mjs 会把它当旧数据搬走）
+ * 也不放 ~/Library/Application Support/OrangeSpeakEasy（0.1 版的数据目录，legacy.mjs 会把它当旧数据搬走）
  */
-const MAC_DIR = ["Library", "Application Support", "com.zephyrxiang.speakmore"];
+const MAC_DIR = ["Library", "Application Support", "com.juzihai.orangespeakeasy"];
 /** Windows 上放在本机的 AppData\Local（不随漫游配置同步到别的电脑：那里不一定有这个盘） */
-const WINDOWS_DIR = "SpeakMore";
+const WINDOWS_DIR = "OrangeSpeakEasy";
 const FILE_NAME = "location.json";
 
 const pathModule = (platform) => (platform === "win32" ? win32 : posix);

@@ -5,8 +5,8 @@ import planCosts from "./costs.json";
 import { siteLinks } from "./lib/site.js";
 import media from "./media.json";
 
-/* global __SPEAKMORE_VERSION__ */
-export const links = siteLinks(site, __SPEAKMORE_VERSION__);
+/* global __ORANGESPEAKEASY_VERSION__ */
+export const links = siteLinks(site, __ORANGESPEAKEASY_VERSION__);
 
 /**
  * 一张截图：名字是 scripts/screenshots.mjs 起的（home-light-ink），按语言取对应的那一份

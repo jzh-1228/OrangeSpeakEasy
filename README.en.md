@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/icon.svg" width="112" height="112" alt="SpeakMore icon: an indigo seal carved with five sound bars" />
+  <img src="assets/icon.svg" width="112" height="112" alt="OrangeSpeakEasy icon: an indigo seal carved with five sound bars" />
 </p>
 
-<h1 align="center">SpeakMore</h1>
+<h1 align="center">OrangeSpeakEasy</h1>
 
 <p align="center">
   <b>Speak it written. Select to translate.</b><br>
@@ -25,7 +25,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://media.speakmore.zephyrxiang.com/readme/home-dark.en.2cec7117.webp" />
-  <img src="https://media.speakmore.zephyrxiang.com/readme/home.en.123d495c.webp" alt="SpeakMore home window: the title Speak it written. Select to translate., the hotkeys of the three features, word count, time saved, speaking rate and daily heatmap, with the active recognition mode" />
+  <img src="https://media.speakmore.zephyrxiang.com/readme/home.en.123d495c.webp" alt="OrangeSpeakEasy home window: the title Speak it written. Select to translate., the hotkeys of the three features, word count, time saved, speaking rate and daily heatmap, with the active recognition mode" />
 </picture>
 
 ## Three features
@@ -98,15 +98,15 @@ All three start from Right ⌥ (Right Alt on Windows): on its own for voice inpu
 ## 🚀 Installation
 
 <p align="center">
-  <a href="https://dl.zephyrxiang.com/speakmore/v0.17.0/SpeakMore-arm64.dmg"><img src="https://img.shields.io/badge/Download-Mac%20·%20Apple%20silicon-111?style=for-the-badge&logo=apple&logoColor=white" alt="Download for Mac with Apple silicon" /></a>
-  <a href="https://dl.zephyrxiang.com/speakmore/v0.17.0/SpeakMore-x64.dmg"><img src="https://img.shields.io/badge/Download-Mac%20·%20Intel-555?style=for-the-badge&logo=apple&logoColor=white" alt="Download for Intel Mac" /></a>
-  <a href="https://dl.zephyrxiang.com/speakmore/v0.17.0/SpeakMore-Setup-x64.exe"><img src="https://img.shields.io/badge/Download-Windows-0078d4?style=for-the-badge&logo=windows&logoColor=white" alt="Download for Windows" /></a>
+  <a href="https://github.com/jzh-1228/OrangeSpeakEasy/releases/latest/download/v0.17.0/OrangeSpeakEasy-arm64.dmg"><img src="https://img.shields.io/badge/Download-Mac%20·%20Apple%20silicon-111?style=for-the-badge&logo=apple&logoColor=white" alt="Download for Mac with Apple silicon" /></a>
+  <a href="https://github.com/jzh-1228/OrangeSpeakEasy/releases/latest/download/v0.17.0/OrangeSpeakEasy-x64.dmg"><img src="https://img.shields.io/badge/Download-Mac%20·%20Intel-555?style=for-the-badge&logo=apple&logoColor=white" alt="Download for Intel Mac" /></a>
+  <a href="https://github.com/jzh-1228/OrangeSpeakEasy/releases/latest/download/v0.17.0/OrangeSpeakEasy-Setup-x64.exe"><img src="https://img.shields.io/badge/Download-Windows-0078d4?style=for-the-badge&logo=windows&logoColor=white" alt="Download for Windows" /></a>
 </p>
 
 **macOS**
 
 - Requires macOS 12 or later.
-- Open the dmg and drag SpeakMore into Applications.
+- Open the dmg and drag OrangeSpeakEasy into Applications.
 - Signed with a Developer ID and notarized by Apple.
 
 **Windows**
@@ -116,40 +116,40 @@ All three start from Right ⌥ (Right Alt on Windows): on its own for voice inpu
 - Installs per user, without administrator rights.
 - No network connection is needed during installation.
 
-**Terminal installation** (includes the `speakmore` command-line tool)
+**Terminal installation** (includes the `orangespeakeasy` command-line tool)
 
 ```bash
 # macOS
-curl -fsSL https://dl.zephyrxiang.com/speakmore/install.sh | bash
+curl -fsSL https://github.com/jzh-1228/OrangeSpeakEasy/releases/latest/download/install.sh | bash
 ```
 
 ```powershell
 # Windows (PowerShell)
-irm https://dl.zephyrxiang.com/speakmore/install.ps1 | iex
+irm https://github.com/jzh-1228/OrangeSpeakEasy/releases/latest/download/install.ps1 | iex
 ```
 
 - Append `.sha256` to any download link to obtain its checksum.
 
 **Storage location**
 
-- The program, on-device models, settings, history and recordings are kept in one folder, by default `~/.speakmore` (`%USERPROFILE%\.speakmore` on Windows).
-- A different place, such as another disk, can be chosen on first install: the Mac app asks when it first opens, the Windows installer asks before installing, and the terminal installation asks in the terminal. SpeakMore is kept in `.speakmore` inside the chosen folder.
-- To change it later, use Settings › General › Storage location, or run `speakmore move <folder>`; everything is moved together and SpeakMore reopens when done.
+- The program, on-device models, settings, history and recordings are kept in one folder, by default `~/.orangespeakeasy` (`%USERPROFILE%\.orangespeakeasy` on Windows).
+- A different place, such as another disk, can be chosen on first install: the Mac app asks when it first opens, the Windows installer asks before installing, and the terminal installation asks in the terminal. OrangeSpeakEasy is kept in `.orangespeakeasy` inside the chosen folder.
+- To change it later, use Settings › General › Storage location, or run `orangespeakeasy move <folder>`; everything is moved together and OrangeSpeakEasy reopens when done.
 - The disk must be formatted as APFS, Mac OS Extended or NTFS; exFAT and FAT32 USB sticks and external drives are not supported.
 
 <details>
 <summary><b>Installer and terminal installation compared</b></summary>
 
-- The installer provides a standalone app; macOS permissions are granted to SpeakMore itself, and it can open at login.
+- The installer provides a standalone app; macOS permissions are granted to OrangeSpeakEasy itself, and it can open at login.
 - The terminal installation on macOS runs from the terminal; permissions are granted to that terminal.
-- On Windows, both methods install the same files into `%USERPROFILE%\.speakmore` and add a Start menu entry.
-- Both share settings, history and the `speakmore` command; run only one at a time.
+- On Windows, both methods install the same files into `%USERPROFILE%\.orangespeakeasy` and add a Start menu entry.
+- Both share settings, history and the `orangespeakeasy` command; run only one at a time.
 
 </details>
 
 ## 🧭 Usage
 
-SpeakMore resides in the menu bar (the notification area on Windows). All three features are triggered by hotkeys and work in any app, without opening the main window.
+OrangeSpeakEasy resides in the menu bar (the notification area on Windows). All three features are triggered by hotkeys and work in any app, without opening the main window.
 
 ### Voice input
 
@@ -349,7 +349,7 @@ The **Engine** page has two sections: voice input and voice translation share th
 - On-device models handle the transcription step: voice input in Offline mode, and transcription for both voice input and voice translation in Hybrid mode, can run on this machine.
 - The same on-device models run on every supported device.
 - An available graphics card is used first.
-- Without a usable graphics card, SpeakMore falls back to the CPU automatically.
+- Without a usable graphics card, OrangeSpeakEasy falls back to the CPU automatically.
 
 | Device | Acceleration | Model | Per dictation |
 | --- | --- | --- | --- |
@@ -382,7 +382,7 @@ The **Engine** page has two sections: voice input and voice translation share th
 
 ## 💸 Cost freedom
 
-- SpeakMore is free.
+- OrangeSpeakEasy is free.
 - Model usage is billed directly by each vendor, according to actual use.
 - The home window tracks spending for today, this month and all time: bars and a trend line show the course, with each model's cost and share below; all three features are included.
 
@@ -415,7 +415,7 @@ Voice input compared with every Typeless plan (heavy use, 100 dictations a day):
     <td>Enterprise</td><td>Quote</td><td>Quote</td><td>Unlimited</td><td>Typeless<sup>1</sup></td><td>Yes</td>
   </tr>
   <tr>
-    <td rowspan="4"><b>SpeakMore</b></td><td><b>Fully On-device</b></td><td><b>$0</b></td><td><b>$0</b></td><td>Unlimited</td><td><b>On device</b></td><td><b>No</b></td>
+    <td rowspan="4"><b>OrangeSpeakEasy</b></td><td><b>Fully On-device</b></td><td><b>$0</b></td><td><b>$0</b></td><td>Unlimited</td><td><b>On device</b></td><td><b>No</b></td>
   </tr>
   <tr>
     <td><b>On-device + DeepSeek</b></td><td><b>$0.39</b></td><td><b>$4.70</b></td><td>Unlimited</td><td>DeepSeek</td><td><b>No</b></td>
@@ -428,7 +428,7 @@ Voice input compared with every Typeless plan (heavy use, 100 dictations a day):
   </tr>
 </table>
 
-<sub>With On-device + DeepSeek, only the transcribed text is sent to DeepSeek. Typeless prices from <a href="https://www.typeless.com/pricing">typeless.com/pricing</a> (2026-10-17). SpeakMore figures are estimates on the basis of the setups table above; usage within Gemini's free tier incurs no cost.<br>
+<sub>With On-device + DeepSeek, only the transcribed text is sent to DeepSeek. Typeless prices from <a href="https://www.typeless.com/pricing">typeless.com/pricing</a> (2026-10-17). OrangeSpeakEasy figures are estimates on the basis of the setups table above; usage within Gemini's free tier incurs no cost.<br>
 <sup>1</sup> Sent to Typeless servers together with the active application, window title and on-screen text; see the <a href="targets/typeless/docs/06-context-capture-and-privacy.md">reverse-engineering notes</a> (Chinese).</sub>
 
 ## 📊 Benchmarks
@@ -470,12 +470,12 @@ Voice input compared with every Typeless plan (heavy use, 100 dictations a day):
 
 - **Open source**: MIT-licensed; all code for the three features is public.
 - **No account**: no registration or sign-in.
-- **Single directory**: data, settings, keys, models and logs are stored in one folder, by default `~/.speakmore` (`%USERPROFILE%\.speakmore` on Windows), which can be moved to another disk.
-- **Complete removal**: `speakmore uninstall` deletes everything.
+- **Single directory**: data, settings, keys, models and logs are stored in one folder, by default `~/.orangespeakeasy` (`%USERPROFILE%\.orangespeakeasy` on Windows), which can be moved to another disk.
+- **Complete removal**: `orangespeakeasy uninstall` deletes everything.
 - **Signed and notarized**: the Mac app carries a Developer ID signature and Apple notarization.
 - **Verifiable**: every package has a SHA-256 checksum.
 - **Reverse-engineered**: the Typeless client is documented in [18 notes](targets/typeless/docs/00-overview.md) (Chinese).
-- **Independently implemented**: SpeakMore was written from scratch and contains no Typeless code or keys.
+- **Independently implemented**: OrangeSpeakEasy was written from scratch and contains no Typeless code or keys.
 
 ## 🧑‍💻 For developers
 
@@ -488,9 +488,9 @@ Voice input compared with every Typeless plan (heavy use, 100 dictations a day):
 - **Quality gates**: Biome linting plus checks on interface sizing, typography and copy; `npm run check` runs them all.
 
 ```bash
-git clone https://github.com/zephyr4123/speakmore.git && cd speakmore
+git clone https://github.com/jzh-1228/OrangeSpeakEasy.git && cd orangespeakeasy
 npm install
-npm start          # equivalent to the speakmore command
+npm start          # equivalent to the orangespeakeasy command
 npm run check      # lint and all tests
 ```
 
@@ -520,41 +520,41 @@ flowchart LR
 
 | Command | Description |
 | --- | --- |
-| `speakmore` | Start; shows status if already running |
-| `speakmore stop` / `restart` | Stop / restart |
-| `speakmore status [--json]` | Running state, keys, permissions and usage |
-| `speakmore update` | Update to the latest version |
-| `speakmore history [-n count] [--json]` | History, including voice and selection translations, newest first |
-| `speakmore usage [--json]` | Spending, tokens and response times per model |
-| `speakmore dict [--json]` | Show the dictionary |
-| `speakmore dict add` / `remove <word>…` | Add / remove words |
-| `speakmore dict import <file>` | Import a one-column CSV or a one-word-per-line text file; existing words are skipped |
-| `speakmore mode [native\|local\|private]` | Show or switch the recognition mode |
-| `speakmore model [<provider>[/<model>]]` | Show or switch the Direct model |
-| `speakmore transcriber [<model>]` | Show or switch the Transcribe model |
-| `speakmore transcriber download <model>` | Download an on-device model |
-| `speakmore transcriber cancel <model>` | Cancel a download |
-| `speakmore transcriber delete <model>` | Delete an on-device model |
-| `speakmore polish [<provider>/<model>]` | Show or switch the Refine model |
-| `speakmore model check` | Check the Direct model |
-| `speakmore transcriber check` | Check the Transcribe model |
-| `speakmore polish check` | Check the Refine model |
-| `speakmore key [<provider>]` | Replace a key; accepts piped input |
-| `speakmore key --forget [<provider>]` | Delete a stored key |
-| `speakmore config` / `config set` / `config unset` | Show settings / set a value / restore the default |
-| `speakmore theme [name]` | Show or switch the theme |
-| `speakmore settings` | Open settings |
-| `speakmore logs [-n lines] [-f]` | Show logs |
-| `speakmore move [<folder>]` | Move everything into `.speakmore` inside the folder (`~` is the default place); without a folder, show the current place |
-| `speakmore uninstall [--keep-data]` | Uninstall, after confirmation |
+| `orangespeakeasy` | Start; shows status if already running |
+| `orangespeakeasy stop` / `restart` | Stop / restart |
+| `orangespeakeasy status [--json]` | Running state, keys, permissions and usage |
+| `orangespeakeasy update` | Update to the latest version |
+| `orangespeakeasy history [-n count] [--json]` | History, including voice and selection translations, newest first |
+| `orangespeakeasy usage [--json]` | Spending, tokens and response times per model |
+| `orangespeakeasy dict [--json]` | Show the dictionary |
+| `orangespeakeasy dict add` / `remove <word>…` | Add / remove words |
+| `orangespeakeasy dict import <file>` | Import a one-column CSV or a one-word-per-line text file; existing words are skipped |
+| `orangespeakeasy mode [native\|local\|private]` | Show or switch the recognition mode |
+| `orangespeakeasy model [<provider>[/<model>]]` | Show or switch the Direct model |
+| `orangespeakeasy transcriber [<model>]` | Show or switch the Transcribe model |
+| `orangespeakeasy transcriber download <model>` | Download an on-device model |
+| `orangespeakeasy transcriber cancel <model>` | Cancel a download |
+| `orangespeakeasy transcriber delete <model>` | Delete an on-device model |
+| `orangespeakeasy polish [<provider>/<model>]` | Show or switch the Refine model |
+| `orangespeakeasy model check` | Check the Direct model |
+| `orangespeakeasy transcriber check` | Check the Transcribe model |
+| `orangespeakeasy polish check` | Check the Refine model |
+| `orangespeakeasy key [<provider>]` | Replace a key; accepts piped input |
+| `orangespeakeasy key --forget [<provider>]` | Delete a stored key |
+| `orangespeakeasy config` / `config set` / `config unset` | Show settings / set a value / restore the default |
+| `orangespeakeasy theme [name]` | Show or switch the theme |
+| `orangespeakeasy settings` | Open settings |
+| `orangespeakeasy logs [-n lines] [-f]` | Show logs |
+| `orangespeakeasy move [<folder>]` | Move everything into `.orangespeakeasy` inside the folder (`~` is the default place); without a folder, show the current place |
+| `orangespeakeasy uninstall [--keep-data]` | Uninstall, after confirmation |
 
-- `update` also updates SpeakMore.app; settings, keys, history, recordings and the dictionary are preserved.
+- `update` also updates OrangeSpeakEasy.app; settings, keys, history, recordings and the dictionary are preserved.
 - `check` commands send a minimal request (for on-device models, a sentence read by the system voice) to check connectivity and response time.
 - `native` is Direct, `local` is Hybrid, `private` is Offline.
 - Direct providers: `gemini` / `openai` / `bailian`.
 - Refine providers: `deepseek` / `bailian` / `moonshot` / `zhipu` / `minimax` / `custom`; a custom service also takes `--url <url>`, and optionally `--params '<JSON>'` for extra request parameters.
 - Voice translation targets: `config set translate.to`; the selection translation model and target: `config set lookup.model`, `config set lookup.to`, or the Engine page and Settings in the app.
-- Piped input example: `pbpaste | speakmore key` (Windows: `Get-Clipboard | speakmore key`).
+- Piped input example: `pbpaste | orangespeakeasy key` (Windows: `Get-Clipboard | orangespeakeasy key`).
 
 </details>
 
@@ -587,10 +587,10 @@ flowchart LR
 | `theme` | `ink` | Theme: `ink` / `cinnabar` / `indigo` |
 | `language` | `system` | Language: `system` / `en` / `zh-CN` |
 
-- Settings are stored in `~/.speakmore/settings.json`.
-- A hotkey value is a list of combinations. Keys use [`KeyboardEvent.code`](https://developer.mozilla.org/docs/Web/API/UI_Events/Keyboard_event_code_values) names (e.g. `AltRight`, `MetaRight`, `ControlRight`, `Fn`, `Space`, `Enter`, `KeyK`, `F13`), with two keys joined by `+`. A single combination can be written as is: `speakmore config set hotkey.dictate ControlRight+F9`; several go in a JSON array: `'["AltRight","ControlRight"]'`.
+- Settings are stored in `~/.orangespeakeasy/settings.json`.
+- A hotkey value is a list of combinations. Keys use [`KeyboardEvent.code`](https://developer.mozilla.org/docs/Web/API/UI_Events/Keyboard_event_code_values) names (e.g. `AltRight`, `MetaRight`, `ControlRight`, `Fn`, `Space`, `Enter`, `KeyK`, `F13`), with two keys joined by `+`. A single combination can be written as is: `orangespeakeasy config set hotkey.dictate ControlRight+F9`; several go in a JSON array: `'["AltRight","ControlRight"]'`.
 - A combination has at most two keys; cancel takes a single non-modifier key. Combinations that clash with system or common shortcuts can't be bound (⌘ or ⌃ with a letter, the Windows key, and on Windows Left Alt + Space and Left Alt + Enter), nor can combinations of left-hand modifiers only, or Shift or Caps Lock on its own.
-- Target languages are language codes such as `en`, `ja` and `zh-CN`; `translate.to` takes several: `speakmore config set translate.to en,ja`.
+- Target languages are language codes such as `en`, `ja` and `zh-CN`; `translate.to` takes several: `orangespeakeasy config set translate.to en,ja`.
 - A `hotkey` setting from 0.13 or earlier is converted on upgrade; the old form, such as `config set hotkey right_command`, still works.
 - Gemini thinking levels: `MINIMAL` / `LOW` / `MEDIUM` / `HIGH`.
 - On a machine short of memory, set `localModelMemory` to release the transcription model after 1, 5, 10, or 30 idle minutes (Settings › On-device models › Memory). The model loads when you start speaking, while you talk; it stays loaded through recording and refinement and is released once idle that long. The default keeps it in memory.
@@ -598,10 +598,10 @@ flowchart LR
 - Extra parameters a custom service needs go in `customParams` (`lookup.customParams` for selection translation), e.g. `{"reasoning_effort": "minimal"}`. They are sent with both checks and requests; `model`, `messages`, and `stream` cannot be overridden. When capping a reasoning model's output, leave room for its thinking (e.g. `{"max_completion_tokens": 4096}`), or long passages get cut off.
 - A local Ollama or LM Studio can also release its model when idle, set through `customParams`: `{"keep_alive": "5m"}` for Ollama (0.35 or newer), `{"ttl": 300}` (seconds) for LM Studio.
 - In Windows PowerShell, put a backslash before each double quote in `--params`: `--params '{\"reasoning_effort\": \"minimal\"}'`.
-- Switching through the app or `speakmore mode`, `model`, `transcriber` and `polish` is checked first and takes effect immediately.
+- Switching through the app or `orangespeakeasy mode`, `model`, `transcriber` and `polish` is checked first and takes effect immediately.
 - `config set` writes values directly, without checks.
-- Temporary overrides: set environment variables such as `SPEAKMORE_HOTKEY_DICTATE`, `SPEAKMORE_HOTKEY_TRANSLATE`, `SPEAKMORE_HOTKEY_LOOKUP`, `SPEAKMORE_HOTKEY_CANCEL`, `SPEAKMORE_MODE`, `SPEAKMORE_MODEL`, `SPEAKMORE_TRANSLATE_TO` and `SPEAKMORE_LOOKUP_MODEL` at startup. Hotkeys are written as in the settings file; the old `SPEAKMORE_HOTKEY` means `SPEAKMORE_HOTKEY_DICTATE`.
-- Keys in environment variables take precedence over stored keys: `GEMINI_API_KEY`, `OPENAI_API_KEY`, `DEEPSEEK_API_KEY`, `BAILIAN_API_KEY`, `MOONSHOT_API_KEY` (Kimi), `ZHIPU_API_KEY`, `MINIMAX_API_KEY`, `SPEAKMORE_CUSTOM_API_KEY`, `SPEAKMORE_LOOKUP_CUSTOM_API_KEY` (the selection translation custom service).
+- Temporary overrides: set environment variables such as `ORANGESPEAKEASY_HOTKEY_DICTATE`, `ORANGESPEAKEASY_HOTKEY_TRANSLATE`, `ORANGESPEAKEASY_HOTKEY_LOOKUP`, `ORANGESPEAKEASY_HOTKEY_CANCEL`, `ORANGESPEAKEASY_MODE`, `ORANGESPEAKEASY_MODEL`, `ORANGESPEAKEASY_TRANSLATE_TO` and `ORANGESPEAKEASY_LOOKUP_MODEL` at startup. Hotkeys are written as in the settings file; the old `ORANGESPEAKEASY_HOTKEY` means `ORANGESPEAKEASY_HOTKEY_DICTATE`.
+- Keys in environment variables take precedence over stored keys: `GEMINI_API_KEY`, `OPENAI_API_KEY`, `DEEPSEEK_API_KEY`, `BAILIAN_API_KEY`, `MOONSHOT_API_KEY` (Kimi), `ZHIPU_API_KEY`, `MINIMAX_API_KEY`, `ORANGESPEAKEASY_CUSTOM_API_KEY`, `ORANGESPEAKEASY_LOOKUP_CUSTOM_API_KEY` (the selection translation custom service).
 
 </details>
 
@@ -611,7 +611,7 @@ flowchart LR
 - Every model call is recorded with its tokens (including audio and thinking), model, cost and latency; voice translation and selection translation are included.
 - The home window shows the spending trend and each model's share for today, this month and all time; hover a bar for its breakdown.
 - On-device transcription appears as a separate, free entry.
-- `speakmore usage` provides further detail.
+- `orangespeakeasy usage` provides further detail.
 - Costs are estimates in US dollars at each vendor's list price; platforms priced in yuan are converted at 6.71.
 - Gemini's prompt cache bills repeated prompt content at one tenth of the standard price; the cache is created as soon as dictation starts.
 
@@ -627,7 +627,7 @@ flowchart LR
 | Accessibility | Inserting text with a simulated ⌘V; reading the selected text (selection translation); holding back `esc`, combination hotkeys and keys pressed while recording, so they don't reach the active app |
 
 - The app requests these permissions during onboarding; once Input Monitoring is on, one press of the voice input hotkey confirms it works.
-- With the terminal installation, permissions are granted to the terminal that runs SpeakMore.
+- With the terminal installation, permissions are granted to the terminal that runs OrangeSpeakEasy.
 - On Windows, only microphone access is required (Settings › Privacy & security › Microphone).
 
 </details>
@@ -646,13 +646,13 @@ flowchart LR
 | `models/` | On-device models |
 | `bin/`, `app/`, `runtime/` | Program files of the terminal installation |
 
-- All files are stored in the storage location (by default `~/.speakmore/`, `%USERPROFILE%\.speakmore\` on Windows) and are readable only by the current user.
+- All files are stored in the storage location (by default `~/.orangespeakeasy/`, `%USERPROFILE%\.orangespeakeasy\` on Windows) and are readable only by the current user.
 - The key decryption secret is held in the Keychain (bound to the account by DPAPI on Windows); a copied key file cannot be decrypted.
 - Logs contain lengths, timings and usage only; dictated content, selected text and keys are never logged.
 - On-device models are downloaded on request and verified against SHA-256.
-- Outside this directory: the Keychain entry, granted system permissions, and SpeakMore in Applications.
+- Outside this directory: the Keychain entry, granted system permissions, and OrangeSpeakEasy in Applications.
 - On Windows, also the Start menu shortcut, a Path entry and the open-at-login entry.
-- When the storage location is not the default, a location file records it: `~/Library/Application Support/com.zephyrxiang.speakmore/location.json` (`%LOCALAPPDATA%\SpeakMore\location.json` on Windows).
+- When the storage location is not the default, a location file records it: `~/Library/Application Support/com.juzihai.orangespeakeasy/location.json` (`%LOCALAPPDATA%\OrangeSpeakEasy\location.json` on Windows).
 
 </details>
 
@@ -661,20 +661,20 @@ flowchart LR
 
 | Symptom | Resolution |
 | --- | --- |
-| A key shows "not verified" | Run `speakmore status` once online |
-| A check fails although the key is correct | Run `speakmore model check` to see the response |
-| The hotkey has no effect | Run `speakmore status`, then `speakmore restart` |
+| A key shows "not verified" | Run `orangespeakeasy status` once online |
+| A check fails although the key is correct | Run `orangespeakeasy model check` to see the response |
+| The hotkey has no effect | Run `orangespeakeasy status`, then `orangespeakeasy restart` |
 | Voice translation says it isn't available in Offline mode | Switch to Direct or Hybrid on the Engine page |
 | The selection card says "Select some text first" or "Couldn't read the selection" | Select the text and press again; on macOS, turn on Accessibility |
 | The selection card says "No key set" | Click "Add key" on the card and enter the key for the chosen model |
 | On macOS, some combination hotkeys stop working for a while | Another app has secure input on (a password field, or Secure Keyboard Entry in a terminal); they work again once it's off, and the voice bar says so |
 | On Windows, the hotkey or selection translation doesn't work in some windows | That window runs as administrator, and Windows doesn't pass its keys or selection to other programs; the voice bar or card says so |
-| A command times out | Run `speakmore stop`, then `speakmore` |
-| No menu bar icon | Run `speakmore settings` |
-| SpeakMore's folder can't be found | If the storage location is on an external drive, connect it first |
+| A command times out | Run `orangespeakeasy stop`, then `orangespeakeasy` |
+| No menu bar icon | Run `orangespeakeasy settings` |
+| OrangeSpeakEasy's folder can't be found | If the storage location is on an external drive, connect it first |
 
 - "Not verified" means the vendor was unreachable at startup and the stored key is in use.
-- A failed check is usually caused by an incorrect model name or thinking level; `speakmore config unset model` restores the default.
+- A failed check is usually caused by an incorrect model name or thinking level; `orangespeakeasy config unset model` restores the default.
 - On MacBooks with a notch, surplus menu bar icons are hidden behind it; hold ⌘ and drag some icons out of the menu bar.
 
 </details>
@@ -682,11 +682,11 @@ flowchart LR
 <details>
 <summary><b>🔄 Updating and uninstalling</b></summary>
 
-- **Update**: in the app, Settings › General › Software update checks for and installs new versions; `speakmore update` in a terminal does the same. Both use one update process: download and verify in the background first, then replace the terminal installation and SpeakMore.app, and reopen whichever was running. SpeakMore stops only while the files are being replaced. Updates download only what changed, usually a few MB.
+- **Update**: in the app, Settings › General › Software update checks for and installs new versions; `orangespeakeasy update` in a terminal does the same. Both use one update process: download and verify in the background first, then replace the terminal installation and OrangeSpeakEasy.app, and reopen whichever was running. OrangeSpeakEasy stops only while the files are being replaced. Updates download only what changed, usually a few MB.
 - **0.10.1 and earlier**: these versions cannot detect later releases; reinstall once. On a Mac, download the new dmg and install it over the existing copy, or run the terminal install command again; on Windows, run the installer or the install command again.
 - **Preserved on update**: settings, keys, history, recordings and the dictionary.
-- **Downgrading to 0.11.0 or earlier**: older versions only know the default place; run `speakmore move ~` first to move back to it.
-- **Uninstall**: `speakmore uninstall` stops SpeakMore and removes the entire directory, the command, the location file and the Keychain entry.
+- **Downgrading to 0.11.0 or earlier**: older versions only know the default place; run `orangespeakeasy move ~` first to move back to it.
+- **Uninstall**: `orangespeakeasy uninstall` stops OrangeSpeakEasy and removes the entire directory, the command, the location file and the Keychain entry.
 - **Uninstall on Windows**: also removes the Path entry, Start menu shortcut and open-at-login entry.
 - **Keep data**: add `--keep-data` to preserve settings, keys, history, recordings and the dictionary.
 - **Uninstall, app only**: quit it from the menu bar and move it to the Trash.
@@ -698,4 +698,4 @@ flowchart LR
 - [MIT](LICENSE).
 - Files under `.claude/skills/` are from [REA](https://github.com/morluto/rea) and are covered by its own MIT license.
 - The three avatars in the onboarding demo (`src/renderer/onboarding/avatars/`) are free stock photos: [Pexels 7705905](https://www.pexels.com/photo/7705905/) (ShotPot), [Pexels 3936894](https://www.pexels.com/photo/3936894/) (Татьяна Танатова) and [Unsplash 0-LBoX_pAiA](https://unsplash.com/photos/0-LBoX_pAiA) (Adi Probo), under the Pexels and Unsplash licenses.
-- The name pays tribute to Typeless. SpeakMore is an independent implementation based on reverse-engineering notes and is not affiliated with Typeless.
+- The name pays tribute to Typeless. OrangeSpeakEasy is an independent implementation based on reverse-engineering notes and is not affiliated with Typeless.

@@ -15,27 +15,27 @@ function setup(t) {
   const base = process.platform === "win32" ? tmpdir() : "/tmp";
   const root = realpathSync(mkdtempSync(join(base, "sm-t-")));
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  const home = join(root, "old", ".speakmore");
+  const home = join(root, "old", ".orangespeakeasy");
   mkdirSync(home, { recursive: true });
   writeFileSync(join(home, "settings.json"), "{}");
-  return { root, paths: resolvePaths({ SPEAKMORE_HOME: home }) };
+  return { root, paths: resolvePaths({ ORANGESPEAKEASY_HOME: home }) };
 }
 
-test("搬到哪：所选文件夹里的 .speakmore；选的本身就叫 .speakmore 时就是它（Windows 上不分大小写）", () => {
-  assert.equal(homeIn("/Volumes/Data", "darwin"), "/Volumes/Data/.speakmore");
-  assert.equal(homeIn("/Volumes/Data/.speakmore/", "darwin"), "/Volumes/Data/.speakmore");
-  assert.equal(homeIn("D:\\Apps", "win32"), "D:\\Apps\\.speakmore");
-  assert.equal(homeIn("D:\\", "win32"), "D:\\.speakmore");
-  assert.equal(homeIn("D:\\Apps\\.SpeakMore", "win32"), "D:\\Apps\\.SpeakMore");
+test("搬到哪：所选文件夹里的 .orangespeakeasy；选的本身就叫 .orangespeakeasy 时就是它（Windows 上不分大小写）", () => {
+  assert.equal(homeIn("/Volumes/Data", "darwin"), "/Volumes/Data/.orangespeakeasy");
+  assert.equal(homeIn("/Volumes/Data/.orangespeakeasy/", "darwin"), "/Volumes/Data/.orangespeakeasy");
+  assert.equal(homeIn("D:\\Apps", "win32"), "D:\\Apps\\.orangespeakeasy");
+  assert.equal(homeIn("D:\\", "win32"), "D:\\.orangespeakeasy");
+  assert.equal(homeIn("D:\\Apps\\.OrangeSpeakEasy", "win32"), "D:\\Apps\\.OrangeSpeakEasy");
 });
 
 test("新位置合格：交回新家目录", (t) => {
   const { root, paths } = setup(t);
   mkdirSync(join(root, "Data"));
-  assert.equal(checkTarget({ paths, folder: join(root, "Data") }).home, join(root, "Data", ".speakmore"));
-  // 已经有一个空的 .speakmore 也行
-  mkdirSync(join(root, "Data", ".speakmore"));
-  assert.equal(checkTarget({ paths, folder: join(root, "Data") }).home, join(root, "Data", ".speakmore"));
+  assert.equal(checkTarget({ paths, folder: join(root, "Data") }).home, join(root, "Data", ".orangespeakeasy"));
+  // 已经有一个空的 .orangespeakeasy 也行
+  mkdirSync(join(root, "Data", ".orangespeakeasy"));
+  assert.equal(checkTarget({ paths, folder: join(root, "Data") }).home, join(root, "Data", ".orangespeakeasy"));
 });
 
 test("所选文件夹要是完整路径、已经在、是个文件夹", (t) => {
@@ -48,8 +48,8 @@ test("所选文件夹要是完整路径、已经在、是个文件夹", (t) => {
 
 test("新家目录已经有东西：不往里拷（不覆盖、不混在一起）", (t) => {
   const { root, paths } = setup(t);
-  mkdirSync(join(root, "Data", ".speakmore"), { recursive: true });
-  writeFileSync(join(root, "Data", ".speakmore", "settings.json"), "{}");
+  mkdirSync(join(root, "Data", ".orangespeakeasy"), { recursive: true });
+  writeFileSync(join(root, "Data", ".orangespeakeasy", "settings.json"), "{}");
   assert.throws(() => checkTarget({ paths, folder: join(root, "Data") }), said(/已经有东西/));
 });
 
@@ -74,9 +74,9 @@ test("路径太长：macOS 上控制通道的套接字路径最长 103 字节（
   const deep = join(root, "x".repeat(90));
   mkdirSync(deep);
   if (process.platform !== "win32") assert.throws(() => checkTarget({ paths, folder: deep }), said(/太长/));
-  assert.doesNotThrow(() => checkLength(`/Users/someone/${"x".repeat(60)}/.speakmore`, "darwin"));
+  assert.doesNotThrow(() => checkLength(`/Users/someone/${"x".repeat(54)}/.orangespeakeasy`, "darwin"));
   // 按字节算：中文一个字三个字节
-  assert.throws(() => checkLength(`/Users/someone/${"中".repeat(25)}/.speakmore`, "darwin"), said(/太长/));
-  assert.doesNotThrow(() => checkLength(`D:\\${"x".repeat(106)}\\.speakmore`, "win32"));
-  assert.throws(() => checkLength(`D:\\${"x".repeat(107)}\\.speakmore`, "win32"), said(/太长/));
+  assert.throws(() => checkLength(`/Users/someone/${"中".repeat(25)}/.orangespeakeasy`, "darwin"), said(/太长/));
+  assert.doesNotThrow(() => checkLength(`D:\\${"x".repeat(100)}\\.orangespeakeasy`, "win32"));
+  assert.throws(() => checkLength(`D:\\${"x".repeat(101)}\\.orangespeakeasy`, "win32"), said(/太长/));
 });

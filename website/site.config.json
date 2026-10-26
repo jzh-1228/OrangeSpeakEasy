@@ -1,8 +1,8 @@
 {
   "siteUrl": "https://speakmore.zephyrxiang.com",
-  "downloadBase": "https://dl.zephyrxiang.com/speakmore",
+  "downloadBase": "https://github.com/jzh-1228/OrangeSpeakEasy/releases/latest/download",
   "mediaBase": "https://media.speakmore.zephyrxiang.com",
-  "repository": "https://github.com/zephyr4123/speakmore",
+  "repository": "https://github.com/jzh-1228/OrangeSpeakEasy",
   "locales": ["en", "zh-CN"],
   "defaultLocale": "en"
 }

@@ -177,7 +177,7 @@ test("小帮手的 bound 回执：按绑定 id 认回是哪个组合，原因换
     chords,
   );
   assert.deepEqual(texts(problems, zhMac), [
-    "「语音输入」的 右⌥ 空格 用不了：要先在系统设置里给 SpeakMore 辅助功能权限",
+    "「语音输入」的 右⌥ 空格 用不了：要先在系统设置里给 OrangeSpeakEasy 辅助功能权限",
   ]);
   assert.match(
     zhMac.text(describeHotkeyProblem(boundProblems([{ id: "dictate#0", reason: "register_failed" }], chords)[0])),

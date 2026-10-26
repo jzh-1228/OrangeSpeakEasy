@@ -31,7 +31,7 @@ function contentSecurityPolicy() {
  */
 function siteHtml() {
   return {
-    name: "speakmore-site-html",
+    name: "orangespeakeasy-site-html",
     transformIndexHtml(html, context) {
       const filled = html.replaceAll("%SITE_URL%", site.siteUrl.replace(/\/+$/, ""));
       if (context.server) return filled;
@@ -51,7 +51,7 @@ function siteHtml() {
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), siteHtml()],
-  define: { __SPEAKMORE_VERSION__: JSON.stringify(version) },
+  define: { __ORANGESPEAKEASY_VERSION__: JSON.stringify(version) },
   // 图标那方印在仓库根的 assets/ 里，和 App 用的是同一个文件
   server: { fs: { allow: [".."] } },
 });

@@ -19,7 +19,7 @@ const fakeSafeStorage = (available = true) => ({
 });
 
 function tempStore(safeStorage = fakeSafeStorage()) {
-  const dir = mkdtempSync(join(tmpdir(), "speakmore-key-"));
+  const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-key-"));
   const file = join(dir, "gemini-key.bin");
   return { file, store: createKeyStore({ file, safeStorage }), cleanup: () => rmSync(dir, { recursive: true }) };
 }
@@ -50,7 +50,7 @@ test("清掉之后读出来是 null，重复清不报错", (t) => {
 });
 
 test("清掉时连 0.7.0 及以前 App 那一份也删：不然下次启动又会把它当成要搬过来的 key", (t) => {
-  const dir = mkdtempSync(join(tmpdir(), "speakmore-key-"));
+  const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-key-"));
   t.after(() => rmSync(dir, { recursive: true }));
   const file = join(dir, "gemini-key.bin");
   const old = join(dir, "gemini-key.app.bin");

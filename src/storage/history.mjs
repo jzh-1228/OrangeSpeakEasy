@@ -11,15 +11,15 @@ import { LocalizedError, msg } from "../i18n/index.mjs";
 /**
  * 表结构的版本号，存在 PRAGMA user_version 里。以后改表时在 MIGRATIONS 末尾加一步，不改已有的。
  * 退回旧版本前要先把库降回去，旧版本见到比自己新的库不敢动、启动不了。从 2（记账）退回 1（0.4.2 及以前）：
- *   sqlite3 ~/.speakmore/data/history.db "DROP TABLE model_calls; PRAGMA user_version = 1;"
+ *   sqlite3 ~/.orangespeakeasy/data/history.db "DROP TABLE model_calls; PRAGMA user_version = 1;"
  * 只丢掉账，说过的话都在。
  * 从 3（语音翻译）退回 2（0.15 及以前）：
- *   sqlite3 ~/.speakmore/data/history.db "ALTER TABLE history DROP COLUMN kind; ALTER TABLE history DROP COLUMN source_text; ALTER TABLE history DROP COLUMN output_language; PRAGMA user_version = 2;"
+ *   sqlite3 ~/.orangespeakeasy/data/history.db "ALTER TABLE history DROP COLUMN kind; ALTER TABLE history DROP COLUMN source_text; ALTER TABLE history DROP COLUMN output_language; PRAGMA user_version = 2;"
  * 翻译的那几条只剩译文，看起来像普通的听写；别的都在。
  * 从 4（划词翻译）退回 3：
- *   sqlite3 ~/.speakmore/data/history.db "DELETE FROM model_calls WHERE purpose = 'lookup'; PRAGMA user_version = 3;"
+ *   sqlite3 ~/.orangespeakeasy/data/history.db "DELETE FROM model_calls WHERE purpose = 'lookup'; PRAGMA user_version = 3;"
  * 只丢掉划词的那几笔账（账表认的用途多一种，版本 3 不在乎）；划词的记录还在，再退回 2 时和翻译一样只剩译文。
- * 家目录搬过的照 speakmore status 里写的位置换路径。
+ * 家目录搬过的照 orangespeakeasy status 里写的位置换路径。
  */
 const MIGRATIONS = [
   `CREATE TABLE history (

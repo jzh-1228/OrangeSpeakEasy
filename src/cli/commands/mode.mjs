@@ -12,9 +12,9 @@ import { currentProvider, keySource } from "./key.mjs";
 import { modelStatus, offerDownload } from "./local-models.mjs";
 import { applyChange, checked, ensureKey, modeNow, routeWith } from "./route.mjs";
 
-// speakmore mode：识别模式这一层。看三种模式各用什么、切到另一种。
-// 模式里的模型各有各的命令：native 是 speakmore model，local 的两跳是 speakmore transcriber 和 speakmore polish，
-// private（数据隐私）的本机模型也是 speakmore transcriber（在 private 里换的是它自己的那一项）。
+// orangespeakeasy mode：识别模式这一层。看三种模式各用什么、切到另一种。
+// 模式里的模型各有各的命令：native 是 orangespeakeasy model，local 的两跳是 orangespeakeasy transcriber 和 orangespeakeasy polish，
+// private（数据隐私）的本机模型也是 orangespeakeasy transcriber（在 private 里换的是它自己的那一项）。
 // 它们只在自己的模式里能用。第一次进 local 时第二跳还没法换，所以切过去时可以连带那种模式自己的设置。
 
 /** 切到某种模式时能连带的设置，写成命令行参数：参数名 → 设置名（只能是那种模式自己的，storage/settings.mjs 的 MODE_SETTINGS） */

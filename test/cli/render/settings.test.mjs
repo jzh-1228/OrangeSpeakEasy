@@ -13,9 +13,9 @@ test("设置逐项列出现在的值、从哪来、能填什么，后面是文�
         model: { value: "gemini/gemini-3.8-flash", source: "env", env: "GEMINI_MODEL" },
       },
       paths: {
-        home: "/home/.speakmore",
-        settingsFile: "/home/.speakmore/settings.json",
-        logFile: "/home/.speakmore/logs/main.log",
+        home: "/home/.orangespeakeasy",
+        settingsFile: "/home/.orangespeakeasy/settings.json",
+        logFile: "/home/.orangespeakeasy/logs/main.log",
       },
     },
     plain,
@@ -47,11 +47,11 @@ test("设置逐项列出现在的值、从哪来、能填什么，后面是文�
   assert.match(text, /theme\s+ink\s+墨 · 默认/);
   assert.match(text, /ink \/ cinnabar \/ indigo/);
   // 示例按系统写（Windows 上没有 fn）
-  assert.match(text, /speakmore config set hotkey\.dictate (Fn\+Space|ControlRight)/);
-  assert.match(text, /speakmore config unset hotkey\.dictate/);
-  assert.match(text, /目录\s+\/home\/\.speakmore\n/);
-  assert.match(text, /\/home\/\.speakmore\/logs\/main\.log/);
-  assert.match(text, /speakmore uninstall/);
+  assert.match(text, /orangespeakeasy config set hotkey\.dictate (Fn\+Space|ControlRight)/);
+  assert.match(text, /orangespeakeasy config unset hotkey\.dictate/);
+  assert.match(text, /目录\s+\/home\/\.orangespeakeasy\n/);
+  assert.match(text, /\/home\/\.orangespeakeasy\/logs\/main\.log/);
+  assert.match(text, /orangespeakeasy uninstall/);
 });
 
 test("主题：一行一套，现在用的那套打一个点；终端支持 24 位色时画出那一套悬浮条的样子", () => {
@@ -62,7 +62,7 @@ test("主题：一行一套，现在用的那套打一个点；终端支持 24 �
   assert.match(text, /\n {2}● cinnabar\s+朱砂\s+一种暖红/);
   assert.match(text, /现在用的是朱砂（cinnabar） · 存在设置文件里/);
   // 举的例子是另一套，不是已经在用的这套
-  assert.match(text, /换一套：speakmore theme ink/);
+  assert.match(text, /换一套：orangespeakeasy theme ink/);
   assert.ok(!text.includes("\x1b["));
 
   const painted = renderThemes(view, { ...plain, color: true, truecolor: true });

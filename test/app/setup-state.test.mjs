@@ -101,7 +101,10 @@ test("本地模型还没下载：算缺东西，说去哪下；用户正在下�
   const missing = summarize({ ...allGood, localModel: { state: "missing", model: "qwen3-asr-0.6b-q8" } });
   assert.equal(missing.ready, false);
   assert.deepEqual(missing.missing, ["本地模型"]);
-  assert.match(missing.blocker, /Qwen3-ASR 0\.6B \(Q8_0\) 还没下载.*speakmore transcriber download qwen3-asr-0\.6b-q8/);
+  assert.match(
+    missing.blocker,
+    /Qwen3-ASR 0\.6B \(Q8_0\) 还没下载.*orangespeakeasy transcriber download qwen3-asr-0\.6b-q8/,
+  );
 
   const downloading = summarize({
     ...allGood,

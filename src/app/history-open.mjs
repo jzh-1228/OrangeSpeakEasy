@@ -1,7 +1,7 @@
 import { openHistory } from "../storage/history.mjs";
 
 // 历史库是附属数据：文件坏了、版本比程序新时，App 照样得起来（听写、快捷键、密钥、服务都不靠它），
-// `speakmore status` 也不能整体失败。这里把"打不开"变成：读的地方看到空的，写的地方记一条警告后跳过。
+// `orangespeakeasy status` 也不能整体失败。这里把"打不开"变成：读的地方看到空的，写的地方记一条警告后跳过。
 // 用户的库文件一律不删、不改写：打不开就原样留着，等修好，或者换回旧版本再打开。
 
 /** 空的统计，和 history.stats() 同形（src/storage/history.mjs 的 summarize） */

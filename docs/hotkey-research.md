@@ -1,4 +1,4 @@
-# SpeakMore 热键自由绑定调研报告
+# OrangeSpeakEasy 热键自由绑定调研报告
 
 > 性质：纯调研。代码没动，未开始实施。成文日期 2026-10-20。
 >
@@ -34,7 +34,7 @@
 5. **修饰键一律不吞，组合里的普通键整段吞掉**（按下、自动重复、松开）。Windows 上有 Alt 或 Win 参与时插掩码键，规则从"只管右 Alt"推广到全部 Alt 和 Win。macOS 上吞普通键要用能改事件的 tap，需要辅助功能权限。这个吞键 tap 平时关着，由一个只收修饰键事件的小主动 tap（触发 tap）在同步回调里打开：V1 实测，由只听 tap 事后再打开会漏键。触发 tap 只在存在"修饰键 + 普通键"绑定时才建。三个 tap 共用一个匹配器，按事件去重（V8）。
 6. **动作目录是唯一的出处**（`src/hotkeys/actions.mjs`）：每个动作一行，写默认组合（按系统分）、生效场景、能否清空、长按阈值、交给谁处理。设置项、环境变量、命令行、设置页、状态、下发给小帮手的绑定表，全都按这张表生成。除了各动作自己的处理代码（和引导页专门教听写的那一步），没有一处按动作写死。第一版两个动作："听写"和"取消（只在说话时）"，两个都能改键，每个动作能绑多个组合（D4）。以后加功能（比如翻译），只改三处：目录里加一行（必须带默认键，D10）、两份文案里加名字和说明、写这个功能本身；设置页和引导页自动带上它。有测试按目录逐个动作查，漏了哪处就红（5.4）。
 7. **一个动作一项设置**：`hotkey.dictate`、`hotkey.cancel`，设置文件里存成组合的列表（`["ControlRight+Space", "F13"]`，空列表是关掉），只存改过的。这正好落在现有设置框架的规矩里（一项一个键，读写列表用框架现成的 `json`、`store`），环境变量、`config set/unset`、"设置改了还没生效"都现成，不为热键开特例（5.2）。
-8. **老用户无感**（5.9）：存的、报的、显示的一律是新写法，旧写法只在入口认。第一次启动时把设置文件里的 `"hotkey": "right_command"` 换成 `"hotkey.dictate": ["MetaRight"]`；旧的环境变量 `SPEAKMORE_HOTKEY` 和旧命令 `config set hotkey` 照样能用；六个旧键的键帽和名字逐字不变，用法、权限都不变。退回旧版照样能起来，热键回到默认键。
+8. **老用户无感**（5.9）：存的、报的、显示的一律是新写法，旧写法只在入口认。第一次启动时把设置文件里的 `"hotkey": "right_command"` 换成 `"hotkey.dictate": ["MetaRight"]`；旧的环境变量 `ORANGESPEAKEASY_HOTKEY` 和旧命令 `config set hotkey` 照样能用；六个旧键的键帽和名字逐字不变，用法、权限都不变。退回旧版照样能起来，热键回到默认键。
 9. **实施顺序**：先写纯逻辑和一套 Go、Swift 共用的按键轨迹样例，再改协议，再做吞键和平台细节，最后做录键界面。每一步都能单独测试、单独提交。
 
 ### 1.2 需要主人拍板的事
@@ -88,7 +88,7 @@
 | 翻译 `translationMode` | `Fn+LeftShift` | `RightAlt+RightShift` |
 | 再贴一次 `pasteLastTranscript` | `Ctrl+Cmd+V` | `LeftCtrl+RightShift+V` |
 
-三个主功能共用同一个前缀键。Windows 上 Typeless 的默认听写键是右 Alt，和 SpeakMore 的 Windows 默认键相同。
+三个主功能共用同一个前缀键。Windows 上 Typeless 的默认听写键是右 Alt，和 OrangeSpeakEasy 的 Windows 默认键相同。
 
 ### 2.3 键名体系
 
@@ -165,7 +165,7 @@
 ### 3.1 数据流
 
 ```
-settings.json {"hotkey":"right_option"} 或 SPEAKMORE_HOTKEY
+settings.json {"hotkey":"right_option"} 或 ORANGESPEAKEASY_HOTKEY
   → SETTINGS.hotkey.parse：按固定清单校验，不认就让 App 退出（settings.mjs:81-90；main.mjs:136-145）
   → main.mjs：一个 hotkey 变量；spawn key-helper --key <id> [--no-prompt]（main.mjs:665-676）
   → 小帮手查表：mac main.swift:318-325；win main_windows.go:289-305
@@ -470,7 +470,7 @@ AltTab 就是这么分的：普通键快捷键用 Carbon `RegisterEventHotKey` �
 **UIPI：管理员窗口在前台时**
 
 - 普通完整性级别的进程，低级钩子和 Raw Input 都收不到发往更高完整性窗口的输入。UIAccess 进程才能"read input for all integrity levels by using low-level hooks, raw input…"（https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/security-policy-settings/user-account-control-only-elevate-uiaccess-applications-that-are-installed-in-secure-locations ）。后果：任务管理器、管理员终端在前台时按热键没有任何反应，连提示都给不了。
-- uiAccess 要求可信根证书签名，并且装在 `%ProgramFiles%` 或 `%WinDir%` 下（同一篇文档）。SpeakMore 两条都不满足：装在可以整体搬家的用户目录里；仓库里搜不到 `signtool` 等签名步骤，推断 Windows 包没有签名（未验证：在 exe 上跑 `Get-AuthenticodeSignature`）。
+- uiAccess 要求可信根证书签名，并且装在 `%ProgramFiles%` 或 `%WinDir%` 下（同一篇文档）。OrangeSpeakEasy 两条都不满足：装在可以整体搬家的用户目录里；仓库里搜不到 `signtool` 等签名步骤，推断 Windows 包没有签名（未验证：在 exe 上跑 `Get-AuthenticodeSignature`）。
 - 可选路线：① 照实提示，用 `SetWinEventHook(EVENT_SYSTEM_FOREGROUND)` 监听前台切换，前台是提升过的窗口时提示；判断提升可以复用 `win32_windows.go:166-202` 的 `processElevated`。② 可选"以管理员身份运行小帮手"（PowerToys 的做法，https://learn.microsoft.com/en-us/windows/powertoys/administrator ），但每次弹 UAC，或者要用计划任务拉起，安装卸载都变复杂。③ uiAccess，和"一次删干净、可整体搬家"冲突。建议第一版只做 ①（D8）。
 
 **绑不了或必须禁止的键**
@@ -542,7 +542,7 @@ AltTab 就是这么分的：普通键快捷键用 Carbon `RegisterEventHotKey` �
 
 - 一个动作是组合的列表，最多 4 个（D4，同 Typeless）。一个组合写成 `"ControlRight+Space"`，手改设置、写环境变量、看日志都直观；code 名里不会出现 `+`，不需要 Typeless 那种特殊处理。
 - 空列表 `[]` 表示关掉，只有允许清空的动作能写。
-- 只给一个组合时可以不写成列表：命令行 `config set hotkey.dictate Fn`、环境变量 `SPEAKMORE_HOTKEY_DICTATE=Fn` 都认；要给多个就写列表 `'["Fn","MetaRight"]'`。
+- 只给一个组合时可以不写成列表：命令行 `config set hotkey.dictate Fn`、环境变量 `ORANGESPEAKEASY_HOTKEY_DICTATE=Fn` 都认；要给多个就写列表 `'["Fn","MetaRight"]'`。
 - 规范化：读入时把组合里的键按显示顺序排好（5.7），去重；比较、查重都用规范化后的集合。存下来的、后台报的、日志里写的都是规范化后的写法。
 - 旧写法只在入口认（5.9）：值是 `right_option` 这类旧 id 时，当成它对应的组合（`AltRight`）；存下来的仍是新写法。
 
@@ -553,7 +553,7 @@ AltTab 就是这么分的：普通键快捷键用 Carbon `RegisterEventHotKey` �
 **框架补的三样，都是通用的**
 
 - `describe`：设置项可以自带说明。生成的热键项共用一句"「{动作}」的快捷键"，动作名取文案里的 `actions.<动作>.name`；没有自带说明的照旧查 `settings.describe.<名字>`（`src/cli/render/settings.mjs:34`）。
-- `legacyName`：改名之前叫什么，命令行 `config set/unset` 照样认。和现有的 `legacyEnv`（`src/storage/settings.mjs:73`）同一个意思，只在入口生效，写进文件的总是新名字。听写这一项写 `legacyName: "hotkey"`、`legacyEnv: "SPEAKMORE_HOTKEY"`。
+- `legacyName`：改名之前叫什么，命令行 `config set/unset` 照样认。和现有的 `legacyEnv`（`src/storage/settings.mjs:73`）同一个意思，只在入口生效，写进文件的总是新名字。听写这一项写 `legacyName: "hotkey"`、`legacyEnv: "ORANGESPEAKEASY_HOTKEY"`。
 - `check(value, settings)`：写入前看这一项和别的项合不合。`saveSetting`、`patchSettings` 调它，读文件时不调。热键项用它查本系统能不能绑、是不是系统保留组合、和别的动作冲不冲突（5.5）。
 
 `src/hotkeys/` 不反过来引用 `src/storage/settings.mjs`：`check` 拿到的是调用方传进来的整份设置，依赖只有"设置框架 → 热键模块"一个方向。
@@ -570,13 +570,13 @@ AltTab 就是这么分的：普通键快捷键用 Carbon `RegisterEventHotKey` �
 
 **环境变量**
 
-每个动作一个，按名字生成：`SPEAKMORE_HOTKEY_DICTATE`、`SPEAKMORE_HOTKEY_CANCEL`，含义是"本次运行用这个"，写法同设置文件。听写另认旧的 `SPEAKMORE_HOTKEY`（`legacyEnv`），旧 id 和新写法都收。写坏了照现有规则报错退出，因为这是用户这一次手动给的。
+每个动作一个，按名字生成：`ORANGESPEAKEASY_HOTKEY_DICTATE`、`ORANGESPEAKEASY_HOTKEY_CANCEL`，含义是"本次运行用这个"，写法同设置文件。听写另认旧的 `ORANGESPEAKEASY_HOTKEY`（`legacyEnv`），旧 id 和新写法都收。写坏了照现有规则报错退出，因为这是用户这一次手动给的。
 
 **界面和命令行都按目录生成**
 
 - 设置页的快捷键区照 Typeless 的样子，按动作目录逐行画：左边动作名和一句说明（"按下开始和停止语音输入。"）；右边列出这个动作已绑的每个组合，一个组合一个框、框里一个键一个键帽、右侧 × 删掉；下面"添加另一个"，满 4 个时不显示。不能清空的动作只剩一个组合时，那个 × 不显示。另有"恢复默认"。数据由主进程一次给齐：每个动作的当前组合、默认组合、能否清空、有什么问题。
 - `config` 列表里每个动作一行 `hotkey.<动作>`，值按 5.7 格式化成键帽文字（例如"fn、右⌘"），不列可选值，提示"任意组合，见 README"。
-- 命令行改键：`speakmore config set hotkey.<动作> <组合>`、`config unset hotkey.<动作>`（D7）。`config set hotkey <组合>` 照旧能用，等于改听写。
+- 命令行改键：`orangespeakeasy config set hotkey.<动作> <组合>`、`config unset hotkey.<动作>`（D7）。`config set hotkey <组合>` 照旧能用，等于改听写。
 - 当场生效：`LIVE` 表（`src/cli/commands/config.mjs:80-96`）按目录给每个 `hotkey.<动作>` 加一项；控制通道加一条 `reload-hotkeys`，后台重读设置、重发 `bind`、推新键帽，不重启。旧后台不认这条命令时照 `applyLive` 现有的退路处理。
 - 状态：后台报的状态里每个动作一项 `hotkey.<动作>`，和设置同名，`pendingSettings`（`src/cli/render/status.mjs:92-103`）照旧按名字比。旧的 `hotkey`、`hotkeyLabel` 怎么处理见 D13。
 
@@ -837,8 +837,8 @@ AltTab 就是这么分的：普通键快捷键用 Carbon `RegisterEventHotKey` �
 | --- | --- | --- |
 | 设置文件里的 `"hotkey": "right_command"` | 听写用右 ⌘ | 第一次启动时换成 `"hotkey.dictate": ["MetaRight"]`，删掉 `hotkey`；热键不变 |
 | 用默认键的人（文件里没有 `hotkey`） | 右 Option / 右 Alt | 不变，文件不动 |
-| 环境变量 `SPEAKMORE_HOTKEY=right_command` | 本次运行用右 ⌘ | 照旧（`legacyEnv`，值按对照表换算） |
-| `speakmore config set hotkey right_command`、`config unset hotkey` | 改、清听写 | 照旧（`legacyName`）；回话里写的是新名字和新写法 |
+| 环境变量 `ORANGESPEAKEASY_HOTKEY=right_command` | 本次运行用右 ⌘ | 照旧（`legacyEnv`，值按对照表换算） |
+| `orangespeakeasy config set hotkey right_command`、`config unset hotkey` | 改、清听写 | 照旧（`legacyName`）；回话里写的是新名字和新写法 |
 | 键帽和名字 | "右⌥""右 Option 键""fn""右 Alt" | 六个旧键逐字相同，测试钉住（5.7） |
 | 用法 | 按一下开始、再按一下结束；按住 600 ms 取消；按着时来了别的键悄悄取消；esc 取消 | 不变，3.5 列的现有测试照旧通过 |
 | 权限 | 输入监控；贴字用的辅助功能 | 不多要。单个修饰键的绑定不吞键、不用 Carbon；只有用户自己绑了带普通键的组合才用到吞键，那要的辅助功能贴字本来就有 |
@@ -860,14 +860,14 @@ AltTab 就是这么分的：普通键快捷键用 Carbon `RegisterEventHotKey` �
 
 - 旧版只认 `hotkey`，读不到就用默认值：`resolveSettings` 只遍历自己的 `SETTINGS`（`src/storage/settings.mjs:305-323`），不认识的 `hotkey.*` 不读也不报错；保存设置时保留文件里别的键（`:330` 的 `{ ...readFile(file), … }`）。所以退回旧版一定能起来，热键是默认键；`hotkey.*` 留在文件里，再升回新版照旧生效。
 - 退回后在旧版里又改了热键：旧版写的是 `hotkey`，再升级时按上面的规则以它为准。
-- 环境变量是例外：`SPEAKMORE_HOTKEY` 里写了新组合时，旧版起不来（旧版 `parse` 不认就退出，`src/app/main.mjs:136-145`），退回前要先删掉。
+- 环境变量是例外：`ORANGESPEAKEASY_HOTKEY` 里写了新组合时，旧版起不来（旧版 `parse` 不认就退出，`src/app/main.mjs:136-145`），退回前要先删掉。
 
 **退回旧版的步骤**
 
 现在只往前升级，没有"降级"命令。要退回时：
 
-1. 先删掉 shell 配置、launchd 里写了新组合的 `SPEAKMORE_HOTKEY`。
-2. 从发布地址下载要退回的那个版本的安装包，照 README 的安装步骤装上；发过的版本不覆盖，历史版本都还在（项目记忆 `speakmore-release-on-cos`）。
+1. 先删掉 shell 配置、launchd 里写了新组合的 `ORANGESPEAKEASY_HOTKEY`。
+2. 从发布地址下载要退回的那个版本的安装包，照 README 的安装步骤装上；发过的版本不覆盖，历史版本都还在（项目记忆 `orangespeakeasy-release-on-cos`）。
 3. 设置文件不用动。热键回到默认键，要用原来的键就在旧版里再选一次。
 
 **对外文字**：README 的设置表（`README.md:426`）改成每个动作一行；`:442, 449, 472` 及英文版（同号）；JSON 输出说明按 D13 写；`website/scripts/screenshots.mjs:112, 140, 164, 287` 里模拟的 `app:info`、`setup.hotkey`、`config:get` 和悬浮条提示。
@@ -982,8 +982,8 @@ AltTab 就是这么分的：普通键快捷键用 Carbon `RegisterEventHotKey` �
 
 **定：A，走 `config set`。** 多个组合写成列表。
 
-- 选项 A：每个动作一项设置，`speakmore config set hotkey.<动作> <组合>`、`config unset hotkey.<动作>`，`config` 列表里每个动作一行，都按动作目录生成（5.2）。旧的 `config set hotkey <组合>` 当成改听写（`legacyName`），老用户照旧能用。
-- 选项 B：单独做 `speakmore hotkey <动作> <组合>` 子命令。
+- 选项 A：每个动作一项设置，`orangespeakeasy config set hotkey.<动作> <组合>`、`config unset hotkey.<动作>`，`config` 列表里每个动作一行，都按动作目录生成（5.2）。旧的 `config set hotkey <组合>` 当成改听写（`legacyName`），老用户照旧能用。
+- 选项 B：单独做 `orangespeakeasy hotkey <动作> <组合>` 子命令。
 - 建议 A。走现有的设置框架，环境变量、来源、"设置改了还没生效"、当场生效都现成；B 要另写一套，还得和 `config` 两边同步。
 
 **D8 Windows 管理员窗口**
@@ -1022,7 +1022,7 @@ AltTab 就是这么分的：普通键快捷键用 Carbon `RegisterEventHotKey` �
 
 **定：A，留一个版本再删。** 0.14 照旧给、README 标了弃用，0.15.0 删掉（2026-10-22）；命令行连着升级途中的旧后台时，仍认它报的 `hotkey`、`hotkeyLabel` 来说热键叫什么。
 
-- 现状：`speakmore status --json` 输出 `status.hotkey`（旧 id）、`status.hotkeyLabel`（它的名字）和 `settings.hotkey`（`src/cli/commands/lifecycle.mjs:120`），README 把 `--json` 当作对外功能写着（`README.md:347`、`386`），读它的是别人写的脚本。新设计里它们换成按动作目录生成的 `status["hotkey.dictate"]`、`settings["hotkey.dictate"]` 等。
+- 现状：`orangespeakeasy status --json` 输出 `status.hotkey`（旧 id）、`status.hotkeyLabel`（它的名字）和 `settings.hotkey`（`src/cli/commands/lifecycle.mjs:120`），README 把 `--json` 当作对外功能写着（`README.md:347`、`386`），读它的是别人写的脚本。新设计里它们换成按动作目录生成的 `status["hotkey.dictate"]`、`settings["hotkey.dictate"]` 等。
 - 选项 A：保留一个版本。下一版里三个旧字段照旧给（听写是六个旧键之一时给旧 id，是新组合时给 `null`），README 标"已弃用，再下一版删除"；再下一版删掉。代价是输出那一处十来行，用的还是 `legacy.mjs` 那张对照表，写明删除的版本。
 - 选项 B：直接换，README 和更新说明写一句。
 - 建议 A。AGENTS.md 红线 6 要求对外接口的不兼容变更走弃用周期；这也是全方案里唯一一处在输出上照顾旧写法，有删除日期，不是长期的兼容层。读这个输出的只有自己写脚本的人，用图形界面的用户碰不到。
@@ -1068,7 +1068,7 @@ AltTab 就是这么分的：普通键快捷键用 Carbon `RegisterEventHotKey` �
 
 1. Windows 帮手钩子回调里的 `emit`、`onUIThread` 是阻塞发送，可能导致钩子被系统静默卸掉或自己等自己（`main_windows.go:38, 41-44`）。建议在重构前单独修。
 2. `keys.go:18` 的注释"AutoHotkey 用的也是它"不准确：AHK 默认掩码键是左 Ctrl，0xE8 是文档推荐值。
-3. 命令行 `config` 的提示在 Windows 上给出非法示例 `speakmore config set hotkey fn`（`zh-CN.mjs`、`en.mjs` 的 `cli.config.hintSet`，`windows` 一节没有覆盖；`test/cli/render/settings.test.mjs:44` 钉住了原文）。
+3. 命令行 `config` 的提示在 Windows 上给出非法示例 `orangespeakeasy config set hotkey fn`（`zh-CN.mjs`、`en.mjs` 的 `cli.config.hintSet`，`windows` 一节没有覆盖；`test/cli/render/settings.test.mjs:44` 钉住了原文）。
 4. `hotkeyKeycap`（`settings.mjs:47`）全仓无人调用。
 5. Windows 帮手报错文案里的可选键是硬写的（`main_windows.go:302`），Mac 版是从字典生成的（`main.swift:321`）。
 6. 两边帮手都先解析 `--key` 再看 `--check`，键名错时连 `--check` 也会 exit 2（`main.swift:318-329`）。App 不用 `--check`，现在没有影响。

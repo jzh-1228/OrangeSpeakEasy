@@ -48,12 +48,12 @@ export function createDetail(ctx, dock) {
   /** 检测这一项：本机模型念一句交给它转，云端的按这一项的设置发一个最小的请求 */
   function checkCall(role, group, item) {
     const { view } = ctx;
-    if (group.kind === "local") return () => window.speakmore.checkTranscriber(item.choice);
+    if (group.kind === "local") return () => window.orangespeakeasy.checkTranscriber(item.choice);
     const choice = view.choiceOf(role, group, item);
-    if (role === "native") return () => window.speakmore.checkModel("native", { model: choice });
-    if (role === "transcribe") return () => window.speakmore.checkModel("local", { transcriber: choice });
+    if (role === "native") return () => window.orangespeakeasy.checkModel("native", { model: choice });
+    if (role === "transcribe") return () => window.orangespeakeasy.checkModel("local", { transcriber: choice });
     const extra = group.kind === "custom" ? view.customExtra() : {};
-    return () => window.speakmore.checkModel("local", { polish: choice, ...extra });
+    return () => window.orangespeakeasy.checkModel("local", { polish: choice, ...extra });
   }
 
   /** 渠道：同一模型多个平台都卖时的分段控件；勾是该平台已配置密钥 */
@@ -203,7 +203,7 @@ export function createDetail(ctx, dock) {
         disabled: busy,
         text: t("plaza.actions.cancel"),
         onclick: () =>
-          ctx.act(key, () => window.speakmore.cancelDownload(item.choice), {
+          ctx.act(key, () => window.orangespeakeasy.cancelDownload(item.choice), {
             done: () => ctx.toast(t("plaza.toast.canceled")),
           }),
       });
@@ -214,7 +214,7 @@ export function createDetail(ctx, dock) {
           type: "button",
           class: "button block",
           disabled: busy,
-          onclick: () => ctx.act(key, () => window.speakmore.downloadModel(item.choice)),
+          onclick: () => ctx.act(key, () => window.orangespeakeasy.downloadModel(item.choice)),
         },
         svg("i-download"),
         t("plaza.actions.download", { size: `${Math.round(item.bytes / 1e6)} MB` }),
@@ -266,7 +266,7 @@ export function createDetail(ctx, dock) {
           text: t("plaza.actions.remove"),
           "aria-label": t("plaza.actions.removeModel", { model: name }),
           onclick: () =>
-            ctx.act(key, () => window.speakmore.deleteModel(item.choice), {
+            ctx.act(key, () => window.orangespeakeasy.deleteModel(item.choice), {
               done: () => ctx.toast(t("plaza.toast.removed", { model: name })),
             }),
         }),

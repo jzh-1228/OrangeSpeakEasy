@@ -27,7 +27,7 @@ const pathOf = (url) => url.split(/\/resolve\/[^/]+\//)[1];
 
 /** 一个临时的仓，下载走假的 fetch：按地址最后的路径给内容，记下下了哪些 */
 function setUp({ serve = (path) => new Response(BYTES[path]) } = {}) {
-  const dir = mkdtempSync(join(tmpdir(), "speakmore-models-"));
+  const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-models-"));
   dirs.push(dir);
   const fetched = [];
   const fetch = async (url) => {
@@ -39,7 +39,7 @@ function setUp({ serve = (path) => new Response(BYTES[path]) } = {}) {
 }
 
 test("默认先走国内源：它连不上、回错误码就换原始地址接着下，都不行才报错，报错里列出每个地址的原因", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "speakmore-models-"));
+  const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-models-"));
   dirs.push(dir);
   const hosts = [];
   const fetch = async (url) => {
@@ -55,7 +55,7 @@ test("默认先走国内源：它连不上、回错误码就换原始地址接�
   const tried = [CN_HOST, "huggingface.co", "hf-mirror.com"];
   assert.deepEqual(hosts, [...tried, ...tried]);
 
-  const failingDir = mkdtempSync(join(tmpdir(), "speakmore-models-"));
+  const failingDir = mkdtempSync(join(tmpdir(), "orangespeakeasy-models-"));
   dirs.push(failingDir);
   const failing = createModelStore({
     dir: failingDir,
@@ -74,7 +74,7 @@ test("默认先走国内源：它连不上、回错误码就换原始地址接�
 });
 
 test("选了原始地址：先从 Hugging Face 下，国内源垫在最后", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "speakmore-models-"));
+  const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-models-"));
   dirs.push(dir);
   const hosts = [];
   const fetch = async (url) => {
@@ -87,7 +87,7 @@ test("选了原始地址：先从 Hugging Face 下，国内源垫在最后", asy
 });
 
 test("连上了但迟迟不给数据：到时候放弃这个地址，换下一个", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "speakmore-models-"));
+  const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-models-"));
   dirs.push(dir);
   const fetch = async (url, { signal }) => {
     const { host, pathname } = new URL(url);
@@ -232,7 +232,7 @@ function serveRange(path, init) {
 }
 
 test("断在半路：留着下好的那截，同一个地址带 Range 从断点接着要，拼起来校验通过", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "speakmore-models-"));
+  const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-models-"));
   dirs.push(dir);
   const calls = [];
   const fetch = async (url, init) => {
@@ -363,7 +363,7 @@ test("每个地址都给坏内容：报 sha256 对不上，不留下那截", asy
 });
 
 test("卡住了换下一个地址：已经下好的那截带过去，在下一个地址从断点接着下", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "speakmore-models-"));
+  const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-models-"));
   dirs.push(dir);
   const calls = [];
   const fetch = async (url, init) => {
@@ -396,7 +396,7 @@ test("卡住了换下一个地址：已经下好的那截带过去，在下一�
 });
 
 test("同一个地址每次都断但每次都有进展：接着续，续到下完；一点进展都没有才换地址", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "speakmore-models-"));
+  const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-models-"));
   dirs.push(dir);
   const step = 1000;
   const ranges = [];
@@ -418,7 +418,7 @@ test("同一个地址每次都断但每次都有进展：接着续，续到下�
 });
 
 test("用户取消：下好的那截留着，下次接着下", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "speakmore-models-"));
+  const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-models-"));
   dirs.push(dir);
   const controller = new AbortController();
   const fetch = async (url, init) =>

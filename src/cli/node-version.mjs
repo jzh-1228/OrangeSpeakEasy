@@ -14,6 +14,6 @@ export function nodeVersionProblem(version) {
   return {
     key: "cli.nodeVersion",
     params: { version },
-    english: `SpeakMore needs Node 22.13 or newer (23.4 or newer on the 23 line); this is ${version}.`,
+    english: `OrangeSpeakEasy needs Node 22.13 or newer (23.4 or newer on the 23 line); this is ${version}.`,
   };
 }

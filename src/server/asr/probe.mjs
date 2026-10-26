@@ -26,11 +26,11 @@ export const PROBE_SPEECH = Object.freeze({
 const WINDOWS_SPEAK = [
   "Add-Type -AssemblyName System.Speech",
   "$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer",
-  "$voice = $synth.GetInstalledVoices() | Where-Object { $_.Enabled -and $_.VoiceInfo.Culture.Name -eq $env:SPEAKMORE_PROBE_CULTURE } | Select-Object -First 1",
+  "$voice = $synth.GetInstalledVoices() | Where-Object { $_.Enabled -and $_.VoiceInfo.Culture.Name -eq $env:ORANGESPEAKEASY_PROBE_CULTURE } | Select-Object -First 1",
   "if ($voice) { $synth.SelectVoice($voice.VoiceInfo.Name) }",
   `$format = New-Object System.Speech.AudioFormat.SpeechAudioFormatInfo ${SPEECH_SAMPLE_RATE}, ([System.Speech.AudioFormat.AudioBitsPerSample]::Sixteen), ([System.Speech.AudioFormat.AudioChannel]::Mono)`,
-  "$synth.SetOutputToWaveFile($env:SPEAKMORE_PROBE_FILE, $format)",
-  "$synth.Speak($env:SPEAKMORE_PROBE_TEXT)",
+  "$synth.SetOutputToWaveFile($env:ORANGESPEAKEASY_PROBE_FILE, $format)",
+  "$synth.Speak($env:ORANGESPEAKEASY_PROBE_TEXT)",
   "$synth.Dispose()",
 ].join("; ");
 
@@ -45,16 +45,16 @@ const runFile = promisify(execFile);
  */
 export async function speechSample(locale, { run = runFile, platform = process.platform } = {}) {
   const { voice, culture, text } = PROBE_SPEECH[locale] ?? PROBE_SPEECH.en;
-  const dir = mkdtempSync(join(tmpdir(), "speakmore-probe-"));
+  const dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-probe-"));
   try {
     const file = join(dir, "probe.wav");
     if (platform === "win32") {
       await run("powershell", ["-NoProfile", "-NonInteractive", "-Command", WINDOWS_SPEAK], {
         env: {
           ...process.env,
-          SPEAKMORE_PROBE_FILE: file,
-          SPEAKMORE_PROBE_TEXT: text,
-          SPEAKMORE_PROBE_CULTURE: culture,
+          ORANGESPEAKEASY_PROBE_FILE: file,
+          ORANGESPEAKEASY_PROBE_TEXT: text,
+          ORANGESPEAKEASY_PROBE_CULTURE: culture,
         },
         windowsHide: true,
       });

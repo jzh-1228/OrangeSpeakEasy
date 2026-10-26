@@ -26,7 +26,7 @@ const log = {
 beforeEach(() => {
   dir = mkdtempSync(join(tmpdir(), "sm-"));
   legacyDir = join(dir, "old");
-  paths = resolvePaths({ SPEAKMORE_HOME: join(dir, "new") });
+  paths = resolvePaths({ ORANGESPEAKEASY_HOME: join(dir, "new") });
   logged = [];
 });
 afterEach(() => rmSync(dir, { recursive: true, force: true }));

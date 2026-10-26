@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { LocalizedError, msg } from "../i18n/index.mjs";
 import { restrictToOwner } from "../storage/owner-only.mjs";
 
-// 拷之前先在新位置试一遍 SpeakMore 要用到的：建目录、收紧权限（里面有 key 和录音，只让自己进得去）；
+// 拷之前先在新位置试一遍 OrangeSpeakEasy 要用到的：建目录、收紧权限（里面有 key 和录音，只让自己进得去）；
 // macOS 上还要建得了符号链接（Electron 框架里有）、绑得上 Unix 套接字（控制通道）。
 // exFAT、FAT32 这类盘（U 盘、移动硬盘常见的格式）做不到其中几样：拷完、旧目录删了才发现 App 起不来就晚了，所以先试。
 

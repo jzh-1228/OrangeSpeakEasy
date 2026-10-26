@@ -23,7 +23,7 @@ let dir;
 let paths;
 beforeEach(() => {
   dir = mkdtempSync(join(tmpdir(), "sm-updates-"));
-  paths = resolvePaths({ SPEAKMORE_HOME: dir });
+  paths = resolvePaths({ ORANGESPEAKEASY_HOME: dir });
   // 像是用安装脚本装的：程序在家目录的 app 里
   mkdirSync(paths.appDir, { recursive: true });
 });
@@ -161,14 +161,14 @@ function setup({
     steps,
     phases,
     stagings,
-    /** 改成另一个在跑（模拟下载期间用户打开、退出了 SpeakMore） */
+    /** 改成另一个在跑（模拟下载期间用户打开、退出了 OrangeSpeakEasy） */
     setRunning: (value) => {
       current = value;
     },
   };
 }
 
-const APP = { path: "/Applications/SpeakMore.app", version: "0.1.0" };
+const APP = { path: "/Applications/OrangeSpeakEasy.app", version: "0.1.0" };
 const APP_RUNNING = { pid: 4242, packaged: true };
 const HOME_RUNNING = { pid: 4343, packaged: false };
 
@@ -310,7 +310,7 @@ test("更新：换上了但没重新打开：照实说，记成没完成", async
     },
   });
   await assert.rejects(reopen.updates.run({ by: "app" }), (error) =>
-    /已换上新版本，但未能重新打开 SpeakMore\.app（LSOpenURLsWithRole\(\) failed）/.test(zh.text(error.problem)),
+    /已换上新版本，但未能重新打开 OrangeSpeakEasy\.app（LSOpenURLsWithRole\(\) failed）/.test(zh.text(error.problem)),
   );
   assert.equal(readProgress(paths).state, "failed");
 
@@ -445,7 +445,7 @@ test("更新：下载期间用户自己退出了 App：不停、换完也不替�
 test("更新：在跑的是打包的 App、可找不到它的应用包：照样换家目录那一份，最后照实说不知道该打开哪个", async () => {
   const { updates, steps } = setup({ running: APP_RUNNING, app: null });
   await assert.rejects(updates.run({ by: "cli" }), (error) =>
-    /不知道 SpeakMore\.app 在哪/.test(zh.text(error.problem)),
+    /不知道 OrangeSpeakEasy\.app 在哪/.test(zh.text(error.problem)),
   );
   assert.ok(steps.includes("install-home:staged"));
   assert.equal(readProgress(paths).state, "failed");
@@ -552,7 +552,7 @@ test("更新：在终端里时按两成一档说下载进度，每档只说一�
 
 test("更新（Windows）：install.ps1 原地切到拼好的那个版本以后，它就是装好的那一份，不能当成没换上的删掉", async () => {
   // 路径用这台机器的写法（在 Mac 上跑时用 Windows 的写法会写出带反斜杠的文件名），装法照 Windows 的走
-  const winPaths = resolvePaths({ SPEAKMORE_HOME: join(dir, "win") }, undefined, process.platform);
+  const winPaths = resolvePaths({ ORANGESPEAKEASY_HOME: join(dir, "win") }, undefined, process.platform);
   const oldDir = join(winPaths.versionsDir, "0.1.0-aaaaaaaa");
   mkdirSync(join(oldDir, "app"), { recursive: true });
   writeFileSync(join(oldDir, "app", "package.json"), JSON.stringify({ version: "0.1.0" }));
@@ -564,7 +564,7 @@ test("更新（Windows）：install.ps1 原地切到拼好的那个版本以后�
   writeFileSync(join(tree, "runtime", "electron.exe"), "exe");
   const base = join(dir, "release");
   await publishTrees(base, "0.2.0", { "win32-x64": tree });
-  const env = { ...process.env, SPEAKMORE_INSTALL_BASE: base };
+  const env = { ...process.env, ORANGESPEAKEASY_INSTALL_BASE: base };
   const release = createRelease({ env });
   const real = createHomes({ paths: winPaths, env, release, stdio: "ignore", platform: "win32", arch: "x64" });
   const homes = {

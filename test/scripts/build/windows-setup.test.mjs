@@ -34,7 +34,7 @@ test("拼法：程序在前，接着是整棵树打成的 tar 再用 zstd 压过
   mkdirSync(join(tree, "app", "bin"), { recursive: true });
   mkdirSync(join(tree, "runtime"), { recursive: true });
   writeFileSync(join(tree, "app", "install.ps1"), "& { 'install' }\n");
-  writeFileSync(join(tree, "app", "bin", "speakmore.mjs"), "// 程序\n");
+  writeFileSync(join(tree, "app", "bin", "orangespeakeasy.mjs"), "// 程序\n");
   writeFileSync(join(tree, "runtime", "electron.exe"), "MZ 运行环境");
   const calls = [];
   // 假的 go：记下怎么调的，把该产出的文件写出来。tar 和 zstd 是真的
@@ -44,7 +44,7 @@ test("拼法：程序在前，接着是整棵树打成的 tar 再用 zstd 压过
       writeFileSync(join(source, "rsrc_windows_amd64.syso"), "资源");
     if (args[0] === "build") writeFileSync(args[args.indexOf("-o") + 1], "MZ 安装程序");
   };
-  const out = join(dir, "SpeakMore-Setup-x64.exe");
+  const out = join(dir, "OrangeSpeakEasy-Setup-x64.exe");
   await buildWindowsSetup({ packageDir, version: "0.9.0", tree, out, run });
 
   const winres = calls.find(({ args }) => args[1]?.startsWith("github.com/tc-hib/go-winres"));
@@ -69,7 +69,7 @@ test("拼法：程序在前，接着是整棵树打成的 tar 再用 zstd 压过
     .split(/\r?\n/)
     .filter((name) => name && !name.endsWith("/"))
     .sort();
-  assert.deepEqual(listed, ["app/bin/speakmore.mjs", "app/install.ps1", "runtime/electron.exe"]);
+  assert.deepEqual(listed, ["app/bin/orangespeakeasy.mjs", "app/install.ps1", "runtime/electron.exe"]);
   // 发出去的包里没有这台机器的用户名、编号
   const owners = execFileSync("tar", ["-tvf", archive], { encoding: "utf8" })
     .split(/\r?\n/)

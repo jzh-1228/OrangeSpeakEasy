@@ -107,7 +107,7 @@ test("失败的那条说明原因，并指出录音还留着", () => {
 test("没显示完时在最后说共有多少条、怎么看更多", () => {
   const text = renderHistory({ rows: [row()], total: 57 }, plain);
   assert.match(text, /显示最近 1 条，共 57 条/);
-  assert.match(text, /speakmore history -n 57/);
+  assert.match(text, /orangespeakeasy history -n 57/);
   assert.doesNotMatch(renderHistory({ rows: [row()], total: 1 }, plain), /共 1 条/);
 });
 

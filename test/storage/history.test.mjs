@@ -13,7 +13,7 @@ const said = (pattern) => (error) => pattern.test(zh.text(error.problem ?? error
 
 let dir;
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "speakmore-history-"));
+  dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-history-"));
 });
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
@@ -71,8 +71,8 @@ test("录音只记文件名：家目录搬了家也对得上；老版本记的�
   const old = db.prepare(
     "INSERT INTO history (id, status, refined_text, duration, audio_local_path, created_at) VALUES (?, 'completed', '', 1, ?, ?)",
   );
-  old.run("mac", "/Users/someone/.speakmore/data/Recordings/mac.webm", "2026-10-12T00:00:00.000Z");
-  old.run("win", "C:\\Users\\someone\\.speakmore\\data\\Recordings\\win.webm", "2026-10-11T00:00:00.000Z");
+  old.run("mac", "/Users/someone/.orangespeakeasy/data/Recordings/mac.webm", "2026-10-12T00:00:00.000Z");
+  old.run("win", "C:\\Users\\someone\\.orangespeakeasy\\data\\Recordings\\win.webm", "2026-10-11T00:00:00.000Z");
   db.close();
   const reopened = openHistory(path, { readOnly: true });
   assert.deepEqual(

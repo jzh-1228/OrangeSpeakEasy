@@ -3,7 +3,7 @@ import { posix, win32 } from "node:path";
 import { LocalizedError, msg } from "../i18n/index.mjs";
 import { canonicalDir, isFullPath } from "../storage/location.mjs";
 
-// 搬到哪：用户选一个文件夹，SpeakMore 搬进它里面的 .speakmore（选的本身就叫 .speakmore 时就是它）。
+// 搬到哪：用户选一个文件夹，OrangeSpeakEasy 搬进它里面的 .orangespeakeasy（选的本身就叫 .orangespeakeasy 时就是它）。
 // 只管这个子目录：搬失败了删、以后卸载删，都不会删到所选文件夹里别的东西。这里只做检查，不动磁盘。
 
 /** macOS 上控制通道是 <家目录>/run/control.sock，Unix 套接字的路径最长 103 个字节（和 install.sh 的 MAX_HOME_BYTES 一样） */
@@ -13,12 +13,12 @@ const MAX_WINDOWS_HOME_CHARS = 120;
 
 const pathModule = (platform) => (platform === "win32" ? win32 : posix);
 
-/** 选了这个文件夹，家目录就是它里面的 .speakmore；它本身就叫 .speakmore（Windows 上不分大小写）时就是它 */
+/** 选了这个文件夹，家目录就是它里面的 .orangespeakeasy；它本身就叫 .orangespeakeasy（Windows 上不分大小写）时就是它 */
 export function homeIn(folder, platform = process.platform) {
   const path = pathModule(platform);
   const full = path.resolve(folder);
   const named = platform === "win32" ? path.basename(full).toLowerCase() : path.basename(full);
-  return named === ".speakmore" ? full : path.join(full, ".speakmore");
+  return named === ".orangespeakeasy" ? full : path.join(full, ".orangespeakeasy");
 }
 
 /** 路径长度合不合格：macOS 按字节（套接字路径的上限），Windows 按字符 */

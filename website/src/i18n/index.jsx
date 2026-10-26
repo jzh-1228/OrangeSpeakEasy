@@ -5,7 +5,7 @@ import en from "./en.js";
 import zh from "./zh-CN.js";
 
 const MESSAGES = { en, "zh-CN": zh };
-const STORAGE_KEY = "speakmore.locale";
+const STORAGE_KEY = "orangespeakeasy.locale";
 
 /** 访客上次手动选的语言。隐私模式、禁了存储时读写都可能抛错：当没选过 */
 function readStored() {

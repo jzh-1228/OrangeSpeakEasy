@@ -70,7 +70,7 @@ export const SETTINGS = {
   // 每个动作一项 hotkey.<动作>：hotkey.dictate、hotkey.cancel（docs/hotkey-research.md 5.2）
   ...hotkeySettings(process.platform),
   mode: {
-    env: "SPEAKMORE_MODE",
+    env: "ORANGESPEAKEASY_MODE",
     // 两条链路平级（server/modes.mjs）。原生是 0.6 以前唯一的一条，没选过的人照旧
     default: DEFAULT_MODE,
     choices: MODE_IDS,
@@ -79,7 +79,7 @@ export const SETTINGS = {
   },
   model: {
     ofMode: "native",
-    env: "SPEAKMORE_MODEL",
+    env: "ORANGESPEAKEASY_MODEL",
     // 0.3 以前只有 Gemini，这个环境变量只写模型名
     legacyEnv: "GEMINI_MODEL",
     default: formatModelChoice(DEFAULT_MODEL_CHOICE),
@@ -108,7 +108,7 @@ export const SETTINGS = {
   },
   transcriber: {
     ofMode: "local",
-    env: "SPEAKMORE_TRANSCRIBER",
+    env: "ORANGESPEAKEASY_TRANSCRIBER",
     default: DEFAULT_TRANSCRIBER,
     choices: TRANSCRIBER_CHOICES,
     // 本机模型写 id；云端模型写 厂商/模型（只写厂商用它的默认模型），存下来的统一是 厂商/模型
@@ -126,7 +126,7 @@ export const SETTINGS = {
   },
   privateTranscriber: {
     ofMode: "private",
-    env: "SPEAKMORE_PRIVATE_TRANSCRIBER",
+    env: "ORANGESPEAKEASY_PRIVATE_TRANSCRIBER",
     default: DEFAULT_TRANSCRIBER,
     // 数据隐私模式什么都不上传：只认本机模型
     choices: TRANSCRIBER_IDS,
@@ -138,7 +138,7 @@ export const SETTINGS = {
   },
   polish: {
     ofMode: "local",
-    env: "SPEAKMORE_POLISH",
+    env: "ORANGESPEAKEASY_POLISH",
     default: formatChatChoice(parseChatChoice(DEFAULT_POLISH)),
     choices: null,
     // 存下来的统一是 厂商/模型
@@ -146,7 +146,7 @@ export const SETTINGS = {
   },
   customUrl: {
     ofMode: "local",
-    env: "SPEAKMORE_CUSTOM_URL",
+    env: "ORANGESPEAKEASY_CUSTOM_URL",
     // 空的是没填：只有润色交给自定义服务时才要
     default: "",
     choices: null,
@@ -154,7 +154,7 @@ export const SETTINGS = {
   },
   customParams: {
     ofMode: "local",
-    env: "SPEAKMORE_CUSTOM_PARAMS",
+    env: "ORANGESPEAKEASY_CUSTOM_PARAMS",
     // 发给自定义服务的额外参数，一段 JSON 对象（GitHub issue #8）。设置都存成字符串，存的是去掉空白的那一行；空的是没填。
     // 手改 settings.json 的人多半直接写成对象，也认（json）：不认的话 App 一启动就因为设置读不出来退出
     json: true,
@@ -164,7 +164,7 @@ export const SETTINGS = {
   },
   modelSource: {
     // 本地模型没下载过时先从哪下，哪种模式里都能改（切到 local 之前先选好）。选的那个下不动会换另一个，只影响快慢
-    env: "SPEAKMORE_MODEL_SOURCE",
+    env: "ORANGESPEAKEASY_MODEL_SOURCE",
     default: DEFAULT_SOURCE,
     choices: SOURCE_IDS,
     parse(value) {
@@ -176,7 +176,7 @@ export const SETTINGS = {
   },
   acceleration: {
     // 显卡驱动有问题、或者想把显卡让给游戏时选 cpu。换了要重新装一次模型，App 里当场换
-    env: "SPEAKMORE_ACCELERATION",
+    env: "ORANGESPEAKEASY_ACCELERATION",
     default: "auto",
     choices: ACCELERATIONS,
     parse(value) {
@@ -188,7 +188,7 @@ export const SETTINGS = {
   },
   localModelMemory: {
     // 哪种模式里都能改，和 acceleration 一样管的是本机模型。App 里当场换
-    env: "SPEAKMORE_LOCAL_MODEL_MEMORY",
+    env: "ORANGESPEAKEASY_LOCAL_MODEL_MEMORY",
     default: "resident",
     choices: LOCAL_MODEL_MEMORY,
     parse(value) {
@@ -201,7 +201,7 @@ export const SETTINGS = {
   "translate.to": {
     // 语音翻译译成什么：一种或几种，第一种是默认，悬浮条上能临时换成别的几种（只管那一次）。
     // 值是规整过的 id 列表写成 JSON（["en","ja"]），文件里存成数组；也认一个 id、逗号隔开的几个
-    env: "SPEAKMORE_TRANSLATE_TO",
+    env: "ORANGESPEAKEASY_TRANSLATE_TO",
     default: JSON.stringify(["en"]),
     choices: null,
     json: true,
@@ -213,34 +213,34 @@ export const SETTINGS = {
   // 不和整理那一步的 customUrl、customParams 共用，key 也另存一把（app/lookup/engine.mjs）
   "lookup.to": {
     // 一种：卡片上能临时换成别的（只管那一次）
-    env: "SPEAKMORE_LOOKUP_TO",
+    env: "ORANGESPEAKEASY_LOOKUP_TO",
     default: "zh-CN",
     choices: TARGET_LANGUAGES.map(({ id }) => id),
     parse: parseLanguage,
     label: languageName,
   },
   "lookup.model": {
-    env: "SPEAKMORE_LOOKUP_MODEL",
+    env: "ORANGESPEAKEASY_LOOKUP_MODEL",
     default: formatChatChoice(parseChatChoice(DEFAULT_LOOKUP)),
     choices: null,
     // 写法同 polish：厂商/模型，只写厂商用它的默认模型，自定义服务写 custom/模型名
     parse: (value) => formatChatChoice(parseChatChoice(value)),
   },
   "lookup.customUrl": {
-    env: "SPEAKMORE_LOOKUP_CUSTOM_URL",
+    env: "ORANGESPEAKEASY_LOOKUP_CUSTOM_URL",
     default: "",
     choices: null,
     parse: (value) => (value.trim() === "" ? "" : normalizeBaseUrl(value)),
   },
   "lookup.customParams": {
-    env: "SPEAKMORE_LOOKUP_CUSTOM_PARAMS",
+    env: "ORANGESPEAKEASY_LOOKUP_CUSTOM_PARAMS",
     json: true,
     default: "",
     choices: null,
     parse: (value) => formatCustomParams(parseCustomParams(value)),
   },
   barHint: {
-    env: "SPEAKMORE_BAR_HINT",
+    env: "ORANGESPEAKEASY_BAR_HINT",
     default: "on",
     choices: BAR_HINTS,
     parse(value) {
@@ -251,7 +251,7 @@ export const SETTINGS = {
     label: (value) => msg(`barHints.${value}`),
   },
   theme: {
-    env: "SPEAKMORE_THEME",
+    env: "ORANGESPEAKEASY_THEME",
     default: DEFAULT_THEME,
     choices: THEME_IDS,
     parse(value) {
@@ -263,7 +263,7 @@ export const SETTINGS = {
     label: (value) => msg(`themes.${value}.name`),
   },
   language: {
-    env: "SPEAKMORE_LANGUAGE",
+    env: "ORANGESPEAKEASY_LANGUAGE",
     // 跟随系统，认不出系统的语言时用英文（src/i18n）
     default: SYSTEM_LOCALE,
     choices: LANGUAGES,
@@ -287,7 +287,7 @@ function parseTranslateTargets(text) {
     try {
       items = JSON.parse(trimmed);
     } catch {
-      // PowerShell 调 speakmore.cmd 时会去掉参数里的双引号（[en,ja]）。语言 id 里没有逗号和引号，照样拆得开
+      // PowerShell 调 orangespeakeasy.cmd 时会去掉参数里的双引号（[en,ja]）。语言 id 里没有逗号和引号，照样拆得开
       items = trimmed.slice(1, -1).split(",");
     }
     if (!Array.isArray(items) || items.some((item) => typeof item !== "string")) {

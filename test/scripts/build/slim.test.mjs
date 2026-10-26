@@ -16,7 +16,7 @@ const touch = (path) => {
 };
 
 test("Mac 的应用包：框架和应用两处的语言包只留英文、简中、繁中（连同按性别分的变体），别的资源不动", (t) => {
-  const app = join(tempDir(t), "SpeakMore.app");
+  const app = join(tempDir(t), "OrangeSpeakEasy.app");
   const framework = join(app, "Contents", "Frameworks", "Electron Framework.framework", "Versions", "A", "Resources");
   for (const name of [
     "en",

@@ -103,10 +103,10 @@ export function createEngine({ refresh }) {
       key,
       () => {
         if (switching)
-          return window.speakmore.setMode(mode, { [setting === "native" ? "model" : setting]: choice, ...extra });
-        if (role === "native") return window.speakmore.setModel(choice);
-        if (role === "transcribe") return window.speakmore.setTranscriber(choice);
-        return window.speakmore.setPolish(choice, extra);
+          return window.orangespeakeasy.setMode(mode, { [setting === "native" ? "model" : setting]: choice, ...extra });
+        if (role === "native") return window.orangespeakeasy.setModel(choice);
+        if (role === "transcribe") return window.orangespeakeasy.setTranscriber(choice);
+        return window.orangespeakeasy.setPolish(choice, extra);
       },
       {
         done: () => {
@@ -156,7 +156,7 @@ export function createEngine({ refresh }) {
     draw();
     let result;
     try {
-      result = await window.speakmore.setMode(mode);
+      result = await window.orangespeakeasy.setMode(mode);
     } catch (error) {
       result = { ok: false, problem: describeError(error) };
     }

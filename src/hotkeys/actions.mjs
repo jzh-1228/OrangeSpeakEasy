@@ -26,7 +26,7 @@ export const ACTIONS = Object.freeze([
     longPressMs: 600,
     handler: "session",
     legacyName: "hotkey",
-    legacyEnv: "SPEAKMORE_HOTKEY",
+    legacyEnv: "ORANGESPEAKEASY_HOTKEY",
   }),
   Object.freeze({
     id: "translate",

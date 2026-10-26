@@ -12,7 +12,7 @@ const zh = createTranslator("zh-CN");
 let dir;
 let file;
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "speakmore-modes-"));
+  dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-modes-"));
   file = join(dir, "settings.json");
 });
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
@@ -300,10 +300,10 @@ test("删本机模型：正在用的不让删，说先换一个；没在用的�
 // ---------- 存设置 ----------
 
 test("存下来的那项正被环境变量盖着：照样换，附一句下次启动会被盖掉", async () => {
-  const { modes } = setup({ env: { SPEAKMORE_MODEL: "gemini" } });
+  const { modes } = setup({ env: { ORANGESPEAKEASY_MODEL: "gemini" } });
   const result = await modes.setModel("openai");
   assert.equal(result.ok, true);
-  assert.match(zh.text(result.note), /SPEAKMORE_MODEL/);
+  assert.match(zh.text(result.note), /ORANGESPEAKEASY_MODEL/);
 });
 
 // ---------- 验证用的路线 ----------

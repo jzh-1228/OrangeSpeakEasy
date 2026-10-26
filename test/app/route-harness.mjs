@@ -56,7 +56,7 @@ const silent = { info() {}, warn() {}, error() {} };
  *   installed：下载好了的本机模型，不写就是都下好了
  */
 export async function boot(t, { settings, stored = {}, installed = null }) {
-  const home = mkdtempSync(join(tmpdir(), "speakmore-routes-"));
+  const home = mkdtempSync(join(tmpdir(), "orangespeakeasy-routes-"));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const settingsFile = join(home, "settings.json");
   writeFileSync(settingsFile, JSON.stringify(settings));

@@ -15,11 +15,11 @@ import { probeTarget } from "./probe.mjs";
 import { moverAlive, readMoveRecord, stillMoving, stillRunning, writeMoveRecord } from "./state.mjs";
 import { checkTarget } from "./target.mjs";
 
-// 把整个家目录搬到别处（speakmore move、App 设置里的"存储位置"）。命令行和 App 都只调这里。按这个顺序：
-//   1. 检查新位置（target.mjs）、本机每一份 SpeakMore 都认得换家（家目录里的程序、Mac 上"应用程序"里的 App）
+// 把整个家目录搬到别处（orangespeakeasy move、App 设置里的"存储位置"）。命令行和 App 都只调这里。按这个顺序：
+//   1. 检查新位置（target.mjs）、本机每一份 OrangeSpeakEasy 都认得换家（家目录里的程序、Mac 上"应用程序"里的 App）
 //   2. 拿锁（和更新共用 update.lock），旧目录 run/move.json 记"正在搬"（这时 App、后台都不在这里启动），
 //      定位文件记上 moving（断了电下次认得出新位置那一份是半成品），新位置的 run/move.json 记下同一次搬家（收拾时只认它）
-//   3. 在新位置试盘（probe.mjs）；停掉正在运行的；只拷 SpeakMore 自己的东西（copy.mjs），核对符号链接
+//   3. 在新位置试盘（probe.mjs）；停掉正在运行的；只拷 OrangeSpeakEasy 自己的东西（copy.mjs），核对符号链接
 //   4. 提交：新位置的安装脚本换家（试跑、改系统入口、写定位文件；installer.mjs）。没装程序的（Mac 上只装了 dmg 的）直接写定位文件
 //   5. 旧目录放下 MOVED.json（从残留的旧入口启动会被告知搬去了哪），原来在运行的从新位置重新打开，删旧目录
 //      （只删我们的；Windows 上这个进程自己就跑在旧目录的程序上，等它退出再删）
@@ -44,7 +44,7 @@ function pathsFor(paths, home) {
 }
 
 /**
- * 删掉一个家目录里 SpeakMore 的东西，不认识的留着。只剩 MOVED.json（或者什么都不剩）就连目录一起删；
+ * 删掉一个家目录里 OrangeSpeakEasy 的东西，不认识的留着。只剩 MOVED.json（或者什么都不剩）就连目录一起删；
  * 还有别的东西时 MOVED.json 留着：从那里启动的会被告知搬去了哪
  * @returns {string[]} 留下没删的（不认识的）
  */
@@ -64,7 +64,7 @@ function removeOurs(paths, home) {
 /** 两个写法是不是同一个家目录（经过符号链接、大小写不同的也认，见 target.mjs 的 canonicalDir） */
 const sameDir = (a, b, platform) => sameHome(canonicalDir(a, platform), canonicalDir(b, platform), platform);
 
-/** 记下 SpeakMore 在哪：默认位置不要定位文件，别处就写（按正式写法） */
+/** 记下 OrangeSpeakEasy 在哪：默认位置不要定位文件，别处就写（按正式写法） */
 function commitLocation(paths, home, defaultHome, platform) {
   if (sameDir(home, defaultHome, platform)) removeLocation(paths.locationFile);
   else writeLocation(paths.locationFile, { home: canonicalDir(home, platform) });
@@ -143,7 +143,7 @@ async function putBack({ paths, location, env, stdio, platform, runRehome }) {
  *   - 正在搬（搬的那个进程还在）：不在这里启动，照实说
  *   - 上次搬到一半那个进程没了：旧目录照常在用。从旧目录启动的，把改指了一半的系统入口换回来（对旧目录再换一次家）、
  *     删掉新位置上拷了一半的、定位文件去掉 moving；从拷了一半的那一份启动的，把入口换回旧目录，说再打开一次
- * App 启动、命令行起后台、speakmore move 都先调它。什么事都没有时什么都不做。
+ * App 启动、命令行起后台、orangespeakeasy move 都先调它。什么事都没有时什么都不做。
  * 启动时（atStartup）入口换不回来：旧目录完好，照常起来，说一声；拷了一半的留着（入口可能还指着它），下次再收拾
  * @throws {LocalizedError} move.inProgress / move.putBack / move.unfinishedCopy / move.restoreFailed
  */
@@ -191,7 +191,7 @@ export async function settleMove({
     }
   }
   if (!discardInterrupted(paths, moving)) report(msg("move.notOurCopy", { to: moving.to }));
-  commitLocation(paths, from, pathModule(platform).join(userHome, ".speakmore"), platform);
+  commitLocation(paths, from, pathModule(platform).join(userHome, ".orangespeakeasy"), platform);
   if (record?.state === "running") {
     writeMoveRecord(paths, {
       ...record,
@@ -226,7 +226,8 @@ export function createMove({
   bundles = createBundles({ env, release: null, platform }),
   probe = probeTarget,
   runRehome = rehome,
-  openApp = (app, home) => createBundles({ env: { ...env, SPEAKMORE_HOME: home }, release: null, platform }).open(app),
+  openApp = (app, home) =>
+    createBundles({ env: { ...env, ORANGESPEAKEASY_HOME: home }, release: null, platform }).open(app),
   system = null,
   pid = process.pid,
   ppid = process.ppid,
@@ -235,7 +236,7 @@ export function createMove({
   now = () => new Date(),
 }) {
   const path = pathModule(platform);
-  const defaultHome = path.join(userHome, ".speakmore");
+  const defaultHome = path.join(userHome, ".orangespeakeasy");
   const from = paths.home;
 
   /** 先收拾上一次搬到一半的（settleMove） */
@@ -284,9 +285,9 @@ export function createMove({
   }
 
   /**
-   * 只搬记着的那一个（定位文件说的，没有就是默认位置）。这一次的家目录是 SPEAKMORE_HOME 临时指的（开发、测试）时不搬：
+   * 只搬记着的那一个（定位文件说的，没有就是默认位置）。这一次的家目录是 ORANGESPEAKEASY_HOME 临时指的（开发、测试）时不搬：
    * 不然定位文件会改指到它，真正装着的那一份就被盖住了。
-   * 例外是 0.11.0 及以前用 SPEAKMORE_HOME 装到别处的：从来没记进定位文件。没有定位文件、默认位置没装过、
+   * 例外是 0.11.0 及以前用 ORANGESPEAKEASY_HOME 装到别处的：从来没记进定位文件。没有定位文件、默认位置没装过、
    * 这里装着会换家的程序，就认它（搬完记下新位置）
    */
   function checkRecorded() {
@@ -324,16 +325,16 @@ export function createMove({
       report(msg("move.reopened"));
     } else if (stopped === "home") {
       const { ELECTRON_RUN_AS_NODE: _asNode, ...startEnv } = env;
-      startEnv.SPEAKMORE_HOME = home;
+      startEnv.ORANGESPEAKEASY_HOME = home;
       const code =
         platform === "win32"
-          ? await runToEnd(`"${path.join(home, "bin", "speakmore.cmd")}" start`, [], {
+          ? await runToEnd(`"${path.join(home, "bin", "orangespeakeasy.cmd")}" start`, [], {
               env: startEnv,
               stdio,
               shell: true,
               cwd: home,
             })
-          : await runToEnd(path.join(home, "bin", "speakmore"), ["start"], { env: startEnv, stdio, cwd: home });
+          : await runToEnd(path.join(home, "bin", "orangespeakeasy"), ["start"], { env: startEnv, stdio, cwd: home });
       if (code !== 0) throw new LocalizedError(msg("move.restartFailed", { code }));
     }
   }
@@ -432,7 +433,7 @@ export function createMove({
       throw error;
     }
 
-    // 提交了：新位置就是 SpeakMore 的家。以下哪一步出问题都不再退回，照实说
+    // 提交了：新位置就是 OrangeSpeakEasy 的家。以下哪一步出问题都不再退回，照实说
     const result = {
       from,
       to,
@@ -457,7 +458,7 @@ export function createMove({
       try {
         if (system.clearUserHome(from)) report(msg("move.clearedEnv"));
       } catch (error) {
-        report(msg("move.leftover", { dir: "SPEAKMORE_HOME", reason: error.message }));
+        report(msg("move.leftover", { dir: "ORANGESPEAKEASY_HOME", reason: error.message }));
       }
     }
     try {
@@ -465,7 +466,7 @@ export function createMove({
     } catch (error) {
       report(msg("move.reopenFailed", { reason: problemOf(error) }));
     }
-    // 删旧目录：只删我们的。Windows 上这个进程（和起它的 speakmore.cmd）跑在旧目录的程序上，删不掉自己，交给退出之后
+    // 删旧目录：只删我们的。Windows 上这个进程（和起它的 orangespeakeasy.cmd）跑在旧目录的程序上，删不掉自己，交给退出之后
     if (platform === "win32" && system?.removeHomeAfterExit) {
       try {
         system.removeHomeAfterExit(from, [...contents.move, ...contents.leftovers], [pid, ppid]);

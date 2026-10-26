@@ -14,7 +14,7 @@ import { createScene, PLAY_MS } from "./scene.mjs";
 // 状态都在主进程，这里管走到哪一步、每一步怎么画。走完了主进程关掉这个窗口、打开主窗口。
 
 const $ = (id) => document.getElementById(id);
-const STEPS = stepsFor(window.speakmore.platform);
+const STEPS = stepsFor(window.orangespeakeasy.platform);
 /** 顶上那几段：开屏不算 */
 const GROUPS = STEPS.filter((step) => step !== "splash");
 /** 麦克风那一行几根电平条，中间的高、两边的矮 */
@@ -30,7 +30,7 @@ const passed = new Set();
 let listenTested = false;
 
 async function refresh() {
-  setup = await window.speakmore.getSetup();
+  setup = await window.orangespeakeasy.getSetup();
   render();
 }
 
@@ -71,7 +71,7 @@ function renderGroups() {
 // ---------- 功能：只演示 ----------
 
 const scene = createScene($("scene"), {
-  platform: window.speakmore.platform,
+  platform: window.orangespeakeasy.platform,
   chords: () => Object.fromEntries(FEATURES.map((feature) => [feature, chordOf(feature)])),
 });
 /** 正在放哪一项 */
@@ -207,7 +207,7 @@ function startRecording(feature) {
   recording = { feature, token, codes: [], reason: null };
   syncCapture();
   renderKeys();
-  window.speakmore.recordHotkey(feature, 0, token).catch((error) => {
+  window.orangespeakeasy.recordHotkey(feature, 0, token).catch((error) => {
     if (recording?.token !== token) return;
     recording = null;
     notes.set(feature, describeError(error));
@@ -220,12 +220,12 @@ function startRecording(feature) {
 function stopRecording(reason) {
   if (recording === null) return;
   recording = null;
-  window.speakmore.stopRecordingHotkey(reason);
+  window.orangespeakeasy.stopRecordingHotkey(reason);
   syncCapture();
   renderKeys();
 }
 
-window.speakmore.onHotkeyRecording((payload) => {
+window.orangespeakeasy.onHotkeyRecording((payload) => {
   if (recording === null || payload.token !== recording.token) return;
   const { feature } = recording;
   if (payload.state === "recording") {
@@ -283,7 +283,7 @@ window.addEventListener("blur", () => {
 });
 
 // 小帮手转来的：{ action, event, down }。主进程只在这个窗口要了（captureHotkey）、人正看着它时才转
-window.speakmore.onOnboardingHotkey((event) => {
+window.orangespeakeasy.onOnboardingHotkey((event) => {
   if (event.event === "binding" && event.down) helperHeld = event.action;
   else if (helperHeld === event.action) helperHeld = null;
   lightHeld();
@@ -299,7 +299,7 @@ function syncCapture() {
     (step === "permissions" && permissionGranted("listen", setup.permissions.listen) === true);
   if (wanted === capturing) return;
   capturing = wanted;
-  window.speakmore.captureHotkey(wanted);
+  window.orangespeakeasy.captureHotkey(wanted);
 }
 
 // ---------- 权限 ----------
@@ -317,7 +317,7 @@ function renderGrants() {
           type: "button",
           class: "button",
           text: t("onboarding.permissions.allow"),
-          onclick: () => window.speakmore.openPrivacySettings(name),
+          onclick: () => window.orangespeakeasy.openPrivacySettings(name),
         });
       } else
         state = done(name === "listen" && listenTested ? t("onboarding.keys.passed") : t("onboarding.permissions.on"));
@@ -511,14 +511,14 @@ function render() {
 $("start").addEventListener("click", () => go("features"));
 $("back").addEventListener("click", () => goBy(-1));
 $("next").addEventListener("click", () => goBy(1));
-$("skip-all").addEventListener("click", () => window.speakmore.finishOnboarding());
-$("later").addEventListener("click", () => window.speakmore.finishOnboarding());
+$("skip-all").addEventListener("click", () => window.orangespeakeasy.finishOnboarding());
+$("later").addEventListener("click", () => window.orangespeakeasy.finishOnboarding());
 // 去引擎页：主窗口打开引擎页，弹出推荐组合
-$("go-engine").addEventListener("click", () => window.speakmore.finishOnboarding({ engine: true }));
+$("go-engine").addEventListener("click", () => window.orangespeakeasy.finishOnboarding({ engine: true }));
 
 // ---------- 主进程来的 ----------
 
-window.speakmore.onSetupChanged(refresh);
+window.orangespeakeasy.onSetupChanged(refresh);
 
 await refresh();
 const wanted = new URLSearchParams(location.search).get("step");

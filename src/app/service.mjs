@@ -374,7 +374,7 @@ export async function startService({
     },
 
     /**
-     * 拿一把 key 试某条路线，不换掉正在用的：给别家存 key 前验证、speakmore model check 都用它。
+     * 拿一把 key 试某条路线，不换掉正在用的：给别家存 key 前验证、orangespeakeasy model check 都用它。
      * @param {{ route: object, apiKey: string, keys?: Record<string, string> }} options keys 同 useKey
      */
     async probe({ route: tried, apiKey, keys }) {

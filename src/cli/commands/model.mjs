@@ -14,9 +14,9 @@ import { renderModels } from "../render/models.mjs";
 import { keySourceFor } from "./key.mjs";
 import { applyChange, ensureKey, inMode, modeNow } from "./route.mjs";
 
-// speakmore model：native 模式这一层，录音直接交给收音频的模型（Gemini、OpenAI）。
+// orangespeakeasy model：native 模式这一层，录音直接交给收音频的模型（Gemini、OpenAI）。
 // 看有哪几家、换用哪一家的哪个模型、检查某个模型现在能不能用。换只在 native 模式里能换：
-// local 模式用的是本机转写和润色两跳，在 speakmore transcriber、speakmore polish 里换。
+// local 模式用的是本机转写和润色两跳，在 orangespeakeasy transcriber、orangespeakeasy polish 里换。
 // 换之前先确认那一家有 key（没有就问），在运行的话交给它当场换，不重启。
 
 /** 检查要等后台应用问一次那一家，那边的超时是 30 秒 */
@@ -30,7 +30,7 @@ function choiceFrom(value) {
     throw new ConfigError(msg("cli.model.textOnly", { provider: chat.name, id: chat.id }));
   }
   // 只写一个词时必须是厂商名。设置文件里"只写 Gemini 的模型名"那种旧写法这里不认：
-  // 否则 speakmore model nope 会被当成一个叫 nope 的 Gemini 模型
+  // 否则 orangespeakeasy model nope 会被当成一个叫 nope 的 Gemini 模型
   if (!value.includes("/") && findProvider(value) === null) {
     throw new ConfigError(
       msg("cli.model.unknownProvider", { name: value, providers: PROVIDERS.map(({ id }) => id).join(" / ") }),

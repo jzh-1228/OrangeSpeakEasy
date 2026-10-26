@@ -29,7 +29,7 @@ function setup(t) {
   const root = realpathSync(mkdtempSync(join(base, "sm-c-")));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const home = join(root, "old");
-  return { root, home, paths: resolvePaths({ SPEAKMORE_HOME: home }) };
+  return { root, home, paths: resolvePaths({ ORANGESPEAKEASY_HOME: home }) };
 }
 
 function put(file, content = "x") {
@@ -37,10 +37,10 @@ function put(file, content = "x") {
   writeFileSync(file, content);
 }
 
-test("分清哪些是 SpeakMore 的、要搬；哪些是半截的、不搬但删；不认识的不搬也不删", (t) => {
+test("分清哪些是 OrangeSpeakEasy 的、要搬；哪些是半截的、不搬但删；不认识的不搬也不删", (t) => {
   const { home, paths } = setup(t);
   for (const name of [
-    "bin/speakmore",
+    "bin/orangespeakeasy",
     "app/package.json",
     "runtime/x",
     "settings.json",
@@ -101,7 +101,7 @@ test("Windows 的摆法：versions、current 要搬，versions 里只搬 current
   put(join(home, "settings.json"));
   const plan = classifyHome(paths);
   assert.deepEqual(plan.move.sort(), ["current", "settings.json", "versions"]);
-  const to = join(root, "new", ".speakmore");
+  const to = join(root, "new", ".orangespeakeasy");
   assert.deepEqual(measureHome({ from: home, plan }), { files: 3, bytes: Buffer.byteLength("0.12.0-1a2b3c4d") + 2 });
   await copyHome({ from: home, to, plan });
   assert.equal(existsSync(join(to, "versions", "0.12.0-1a2b3c4d", "app", "package.json")), true);
@@ -117,7 +117,7 @@ test("拷过去：内容、修改时间原样；不认识的、半截的、run �
   put(join(home, "cache", "SingletonCookie"), "x");
   put(join(home, "run", "update.lock"), "123");
   put(join(home, "notes.txt"));
-  const to = join(root, "new", ".speakmore");
+  const to = join(root, "new", ".orangespeakeasy");
   const plan = classifyHome(paths);
   const progress = [];
   const stats = await copyHome({ from: home, to, plan, onProgress: (done) => progress.push(done) });
@@ -155,7 +155,7 @@ test(
     mkdirSync(join(home, "cache"));
     symlinkSync("host-123", join(home, "cache", "SingletonLock"));
 
-    const to = join(root, "new", ".speakmore");
+    const to = join(root, "new", ".orangespeakeasy");
     await copyHome({ from: home, to, plan: classifyHome(paths) });
     const copied = join(to, "runtime", "Electron.app", "Contents", "Frameworks", "E.framework");
     assert.equal(readlinkSync(join(copied, "Versions", "Current")), "A");
@@ -183,7 +183,7 @@ test("核对拷好的：有绝对路径的链接、指出新目录的链接都�
 test("拷的时候目标已经有同名的：报错，不覆盖", async (t) => {
   const { root, home, paths } = setup(t);
   put(join(home, "settings.json"), "旧");
-  const to = join(root, "new", ".speakmore");
+  const to = join(root, "new", ".orangespeakeasy");
   put(join(to, "settings.json"), "别人的");
   await assert.rejects(copyHome({ from: home, to, plan: classifyHome(paths) }), { code: "ERR_FS_CP_EEXIST" });
   assert.equal(readFileSync(join(to, "settings.json"), "utf8"), "别人的");

@@ -4,7 +4,7 @@
 
 import Foundation
 
-private let output = DispatchQueue(label: "speakmore.output")
+private let output = DispatchQueue(label: "orangespeakeasy.output")
 
 func emit(_ object: [String: Any]) {
     guard let data = try? JSONSerialization.data(withJSONObject: object),

@@ -21,12 +21,12 @@ test("什么都没配：不签身份，打本机签名", (t) => {
 });
 
 test("从 .machine.env 读证书名和公证档案名，带引号、带空格的照读", (t) => {
-  const dir = repo(t, `# 本机配置\nMAC_SIGNING_IDENTITY="${IDENTITY}"\nMAC_NOTARY_PROFILE=speakmore-notary\n`);
-  assert.deepEqual(signingConfig(dir, {}), { identity: IDENTITY, notaryProfile: "speakmore-notary" });
+  const dir = repo(t, `# 本机配置\nMAC_SIGNING_IDENTITY="${IDENTITY}"\nMAC_NOTARY_PROFILE=orangespeakeasy-notary\n`);
+  assert.deepEqual(signingConfig(dir, {}), { identity: IDENTITY, notaryProfile: "orangespeakeasy-notary" });
 });
 
 test("环境变量优先于 .machine.env", (t) => {
-  const dir = repo(t, `MAC_SIGNING_IDENTITY="${IDENTITY}"\nMAC_NOTARY_PROFILE=speakmore-notary\n`);
+  const dir = repo(t, `MAC_SIGNING_IDENTITY="${IDENTITY}"\nMAC_NOTARY_PROFILE=orangespeakeasy-notary\n`);
   assert.deepEqual(signingConfig(dir, { MAC_NOTARY_PROFILE: "other" }), { identity: IDENTITY, notaryProfile: "other" });
 });
 
@@ -38,19 +38,25 @@ test("只签名不公证也行：本机自己用", (t) => {
 });
 
 test("配了公证却没配证书：说清楚，不悄悄打一个没签名的", (t) => {
-  assert.throws(() => signingConfig(repo(t, "MAC_NOTARY_PROFILE=speakmore-notary\n"), {}), /MAC_SIGNING_IDENTITY/);
+  assert.throws(
+    () => signingConfig(repo(t, "MAC_NOTARY_PROFILE=orangespeakeasy-notary\n"), {}),
+    /MAC_SIGNING_IDENTITY/,
+  );
 });
 
 test("Chromium 的几个 helper 照签名库的默认给，其余只给 JIT 和麦克风两项", () => {
   const { identity, optionsForFile } = osxSignOptions(IDENTITY);
   assert.equal(identity, IDENTITY);
   for (const helper of ["Renderer", "GPU", "Plugin"]) {
-    assert.deepEqual(optionsForFile(`/x/SpeakMore.app/Contents/Frameworks/SpeakMore Helper (${helper}).app`), {});
+    assert.deepEqual(
+      optionsForFile(`/x/OrangeSpeakEasy.app/Contents/Frameworks/OrangeSpeakEasy Helper (${helper}).app`),
+      {},
+    );
   }
   for (const file of [
-    "/x/SpeakMore.app",
-    "/x/SpeakMore.app/Contents/Frameworks/SpeakMore Helper.app",
-    "/x/SpeakMore.app/Contents/Resources/app/build/key-helper",
+    "/x/OrangeSpeakEasy.app",
+    "/x/OrangeSpeakEasy.app/Contents/Frameworks/OrangeSpeakEasy Helper.app",
+    "/x/OrangeSpeakEasy.app/Contents/Resources/app/build/key-helper",
   ]) {
     assert.deepEqual(optionsForFile(file), { entitlements: ENTITLEMENTS });
   }

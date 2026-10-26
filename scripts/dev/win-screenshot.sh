@@ -20,7 +20,7 @@ $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
 $bitmap = New-Object System.Drawing.Bitmap $bounds.Width, $bounds.Height
 $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
 $graphics.CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.Size)
-$bitmap.Save("$HOME\speakmore-dev\desktop\screen.png", [System.Drawing.Imaging.ImageFormat]::Png)
+$bitmap.Save("$HOME\orangespeakeasy-dev\desktop\screen.png", [System.Drawing.Imaging.ImageFormat]::Png)
 PS
-scp -q -o BatchMode=yes -o IdentitiesOnly=yes -i "$key" "$WIN_SSH_TARGET:speakmore-dev/desktop/screen.png" "$1"
+scp -q -o BatchMode=yes -o IdentitiesOnly=yes -i "$key" "$WIN_SSH_TARGET:orangespeakeasy-dev/desktop/screen.png" "$1"
 echo "$1"

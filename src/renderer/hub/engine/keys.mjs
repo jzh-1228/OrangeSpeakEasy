@@ -33,11 +33,11 @@ export function createKeys(ctx) {
     const { view } = ctx;
     if (platform.id === "custom") {
       const choice = view.customChoice();
-      return () => window.speakmore.checkModel("local", { polish: choice, ...view.customExtra() });
+      return () => window.orangespeakeasy.checkModel("local", { polish: choice, ...view.customExtra() });
     }
-    if (platform.coverage.polish > 0) return () => window.speakmore.checkModel("local", { polish: platform.id });
-    if (platform.coverage.native > 0) return () => window.speakmore.checkModel("native", { model: platform.id });
-    return () => window.speakmore.checkModel("local", { transcriber: platform.id });
+    if (platform.coverage.polish > 0) return () => window.orangespeakeasy.checkModel("local", { polish: platform.id });
+    if (platform.coverage.native > 0) return () => window.orangespeakeasy.checkModel("native", { model: platform.id });
+    return () => window.orangespeakeasy.checkModel("local", { transcriber: platform.id });
   }
 
   /** 润色正在交给自定义服务 */
@@ -49,8 +49,8 @@ export function createKeys(ctx) {
    */
   function updateCustom(changes, inUse) {
     const { polish, ...extra } = changes;
-    if (inUse) return window.speakmore.setPolish(polish, extra);
-    return window.speakmore.checkModel("local", changes);
+    if (inUse) return window.orangespeakeasy.setPolish(polish, extra);
+    return window.orangespeakeasy.checkModel("local", changes);
   }
 
   /** 存好了：从详情来的收起面板回去 */
@@ -110,7 +110,7 @@ export function createKeys(ctx) {
         });
         return;
       }
-      ctx.act(key, () => window.speakmore.saveKey(value, platform.id, changes), {
+      ctx.act(key, () => window.orangespeakeasy.saveKey(value, platform.id, changes), {
         done: () => {
           if (changes) accept();
           delete checks.results[key];
@@ -168,7 +168,7 @@ export function createKeys(ctx) {
             disabled: ctx.waiting(),
             text: t("plaza.keys.remove"),
             onclick: () =>
-              ctx.act(key, () => window.speakmore.forgetKey(platform.id), {
+              ctx.act(key, () => window.orangespeakeasy.forgetKey(platform.id), {
                 done: () => {
                   ui.openKey = null;
                   ctx.toast(t("plaza.toast.keyRemoved", { platform: name }));
@@ -179,7 +179,7 @@ export function createKeys(ctx) {
         platform.hasKeyPage &&
           h(
             "button",
-            { type: "button", class: "key-link", onclick: () => window.speakmore.openKeyPage(platform.id) },
+            { type: "button", class: "key-link", onclick: () => window.orangespeakeasy.openKeyPage(platform.id) },
             t("plaza.keys.get"),
             svg("i-external-link"),
           ),

@@ -7,9 +7,9 @@ import { createRelease } from "./release.mjs";
 import { acquireLock, isAlive, readCheck, readProgress, writeCheck, writeProgress } from "./state.mjs";
 import { compareVersions, parseVersion } from "./versions.mjs";
 
-// 版本检查和更新。命令行（speakmore status、update）和 App（设置 › 通用）都只调这里，看到的是同一份状态（state.mjs）。
-// 更新把这台电脑上装着的每一份 SpeakMore 都换成最新的：家目录里的那一份（安装脚本装的，home.mjs），
-// Mac 上还有 SpeakMore.app（bundle.mjs）。两份共用设置和数据，版本要跟上。按这个顺序：
+// 版本检查和更新。命令行（orangespeakeasy status、update）和 App（设置 › 通用）都只调这里，看到的是同一份状态（state.mjs）。
+// 更新把这台电脑上装着的每一份 OrangeSpeakEasy 都换成最新的：家目录里的那一份（安装脚本装的，home.mjs），
+// Mac 上还有 OrangeSpeakEasy.app（bundle.mjs）。两份共用设置和数据，版本要跟上。按这个顺序：
 //   1. 拿锁（命令行和 App 不能同时换），问最新的发布（channel.json）
 //   2. 把要换的都拼好、核对好：只下本机缺的块，没变的从装着的几份里拷（assemble.mjs）。
 //      这时正在运行的那个照常用，下载失败也什么都没动
@@ -124,7 +124,7 @@ export function createUpdates({
   /** 把停掉的那个重新打开。家目录里那一份的启动命令自己会说状态，失败的原因也在它说的话里 */
   async function reopen(stopped, bundlePath, report) {
     if (stopped === "bundle") {
-      // 停掉的是一个不认得的应用包（应用标识对不上、SPEAKMORE_APP 指着别处）：不知道该打开哪个，照实说
+      // 停掉的是一个不认得的应用包（应用标识对不上、ORANGESPEAKEASY_APP 指着别处）：不知道该打开哪个，照实说
       if (!bundlePath) throw new LocalizedError(msg("update.reopenUnknown"));
       try {
         await bundles.open(bundlePath);
@@ -269,7 +269,7 @@ export function createUpdates({
         const reused = (stagedBundle?.reusedBytes ?? 0) + (stagedHome?.reusedBytes ?? 0);
         report(msg("update.delta", { download: sizeText(downloaded), reused: sizeText(reused) }));
 
-        // 下载可能要好几分钟，这期间用户可能打开或退出了 SpeakMore：停谁、换完开谁，按现在在跑的那个定。
+        // 下载可能要好几分钟，这期间用户可能打开或退出了 OrangeSpeakEasy：停谁、换完开谁，按现在在跑的那个定。
         // 要换的程序正在运行就请它退出。安装脚本换家目录里那一份之前，不管在跑的是哪一份都会先停掉它，所以这时都停；
         // 只换 App、在跑的是家目录里那一份的话不碍事，不停。卡住不答话的不知道是哪一份，停掉，之后也不知道该打开谁
         const running = await runningNow();

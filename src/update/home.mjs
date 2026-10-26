@@ -55,7 +55,7 @@ export function isHomeCopy(packageDir, paths, platform) {
   }
 }
 
-/** 安装脚本上次把 speakmore 命令的链接建在了哪个目录（bin/links 里记着，一行一个）；没记、链接不在了是 null */
+/** 安装脚本上次把 orangespeakeasy 命令的链接建在了哪个目录（bin/links 里记着，一行一个）；没记、链接不在了是 null */
 function existingLinkDir(paths) {
   let lines;
   try {
@@ -199,50 +199,54 @@ export function createHomes({
      * @returns {Promise<number>} 安装脚本的退出码
      */
     install(staged) {
-      const installerEnv = { ...env, SPEAKMORE_HOME: paths.home, SPEAKMORE_INSTALL_FROM: staged.dir };
+      const installerEnv = { ...env, ORANGESPEAKEASY_HOME: paths.home, ORANGESPEAKEASY_INSTALL_FROM: staged.dir };
       // 它自己用拼好的那份 Electron 当 Node 跑命令，不要把这边的带过去；也不要被这边的版本、下载地址带偏。
-      // 第一次安装时设的 SPEAKMORE_INSTALL_DIR（同一个终端、或者一路带进了 App）和换家用的 SPEAKMORE_PREVIOUS_HOME
+      // 第一次安装时设的 ORANGESPEAKEASY_INSTALL_DIR（同一个终端、或者一路带进了 App）和换家用的 ORANGESPEAKEASY_PREVIOUS_HOME
       // 也不带：更新只换这个家目录里的程序，安装脚本见到它们会以为要装到别处、换家
       const installOnly = [
         "ELECTRON_RUN_AS_NODE",
-        "SPEAKMORE_VERSION",
-        "SPEAKMORE_INSTALL_BASE",
-        "SPEAKMORE_INSTALL_DIR",
-        "SPEAKMORE_PREVIOUS_HOME",
+        "ORANGESPEAKEASY_VERSION",
+        "ORANGESPEAKEASY_INSTALL_BASE",
+        "ORANGESPEAKEASY_INSTALL_DIR",
+        "ORANGESPEAKEASY_PREVIOUS_HOME",
       ];
       for (const name of installOnly) delete installerEnv[name];
       if (windows) {
         // install.ps1 从 irm | iex 跑时传不了参数，只认环境变量。按 UTF-8 读进来再当脚本块跑：存成文件直接 -File 的话，
         // 5.1 把没有 BOM 的脚本当成系统编码（GBK）读；也绕开了执行策略（只允许跑文件这一层管着的那种）
-        installerEnv.SPEAKMORE_NO_START = "1";
-        installerEnv.SPEAKMORE_INSTALL_SCRIPT = join(staged.dir, "app", "install.ps1");
+        installerEnv.ORANGESPEAKEASY_NO_START = "1";
+        installerEnv.ORANGESPEAKEASY_INSTALL_SCRIPT = join(staged.dir, "app", "install.ps1");
         const command =
-          "& ([scriptblock]::Create([IO.File]::ReadAllText($env:SPEAKMORE_INSTALL_SCRIPT, [Text.Encoding]::UTF8))); exit $LASTEXITCODE";
+          "& ([scriptblock]::Create([IO.File]::ReadAllText($env:ORANGESPEAKEASY_INSTALL_SCRIPT, [Text.Encoding]::UTF8))); exit $LASTEXITCODE";
         return runToEnd("powershell", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command], {
           env: installerEnv,
           stdio,
         });
       }
       // 命令的链接放在原来那个地方：从 App 起的进程拿到的是系统给的精简 PATH，安装脚本按 PATH 挑的话会另挑一处
-      if (!installerEnv.SPEAKMORE_BIN_DIR) {
+      if (!installerEnv.ORANGESPEAKEASY_BIN_DIR) {
         const linkDir = existingLinkDir(paths);
-        if (linkDir) installerEnv.SPEAKMORE_BIN_DIR = linkDir;
+        if (linkDir) installerEnv.ORANGESPEAKEASY_BIN_DIR = linkDir;
       }
       return runToEnd("/bin/bash", [join(staged.dir, "app", "install.sh"), "--no-start"], { env: installerEnv, stdio });
     },
 
     /**
-     * 启动家目录里的这一份（装好的 speakmore 命令的 start）：和装完以后在终端里敲 speakmore 是一回事
+     * 启动家目录里的这一份（装好的 orangespeakeasy 命令的 start）：和装完以后在终端里敲 orangespeakeasy 是一回事
      * @returns {Promise<number>} 退出码
      */
     start() {
       const { ELECTRON_RUN_AS_NODE: _asNode, ...startEnv } = env;
-      startEnv.SPEAKMORE_HOME = paths.home;
+      startEnv.ORANGESPEAKEASY_HOME = paths.home;
       if (windows) {
         // .cmd 要经 cmd 才跑得起来。整条命令写成一串交给它（参数另给的话 Node 会警告不转义）；路径里可能有空格，用引号括起来
-        return runToEnd(`"${join(paths.binDir, "speakmore.cmd")}" start`, [], { env: startEnv, stdio, shell: true });
+        return runToEnd(`"${join(paths.binDir, "orangespeakeasy.cmd")}" start`, [], {
+          env: startEnv,
+          stdio,
+          shell: true,
+        });
       }
-      return runToEnd(join(paths.binDir, "speakmore"), ["start"], { env: startEnv, stdio });
+      return runToEnd(join(paths.binDir, "orangespeakeasy"), ["start"], { env: startEnv, stdio });
     },
   };
 }

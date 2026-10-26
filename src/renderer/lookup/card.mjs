@@ -35,7 +35,7 @@ function report() {
   if (!view) return;
   const buttons = [...card.querySelectorAll("[data-region]")].filter((node) => node.getClientRects().length > 0);
   const regions = [...buttons.map(regionOf), { ...regionOf(card), id: "card" }];
-  window.speakmore.lookupLayout({ height: card.offsetHeight, regions });
+  window.orangespeakeasy.lookupLayout({ height: card.offsetHeight, regions });
 }
 
 function showCopied() {
@@ -48,13 +48,13 @@ function showCopied() {
   }, COPIED_MS);
 }
 
-window.speakmore.onLookupView((next) => {
+window.orangespeakeasy.onLookupView((next) => {
   if (!next || next.id !== view?.id) menuOpen = false;
   view = next;
   render();
 });
 
-window.speakmore.onLookupClick((id) => {
+window.orangespeakeasy.onLookupClick((id) => {
   if (!view) return;
   if (id === "language") {
     menuOpen = !menuOpen;
@@ -74,7 +74,7 @@ window.speakmore.onLookupClick((id) => {
     render();
   }
   if (id === "copy") showCopied();
-  window.speakmore.lookupAct(id);
+  window.orangespeakeasy.lookupAct(id);
 });
 
 // 卡片变高变矮（译文回来、展开选单、换了界面语言）都重报一次
@@ -83,11 +83,11 @@ new ResizeObserver(() => report()).observe(card);
 // 译文长到要滚动时：指针停在译文上，让窗口收鼠标（滚轮才滚得动）；离开就还给下面的应用
 const text = $("text");
 text.addEventListener("pointerenter", () => {
-  if (text.scrollHeight > text.clientHeight) window.speakmore.lookupScroll(true);
+  if (text.scrollHeight > text.clientHeight) window.orangespeakeasy.lookupScroll(true);
 });
-text.addEventListener("pointerleave", () => window.speakmore.lookupScroll(false));
+text.addEventListener("pointerleave", () => window.orangespeakeasy.lookupScroll(false));
 
-window.speakmore.onLocaleChanged((locale) => {
+window.orangespeakeasy.onLocaleChanged((locale) => {
   setLocale(locale);
   localize();
   render();

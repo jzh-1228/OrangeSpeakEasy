@@ -167,7 +167,7 @@ func relisten(reason string) {
 	}
 	fresh := installHook(whKeyboardLL, keyboardCallback)
 	if fresh == 0 {
-		emit(event{"event": "error", "message": "重装键盘钩子失败（" + reason + "），热键可能不灵了：重启 SpeakMore 试试"})
+		emit(event{"event": "error", "message": "重装键盘钩子失败（" + reason + "），热键可能不灵了：重启 OrangeSpeakEasy 试试"})
 		return
 	}
 	procUnhookWindowsHookEx.Call(keyboardHook)
@@ -204,10 +204,10 @@ func onForeground(hwnd uintptr) {
 // 收三样系统通知（见文件开头）。登记不上的照实报，不影响热键本身
 func watchSystem() {
 	if ok, _, _ := procWTSRegisterSessionNotification.Call(window, notifyForThisSession); ok == 0 {
-		emit(event{"event": "error", "message": "登记不上锁屏解锁的通知：解锁后热键要是不灵，重启 SpeakMore"})
+		emit(event{"event": "error", "message": "登记不上锁屏解锁的通知：解锁后热键要是不灵，重启 OrangeSpeakEasy"})
 	}
 	if handle, _, _ := procRegisterSuspendResumeNotification.Call(window, deviceNotifyWindowHandle); handle == 0 {
-		emit(event{"event": "error", "message": "登记不上睡眠唤醒的通知：唤醒后热键要是不灵，重启 SpeakMore"})
+		emit(event{"event": "error", "message": "登记不上睡眠唤醒的通知：唤醒后热键要是不灵，重启 OrangeSpeakEasy"})
 	}
 	self, _, _ := procGetCurrentProcess.Call()
 	if processElevated(self) {
@@ -298,7 +298,7 @@ func probe(id int, combo binding) []event {
 		// 注销不掉的话，这个组合一直挂在我们线程上：别的程序登记不了，钩子放行的这个键也会被系统当热键吃掉。照实报
 		if done, _, unregisterError := procUnregisterHotKey.Call(0, probeHotkeyID); done == 0 {
 			code, _ := unregisterError.(syscall.Errno)
-			events = append(events, event{"event": "error", "message": fmt.Sprintf("试登记的组合注销不掉（错误码 %d），这个组合可能一直被占着：重启 SpeakMore 试试", uint32(code))})
+			events = append(events, event{"event": "error", "message": fmt.Sprintf("试登记的组合注销不掉（错误码 %d），这个组合可能一直被占着：重启 OrangeSpeakEasy 试试", uint32(code))})
 		}
 	}
 	return events
@@ -455,7 +455,7 @@ func windowProc(hwnd, message, wParam, lParam uintptr) uintptr {
 
 func createMessageWindow() uintptr {
 	module, _, _ := procGetModuleHandleW.Call(0)
-	class := wndClassEx{wndProc: windowCallback, instance: module, className: utf16Ptr("SpeakMoreKeyHelper")}
+	class := wndClassEx{wndProc: windowCallback, instance: module, className: utf16Ptr("OrangeSpeakEasyKeyHelper")}
 	class.size = uint32(unsafe.Sizeof(class))
 	procRegisterClassExW.Call(uintptr(unsafe.Pointer(&class)))
 	hwnd, _, _ := procCreateWindowExW.Call(0, uintptr(unsafe.Pointer(class.className)), 0, 0, 0, 0, 0, 0,
@@ -470,7 +470,7 @@ func selfTest() bool {
 		emit(event{"event": "error", "message": err.Error()})
 		return false
 	}
-	const probe = "speakmore 自检"
+	const probe = "orangespeakeasy 自检"
 	wrote := board.writeText(probe, true) == nil
 	text, readErr := board.readText()
 	wroteText := wrote && readErr == nil && text == probe

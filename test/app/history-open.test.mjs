@@ -12,7 +12,7 @@ import { usageReport } from "../../src/usage/report.mjs";
 
 let dir;
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "speakmore-history-open-"));
+  dir = mkdtempSync(join(tmpdir(), "orangespeakeasy-history-open-"));
 });
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 

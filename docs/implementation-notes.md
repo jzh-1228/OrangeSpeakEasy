@@ -1,8 +1,8 @@
-# SpeakMore 实现笔记
+# OrangeSpeakEasy 实现笔记
 
 给想改代码的人看的：它和 Typeless 原版怎么对应、模型是怎么选的、提示词是怎么调出来的。只想用的话看 [README](../README.md) 就够了。
 
-SpeakMore 是照着对 Typeless 2.8.1 的[逆向分析](../targets/typeless/README.md)做的，只做语音转写这一件事。下面提到的“原版”都指它。
+OrangeSpeakEasy 是照着对 Typeless 2.8.1 的[逆向分析](../targets/typeless/README.md)做的，只做语音转写这一件事。下面提到的“原版”都指它。
 
 ## 用法上照着原版的地方
 
@@ -16,9 +16,9 @@ SpeakMore 是照着对 Typeless 2.8.1 的[逆向分析](../targets/typeless/READ
 
 ## 和原版的对应关系
 
-协议照抄抓包看到的消息名和字段名（[05 网络协议](../targets/typeless/docs/05-network-protocol.md#websocketwsrt_voice_flow)），只实现听写用到、并且SpeakMore 的客户端会发的那几条。
+协议照抄抓包看到的消息名和字段名（[05 网络协议](../targets/typeless/docs/05-network-protocol.md#websocketwsrt_voice_flow)），只实现听写用到、并且OrangeSpeakEasy 的客户端会发的那几条。
 
-| 方向 | 消息 | SpeakMore |
+| 方向 | 消息 | OrangeSpeakEasy |
 | --- | --- | --- |
 | 客户端 → 服务端 | `start_audio` | 只用 `audio_id`，其余字段收下不用 |
 | | `set_audio_chunk_info` + 二进制帧 | 序号从 1 开始，按序收；第一块的文件头必须是 Ogg 或 WebM |
@@ -87,7 +87,7 @@ SpeakMore 是照着对 Typeless 2.8.1 的[逆向分析](../targets/typeless/READ
 
 ### 本地转写链路的润色（2026-10-16）
 
-同样那 60 条录音，先用 Qwen3-ASR 0.6B Q8 在本机各转写一次，之后每个提示词版本都拿这同一份原文交给 DeepSeek 润色（`SPEAKMORE_MODE=local` 跑 `eval-prompt.mjs`，候选用 `--polish-prompt` 传进去，不改源码）。每个版本跑两遍，因为同一个版本两遍之间也有出入。
+同样那 60 条录音，先用 Qwen3-ASR 0.6B Q8 在本机各转写一次，之后每个提示词版本都拿这同一份原文交给 DeepSeek 润色（`ORANGESPEAKEASY_MODE=local` 跑 `eval-prompt.mjs`，候选用 `--polish-prompt` 传进去，不改源码）。每个版本跑两遍，因为同一个版本两遍之间也有出入。
 
 | 润色提示词 | 原版分段的 38 条里也分了 | 原版用列表的 16 条里也用了 | 写坏的成品 |
 | --- | --- | --- | --- |
@@ -133,9 +133,9 @@ SpeakMore 是照着对 Typeless 2.8.1 的[逆向分析](../targets/typeless/READ
 
 两台电脑上的验收（10-22）：
 
-- **端到端**（`scripts/dev/e2e.mjs`，`SPEAKMORE_E2E_ACTION=translate | upgrade`）：Mac 直出译英文松开后 3.7 秒出字，先按语音输入再升级成翻译通过，混合译日文 0.9 秒，离线方式被服务端挡下；Windows 开发机混合译英文 1.0 秒、升级译日文 1.7 秒。那台连不上 Gemini（`fetch failed`，网络的事），直出没在 Windows 上跑。
+- **端到端**（`scripts/dev/e2e.mjs`，`ORANGESPEAKEASY_E2E_ACTION=translate | upgrade`）：Mac 直出译英文松开后 3.7 秒出字，先按语音输入再升级成翻译通过，混合译日文 0.9 秒，离线方式被服务端挡下；Windows 开发机混合译英文 1.0 秒、升级译日文 1.7 秒。那台连不上 Gemini（`fetch failed`，网络的事），直出没在 Windows 上跑。
 - **截断会让原文不一样。** 端到端默认只录 7.5 秒，那条录音 8.8 秒；升级那条按键多花 110 毫秒，录音截在半句话的不同位置，本机转写出来的原文就不同（"1.5.0"和"1.5.5.0"）。录满 10 秒时直接翻译、升级、语音输入三种按法原文一字不差，升级本身不影响录音。
-- **开发窗口**：Mac 上用合成的系统按键和鼠标事件走了一遍（键盘事件经过小帮手，麦克风换成录音文件）：悬浮条左边的语言胶囊靠鼠标悬停展开（窗口忽略鼠标、转发移动事件），选日文后这一次按日文译，"翻译中"，译文贴进文本编辑，历史和 `speakmore history` 记着功能、语言和原文。作者本人在 Mac 和 Windows 上各真按真说过。
+- **开发窗口**：Mac 上用合成的系统按键和鼠标事件走了一遍（键盘事件经过小帮手，麦克风换成录音文件）：悬浮条左边的语言胶囊靠鼠标悬停展开（窗口忽略鼠标、转发移动事件），选日文后这一次按日文译，"翻译中"，译文贴进文本编辑，历史和 `orangespeakeasy history` 记着功能、语言和原文。作者本人在 Mac 和 Windows 上各真按真说过。
 - **Windows 的菜单栏。** 作者在记事本里按右 Alt+空格，窗口菜单没弹（V27），但菜单栏被选中了。单按右 Alt 的语音输入一样，是小帮手插掩码的时机不对，修法见 `docs/hotkey-research.md` 4.2 的掩码一段。
 
 ### 划词翻译（2026-10-22）
@@ -143,7 +143,7 @@ SpeakMore 是照着对 Typeless 2.8.1 的[逆向分析](../targets/typeless/READ
 选中文字后按右⌥回车（Windows 右 Alt+回车），在选区下方弹一张卡片：译文和复制。卡片上原来还有"替换选中文字"（选区能改时把译文贴回原处），10-23 他定了砍掉：划词多半是在网页、App 里看东西，选区不一定能改，往原处贴会出各种问题。小帮手判断"能不能改"的那部分也一起删了。和语音的两个功能是两套：
 
 - **内核**在 `src/server/lookup/`（提示词、收尾、判断原文语言、翻译器、出厂模型），和语音的任务（`src/server/tasks/`）互不引用，只共用底层的 `src/server/chat/client.mjs`。账照记，用途是 `lookup`，历史库因此升到第 4 版（退回办法在 `src/storage/history.mjs` 文件头）。首页的口述统计不算它。
-- **设置**是划词自己的四项：`lookup.to`、`lookup.model`（出厂 DeepSeek V4.1 Flash）、`lookup.customUrl`、`lookup.customParams`。选自定义服务时 key 另存一把（`lookupcustom-key.bin`，环境变量 `SPEAKMORE_LOOKUP_CUSTOM_API_KEY`），和语音那边的自定义服务不相干；清单里厂商的 key 同一家只有一把，两边共用。主窗口里在设置的"划词翻译"一栏改译成，在引擎页的"划词"一段换模型、配自定义服务（先验再存，`src/app/lookup/setup.mjs`）。
+- **设置**是划词自己的四项：`lookup.to`、`lookup.model`（出厂 DeepSeek V4.1 Flash）、`lookup.customUrl`、`lookup.customParams`。选自定义服务时 key 另存一把（`lookupcustom-key.bin`，环境变量 `ORANGESPEAKEASY_LOOKUP_CUSTOM_API_KEY`），和语音那边的自定义服务不相干；清单里厂商的 key 同一家只有一把，两边共用。主窗口里在设置的"划词翻译"一栏改译成，在引擎页的"划词"一段换模型、配自定义服务（先验再存，`src/app/lookup/setup.mjs`）。
 - **取选区**归小帮手（`selection` 命令）：Mac 先问辅助功能（选中的字和它在屏幕上的框），问不到再模拟 ⌘C 取剪贴板、取完放回原样；Windows 先问 UI Automation，再模拟 Ctrl+C。实测记事本、Edge 都是 UI Automation 拿到的，1–20 毫秒。
 - **卡片不抢焦点**：用户正在看、正在写的那个应用留着焦点和选区。卡片窗口做法同悬浮条，透明、点不到，按钮上的点击由小帮手截下来交给主进程（截的时候顺带报"点在卡片外面"，用来收起）。
 - **语音输入的键是划词组合的一部分**（右⌥ 和 右⌥回车）：按下右⌥ 时先压住，见 `docs/hotkey-research.md` 的 5.3，悬浮条不会闪一下。
@@ -186,7 +186,7 @@ src/server/server.mjs             听写协议那一侧不知道背后是哪一�
 
 ### OpenAI 那边实测到的
 
-用的是作者的实验用 key，2026-10-13 从西雅图测的。录音是作者自己用 SpeakMore 时的 6 段测试录音（1.7–33.7 秒），没有用 Typeless 的历史录音（发给 OpenAI 这件事没问过作者）。
+用的是作者的实验用 key，2026-10-13 从西雅图测的。录音是作者自己用 OrangeSpeakEasy 时的 6 段测试录音（1.7–33.7 秒），没有用 Typeless 的历史录音（发给 OpenAI 这件事没问过作者）。
 
 - **只收 wav 和 mp3。** 传 webm、ogg 都回 400："Supported values are: 'wav' and 'mp3'"。悬浮条录的是 WebM（Electron 的录音接口录不了 Ogg，实测 `MediaRecorder.isTypeSupported("audio/ogg;codecs=opus")` 是 false），所以服务端先解码（[@audio/decode-webm](https://www.npmjs.com/package/@audio/decode-webm)）、降到 16 kHz、封成 WAV。降采样和封 WAV 是自己写的（`src/server/audio/pcm.mjs`），一分钟的录音约 60 毫秒。
 - **采样率要降。** 同一段 90 秒的录音，48 kHz 的 WAV 要 18 秒，24 kHz 和 16 kHz 是 6–9 秒；三种算出来的音频 token 一样多（907），所以降采样只省上传、不省钱。
@@ -227,7 +227,7 @@ refine/refiner.mjs                      量一下等了多久，记一笔（onCa
    ▼
 src/app/main.mjs → storage/history.mjs  存进历史库的 model_calls 表
    ▼
-src/usage/report.mjs                    今天、本月、累计、按型号分开；speakmore usage 和主窗口首页共用这一份
+src/usage/report.mjs                    今天、本月、累计、按型号分开；orangespeakeasy usage 和主窗口首页共用这一份
 ```
 
 规矩和为什么：
@@ -310,7 +310,7 @@ src/usage/report.mjs                    今天、本月、累计、按型号分�
 - 组合里的普通键要吞掉，不然 `右⌥ 空格` 开始听写的同时前台会多出一个空格。macOS 上能改事件的监听平时关着：一个只收修饰键变化的监听在同一个回调里把它打开，按住修饰键后的第一个普通键就能拦下（只在事后打开会漏，实测人按得出 0.4 毫秒的间隔）；单个 F 键走 Carbon 热键。Windows 的键盘钩子本来就能吞；Alt 或 Win 按住期间触发了绑定、吞了键，就补按一个无用的键，免得松开时弹出菜单栏或开始菜单。
 - 和系统、常用快捷键撞的组合直接不让绑（`src/hotkeys/validate.mjs`）：宁可少开放几个键，也不要绑上以后到处误触发。别的应用自己注册的查不全，录键时问一下系统（macOS 的系统快捷键表、Windows 试登记一次），撞了同样不存，说是被系统还是别的程序占了。命令行 `config set` 查不了这一项，只按静态的表拦。
 - 录键也在小帮手里：只在主进程说"录"之后、到说"停"或 30 秒到点为止报按住了哪些键码，不报字符；按键吞掉，不进前台应用。什么时候定稿、定成什么在 `src/hotkeys/record.mjs`：按住的键数第一次变少时，定成此前按住最多的那一组。
-- 0.13 以前存的是一个键的 id（`right_option` 之类），只在入口认：第一次启动时换算设置文件，`SPEAKMORE_HOTKEY`、`config set hotkey` 照样能用。换算和对照表在 `src/storage/legacy.mjs`、`src/hotkeys/legacy.mjs`。退回旧版时它读不到新设置，用默认键起来。
+- 0.13 以前存的是一个键的 id（`right_option` 之类），只在入口认：第一次启动时换算设置文件，`ORANGESPEAKEASY_HOTKEY`、`config set hotkey` 照样能用。换算和对照表在 `src/storage/legacy.mjs`、`src/hotkeys/legacy.mjs`。退回旧版时它读不到新设置，用默认键起来。
 
 设置文件开头带 BOM（Windows PowerShell 5.1 的 `Set-Content -Encoding utf8`、老版记事本存出来的都带）时，0.14 及以前读不出来、App 起不来（2026-10-21 在 Windows 上验收时碰到）；0.15 起读之前先去掉。
 
@@ -318,16 +318,16 @@ src/usage/report.mjs                    今天、本月、累计、按型号分�
 
 ## 安装和运行环境
 
-目标是一行命令装好并启动，装的人不需要 Node、npm、Xcode，装的和产生的东西都在 `~/.speakmore` 一个目录里。
+目标是一行命令装好并启动，装的人不需要 Node、npm、Xcode，装的和产生的东西都在 `~/.orangespeakeasy` 一个目录里。
 
-- **运行环境是包里自带的原版 Electron，命令行也用它跑。** Electron 里本来就有一个 Node，设上 `ELECTRON_RUN_AS_NODE=1` 它就当普通的 Node 用（VS Code 的 `code` 命令是同一个做法）。这样只带一份运行环境，不依赖系统里有没有 Node、是哪个版本。实测 Electron 44.7 里是 Node 24.21，带着 `node:sqlite`；跑 `speakmore --version` 要 41–43 毫秒，系统的 Node 26 是 51–57 毫秒。
-- **发布包自带一切。** `scripts/release/release.mjs` 在打包的机器上把运行时依赖装好、小帮手按两种芯片编好合成一个文件，再配上对应芯片的 Electron，打成 `speakmore-darwin-<芯片>.tar.xz`（Apple 芯片约 92 MB、Intel 约 100 MB；0.10.1 以前是 tar.gz，约 135 MB）；更新不下这个包，只照清单下本机缺的块（见[开发说明](development.md)的下载地址一节）。Electron 的压缩包按 `electron` 这个 npm 包里带的校验值核对过才用。
+- **运行环境是包里自带的原版 Electron，命令行也用它跑。** Electron 里本来就有一个 Node，设上 `ELECTRON_RUN_AS_NODE=1` 它就当普通的 Node 用（VS Code 的 `code` 命令是同一个做法）。这样只带一份运行环境，不依赖系统里有没有 Node、是哪个版本。实测 Electron 44.7 里是 Node 24.21，带着 `node:sqlite`；跑 `orangespeakeasy --version` 要 41–43 毫秒，系统的 Node 26 是 51–57 毫秒。
+- **发布包自带一切。** `scripts/release/release.mjs` 在打包的机器上把运行时依赖装好、小帮手按两种芯片编好合成一个文件，再配上对应芯片的 Electron，打成 `orangespeakeasy-darwin-<芯片>.tar.xz`（Apple 芯片约 92 MB、Intel 约 100 MB；0.10.1 以前是 tar.gz，约 135 MB）；更新不下这个包，只照清单下本机缺的块（见[开发说明](development.md)的下载地址一节）。Electron 的压缩包按 `electron` 这个 npm 包里带的校验值核对过才用。
 - **发布包放在自己的下载地址上，不用 GitHub Release**（那边在国内太慢）。腾讯云 COS 的一个私有桶，前面挡一层 CDN（`dl.zephyrxiang.com`），桶只让 CDN 读。上面的样子定在 `src/update/layout.mjs`：更新用的块和清单在 `store/` 下、按内容命名，每个版本首次安装用的包在各自的目录里，传上去就不再变（长期缓存）；根上的 `install.sh`、`install.ps1` 和 `channel.json`（最新的版本号和每种装法的清单）每次发布会换，只缓存一分钟。上传时先传块、再传包和安装脚本，最后才换 `channel.json`，所以任何时刻照着它去取，要的东西都已经在了；同一个版本号已经在上面而内容不一样时拒绝覆盖。发布只从作者的电脑上发（`npm run ship`），0.4.0 起不再由 CI 发。
 - **安装脚本只做搬运。** `install.sh` 先做预检查，下载后核对 SHA-256，解到家目录里的临时位置并原地试跑一次，都没问题才停掉正在运行的、把 `app/` 和 `runtime/` 换进去。两样要么都换成，要么都不换。
-- **启动脚本里的路径是写死的。** `~/.speakmore/bin/speakmore` 由安装脚本生成，家目录的位置直接写在里面：它会被 `~/.local/bin` 里的链接指着，不能靠“我在哪”来猜。
+- **启动脚本里的路径是写死的。** `~/.orangespeakeasy/bin/orangespeakeasy` 由安装脚本生成，家目录的位置直接写在里面：它会被 `~/.local/bin` 里的链接指着，不能靠“我在哪”来猜。
 - **目录以外的东西有清单。** 安装时在别处建的链接记在 `bin/links` 里，卸载时照着删，删之前再确认一遍它还指着我们。删不了的（记在终端名下的系统权限、所有原版 Electron 程序共用的 `com.github.Electron.plist`）在卸载时列出来。
-- **权限仍记在终端名下。** 后台应用是命令的子进程，系统把麦克风、输入监控、辅助功能算在启动它的终端头上。好处是升级不用重新授权；坏处是系统设置的列表里看不到“SpeakMore”这个名字。想换成记在应用自己名下，要把它做成一个有固定签名的应用，这留到以后做桌面端时一起解决。
-- **退回 0.1 版**：0.1 版的数据在 `~/Library/Application Support/SpeakMore`。这一版第一次运行时把其中的历史、录音、设置、加密后的 key 搬进了 `~/.speakmore`（历史和录音在 `data/` 下）。要退回，把这几样搬回原处即可；历史里记的录音位置会指着新地方，只影响失败记录里“录音留在哪”那句话。
+- **权限仍记在终端名下。** 后台应用是命令的子进程，系统把麦克风、输入监控、辅助功能算在启动它的终端头上。好处是升级不用重新授权；坏处是系统设置的列表里看不到“OrangeSpeakEasy”这个名字。想换成记在应用自己名下，要把它做成一个有固定签名的应用，这留到以后做桌面端时一起解决。
+- **退回 0.1 版**：0.1 版的数据在 `~/Library/Application Support/OrangeSpeakEasy`。这一版第一次运行时把其中的历史、录音、设置、加密后的 key 搬进了 `~/.orangespeakeasy`（历史和录音在 `data/` 下）。要退回，把这几样搬回原处即可；历史里记的录音位置会指着新地方，只影响失败记录里“录音留在哪”那句话。
 
 还没做的：Windows 上程序路径带空格时（比如用户名里有空格），App 设置里的开机启动开着也显示成关着。Electron 44.7 的 `getLoginItemSettings` 拿 Run 里那一项和我们给的程序路径比，路径没加引号、带空格时对不上（2026-10-17 在真机上用带空格的测试目录看到，没验证改法）。
 
@@ -336,7 +336,7 @@ src/usage/report.mjs                    今天、本月、累计、按型号分�
 | 文件 | 做什么 | 对应原版 |
 | --- | --- | --- |
 | `install.sh`、`scripts/release/release.mjs` | 安装脚本和打发布包的脚本，见下面“安装和运行环境” | 原版是一个 .dmg |
-| `bin/speakmore.mjs`、`src/cli/` | `speakmore` 命令：起停后台应用、问 key、换模型、看历史、改设置、卸载。每个子命令在 `commands/` 里一个文件，画面在 `render/` | 原版没有命令行 |
+| `bin/orangespeakeasy.mjs`、`src/cli/` | `orangespeakeasy` 命令：起停后台应用、问 key、换模型、看历史、改设置、卸载。每个子命令在 `commands/` 里一个文件，画面在 `render/` | 原版没有命令行 |
 | `src/control.mjs` | 命令和后台应用之间的控制通道（家目录里的 Unix 套接字，一问一答） | |
 | `src/storage/paths.mjs`、`src/storage/settings.mjs` | 东西放哪、有哪些设置。命令和后台应用共用 | |
 | `src/themes/` | 主题：界面要哪些颜色、每套主题的值、合不合格怎么查。见上面“界面：主题、窗口和悬浮条” | 原版只有一套外观 |

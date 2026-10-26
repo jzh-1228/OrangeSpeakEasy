@@ -4,7 +4,7 @@ import { join } from "node:path";
 // 洗好的数据集：<评测目录>/_work/datasets/<名字>/ 下一个 manifest.jsonl 和 clips/*.wav。
 // 每条样本都已经是统一格式（16 kHz 单声道 16 位 WAV，src/server/audio/pcm.mjs），各个候选读的是同一份。
 // 清单一行一条：{ id, source, sourceId, lang, durationSec, sha256, file, sourceText }。
-// sourceText 是来源自带的成品（原版或 SpeakMore 当时整理出的字），只用来定语言；评测的参照另外现跑。
+// sourceText 是来源自带的成品（原版或 OrangeSpeakEasy 当时整理出的字），只用来定语言；评测的参照另外现跑。
 
 export const WORK_DIR = join(import.meta.dirname, "..", "_work");
 export const datasetDir = (name) => join(WORK_DIR, "datasets", name);

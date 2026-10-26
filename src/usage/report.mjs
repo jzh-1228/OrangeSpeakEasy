@@ -1,5 +1,5 @@
 // 用量报表：今天、本月、累计各调了几次模型、多少 token、花了多少钱、模型一般多久回话，每一段再按型号分开。
-// 命令行（speakmore usage）和主窗口首页用的是同一份。数据是历史库里的账（src/storage/history.mjs 的 usage），
+// 命令行（orangespeakeasy usage）和主窗口首页用的是同一份。数据是历史库里的账（src/storage/history.mjs 的 usage），
 // 钱是按官方标准价估算的美元（src/server/providers/prices）。本机转写那一跳也有一笔（provider 是 local），不花钱。
 // 每一段还带着花费随时间怎么走（series，src/usage/series.mjs）：首页画成柱子，命令行用不上。
 

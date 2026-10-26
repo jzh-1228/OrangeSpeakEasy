@@ -4,7 +4,7 @@ import { toRgb } from "../../themes/color.mjs";
 import { findTheme } from "../../themes/index.mjs";
 import { displayWidth, INDENT, padEnd, paint, rows } from "./text.mjs";
 
-// 设置和主题（speakmore config、speakmore theme）。
+// 设置和主题（orangespeakeasy config、orangespeakeasy theme）。
 
 /** "朱砂（cinnabar）" / "Cinnabar (cinnabar)"。叫不出名字的（比这个命令新的版本里才有的主题）照原样写 */
 export function themeTitle(t, id) {

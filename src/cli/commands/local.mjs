@@ -13,11 +13,11 @@ import { downloadAndWait, modelStatus, offerDownload } from "./local-models.mjs"
 import { needCustom } from "./mode.mjs";
 import { applyChange, checked, ensureKey, inMode, modeNow, routeWith } from "./route.mjs";
 
-// local 模式的两跳，各一个命令，只在 local 模式里能换（不在就说先 speakmore mode local）：
-//   speakmore transcriber   第一跳：本机转写模型（不用 key；要先下载好），或云端的 厂商/模型（要那家的 key）。
+// local 模式的两跳，各一个命令，只在 local 模式里能换（不在就说先 orangespeakeasy mode local）：
+//   orangespeakeasy transcriber   第一跳：本机转写模型（不用 key；要先下载好），或云端的 厂商/模型（要那家的 key）。
 //                           download / cancel / delete 管本机模型的下载和删除，check 看能不能正常出字
-//   speakmore polish        第二跳：润色的厂商和模型；自定义服务（兼容 OpenAI 接口）连同地址
-// private（数据隐私）模式也用 speakmore transcriber 换它的本机模型（存在它自己的 privateTranscriber），只认本机模型。
+//   orangespeakeasy polish        第二跳：润色的厂商和模型；自定义服务（兼容 OpenAI 接口）连同地址
+// private（数据隐私）模式也用 orangespeakeasy transcriber 换它的本机模型（存在它自己的 privateTranscriber），只认本机模型。
 // 列出来看在哪种模式里都行，不在 local、private 时开头说一句现在用不上。下载、删除在哪种模式里都能做。
 
 /** 检查要等后台应用问一次那一家，那边的超时是 30 秒 */
@@ -25,7 +25,7 @@ const CHECK_TIMEOUT_MS = 45_000;
 /** 检查本机模型：没在用的要临时装一次（CPU 上装大的要十几秒），再转一句 */
 const TRANSCRIBER_CHECK_TIMEOUT_MS = 90_000;
 
-/** 管下载和删除的几个动作：speakmore transcriber <动作> <模型> */
+/** 管下载和删除的几个动作：orangespeakeasy transcriber <动作> <模型> */
 const MODEL_ACTIONS = { download, cancel, delete: remove };
 
 /** 现在这种模式的转写模型存在哪一项：private 是它自己的 privateTranscriber，别的模式是 local 的第一跳 */

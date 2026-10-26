@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// speakmore 命令的入口。这里只做几件必须抢在加载其余代码之前的事，命令本身在 src/cli/main.mjs。
+// orangespeakeasy 命令的入口。这里只做几件必须抢在加载其余代码之前的事，命令本身在 src/cli/main.mjs。
 import { nodeVersionProblem } from "../src/cli/node-version.mjs";
 
 // 先查 Node 的版本：其余的代码（连同文案那一层）都可能用到旧版本没有的写法
